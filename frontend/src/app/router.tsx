@@ -1,12 +1,18 @@
-import type { ReactNode } from 'react'
-import { createBrowserRouter, type RouteObject } from 'react-router-dom'
+import { Suspense, type ReactNode } from 'react'
+import { Navigate, createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { Layout, PageFallback } from '@/components/layout/Layout'
-import { RequireAuth } from '@/features/auth/guards'
+import { RequireAuth, RequireRole } from '@/features/auth/guards'
 import ErrorPage from '@/pages/ErrorPage'
 import {
+  AdminLayout,
+  AdminMenu,
+  AdminOrders,
+  AdminRestaurant,
+  AdminUsers,
   Cart,
   Checkout,
   Contact,
+  Forbidden,
   Home,
   Login,
   Menu,
@@ -23,12 +29,32 @@ import { Root } from './Root'
 /** Page réservée aux connectés : redirige vers /connexion (state.from) sinon. */
 const guarded = (page: ReactNode) => <RequireAuth fallback={<PageFallback />}>{page}</RequireAuth>
 
+const adminShell = (
+  <Suspense fallback={<PageFallback />}>
+    <RequireRole role="Admin" fallback={<PageFallback />} forbidden={<Forbidden />}>
+      <AdminLayout />
+    </RequireRole>
+  </Suspense>
+)
+
 export const routes: RouteObject[] = [
   {
     element: <Root />,
     // Erreur survenue hors du Layout (rare) : page autonome, sans header/auth.
     errorElement: <ErrorPage />,
     children: [
+      {
+        path: 'admin',
+        element: adminShell,
+        errorElement: <ErrorPage />,
+        children: [
+          { index: true, element: <Navigate to="/admin/commandes" replace /> },
+          { path: 'commandes', element: <AdminOrders /> },
+          { path: 'menu', element: <AdminMenu /> },
+          { path: 'restaurant', element: <AdminRestaurant /> },
+          { path: 'utilisateurs', element: <AdminUsers /> },
+        ],
+      },
       {
         element: <Layout />,
         children: [

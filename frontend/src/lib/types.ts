@@ -157,3 +157,124 @@ export interface PagedResult<T> {
   pageSize: number
   total: number
 }
+
+// --- Administration (Features/Commandes/Admin, Menu/Admin, Restaurant, Admin) ---
+
+export interface AdminOrderSummary {
+  id: number
+  numero: string
+  statut: StatutCommande
+  typeCommande: TypeCommande
+  nomClient: string
+  telephone: string
+  tableNumero: number | null
+  total: number
+  estPayee: boolean
+  nombreArticles: number
+  dateCommande: string
+  dateMiseAJour: string
+}
+
+export interface ActiveOrderLine {
+  nomFr: string
+  nomAr: string
+  quantite: number
+}
+
+/** Réponse de GET /api/admin/commandes/actives : volontairement réduite (voir AdminOrder pour le reste). */
+export interface ActiveOrder {
+  id: number
+  numero: string
+  statut: StatutCommande
+  typeCommande: TypeCommande
+  nomClient: string
+  tableNumero: number | null
+  note: string | null
+  dateCommande: string
+  dateMiseAJour: string
+  lignes: ActiveOrderLine[]
+  /** Jeton de concurrence (xmin) à renvoyer dans PATCH .../statut. */
+  version: number
+}
+
+export interface AdminOrderLine {
+  articleId: number | null
+  nomFr: string
+  nomAr: string
+  prixUnitaire: number
+  quantite: number
+  totalLigne: number
+}
+
+export interface AdminOrderHistory {
+  statut: StatutCommande
+  date: string
+  parUserId: string | null
+  parNom: string | null
+}
+
+export interface AdminOrder {
+  id: number
+  numero: string
+  statut: StatutCommande
+  statutsSuivants: StatutCommande[]
+  typeCommande: TypeCommande
+  modePaiement: string
+  estPayee: boolean
+  sousTotal: number
+  fraisLivraison: number
+  total: number
+  note: string | null
+  adresseLivraison: string | null
+  tableNumero: number | null
+  client: { userId: string | null; nom: string; telephone: string }
+  dateCommande: string
+  dateMiseAJour: string
+  lignes: AdminOrderLine[]
+  historique: AdminOrderHistory[]
+  version: number
+}
+
+export interface OrderCounters {
+  /** Journée civile du restaurant (AAAA-MM-JJ, Africa/Tunis). */
+  date: string
+  parStatut: Array<{ statut: StatutCommande; nombre: number }>
+  totalAujourdhui: number
+  /** Commandes EnAttente toutes dates confondues. */
+  enAttente: number
+}
+
+export interface AdminCategory {
+  id: number
+  nomFr: string
+  nomAr: string
+  ordre: number
+  estActive: boolean
+  nombreArticlesActifs: number
+}
+
+export interface AdminArticle {
+  id: number
+  categorieId: number
+  nomFr: string
+  nomAr: string
+  descriptionFr: string | null
+  descriptionAr: string | null
+  prix: number
+  imageUrl: string | null
+  estDisponible: boolean
+  estActif: boolean
+  estPopulaire: boolean
+  ordre: number
+  dateCreation: string
+  dateMiseAJour: string
+}
+
+export interface AdminUser {
+  id: string
+  userName: string
+  email: string
+  nom: string | null
+  estActif: boolean
+  dateCreation: string
+}

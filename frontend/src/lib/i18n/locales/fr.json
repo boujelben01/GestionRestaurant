@@ -24,7 +24,8 @@
     "mobile": "Menu de navigation",
     "orders": "Mes commandes",
     "cart": "Panier",
-    "profile": "Profil"
+    "profile": "Profil",
+    "admin": "Administration"
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal",
@@ -432,6 +433,219 @@
       "saved": "Mot de passe modifié.",
       "mismatch": "Les deux mots de passe ne sont pas identiques.",
       "wrongCurrent": "Le mot de passe actuel est incorrect."
+    }
+  },
+  "admin": {
+    "nav": {
+      "title": "Administration",
+      "main": "Navigation d’administration",
+      "open": "Ouvrir la navigation",
+      "close": "Fermer la navigation",
+      "viewSite": "Voir le site",
+      "orders": "Commandes",
+      "menu": "Menu",
+      "restaurant": "Restaurant",
+      "users": "Utilisateurs",
+      "pendingCount_one": "{{count}} commande en attente",
+      "pendingCount_other": "{{count}} commandes en attente"
+    },
+    "forbidden": {
+      "title": "Accès refusé",
+      "text": "Votre compte n’a pas les droits d’administration. Si vous pensez qu’il s’agit d’une erreur, contactez le responsable du restaurant."
+    },
+    "errors": {
+      "forbidden": "Action non autorisée pour ce compte."
+    },
+    "common": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "all": "Tous",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "saved": "Enregistré.",
+      "search": "Rechercher",
+      "resetFilters": "Réinitialiser les filtres",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "pagination": "Pagination",
+      "pageOf": "Page {{page}} sur {{pages}}",
+      "results_one": "{{count}} résultat",
+      "results_other": "{{count}} résultats"
+    },
+    "sound": {
+      "on": "Son activé",
+      "off": "Son coupé",
+      "unlock": "Cliquez ici pour autoriser le son (exigé par le navigateur)",
+      "unsupported": "Le son n’est pas disponible sur ce navigateur."
+    },
+    "orders": {
+      "views": "Vues des commandes",
+      "viewActive": "En cours",
+      "viewHistory": "Historique",
+      "statusTabs": "Statuts des commandes en cours",
+      "today_one": "Aujourd’hui : {{count}} commande",
+      "today_other": "Aujourd’hui : {{count}} commandes",
+      "newCount_one": "{{count}} nouvelle commande",
+      "newCount_other": "{{count}} nouvelles commandes",
+      "newAnnounce_one": "Nouvelle commande {{numero}}",
+      "newAnnounce_other": "Nouvelles commandes {{numero}}",
+      "newBadge": "Nouvelle",
+      "dismiss": "(marquer comme vues)",
+      "connectionLost": "Connexion perdue : les données affichées peuvent être anciennes.",
+      "emptyColumn": "Aucune commande",
+      "statusAnnounce": "{{numero}} : {{status}}",
+      "justNow": "à l’instant",
+      "late": "En retard",
+      "note": "Note",
+      "customer": "Client",
+      "paid": "Payée",
+      "unpaid": "À encaisser",
+      "markPaid": "Marquer payée",
+      "markUnpaid": "Marquer non payée",
+      "cancel": "Annuler",
+      "cancelTitle": "Annuler la commande {{numero}} ?",
+      "cancelText": "Le client verra sa commande comme annulée. Cette action est définitive.",
+      "openDetail": "Voir le détail de la commande {{numero}}",
+      "action": {
+        "EnPreparation": "Préparer",
+        "Prete": "Prête",
+        "Terminee": "Terminée"
+      },
+      "errors": {
+        "conflict": "La commande a changé ou cette transition n’est plus possible : l’écran a été rechargé."
+      },
+      "history": "Historique",
+      "by": "par {{name}}",
+      "bySystem": "automatique",
+      "filters": "Filtres de l’historique",
+      "filterStatus": "Statut",
+      "filterType": "Type",
+      "filterPaid": "Paiement",
+      "filterFrom": "Du",
+      "filterTo": "Au",
+      "filterSearch": "Recherche",
+      "searchPlaceholder": "Numéro, nom ou téléphone",
+      "historyEmpty": "Aucune commande ne correspond à ces filtres.",
+      "col": {
+        "number": "Numéro",
+        "date": "Date",
+        "customer": "Client",
+        "type": "Type",
+        "total": "Total",
+        "payment": "Paiement",
+        "status": "Statut"
+      }
+    },
+    "menu": {
+      "articles": "Articles",
+      "categories": "Catégories",
+      "nameFr": "Nom (français)",
+      "nameAr": "Nom (arabe)",
+      "moveUp": "Monter {{name}}",
+      "moveDown": "Descendre {{name}}",
+      "activeArticles_one": "{{count}} article actif",
+      "activeArticles_other": "{{count}} articles actifs",
+      "errors": {
+        "required": "Ce champ est obligatoire.",
+        "tooLong": "Texte trop long (maximum {{max}} caractères).",
+        "priceInvalid": "Saisissez un prix valide (ex. 4,50).",
+        "priceNegative": "Le prix ne peut pas être négatif.",
+        "priceTooHigh": "Le prix est trop élevé.",
+        "priceDecimals": "Deux décimales au maximum.",
+        "imageUrl": "Utilisez « /images/nom.jpg » ou une URL https://…",
+        "category": "Choisissez une catégorie."
+      },
+      "category": {
+        "new": "Nouvelle catégorie",
+        "edit": "Modifier la catégorie",
+        "empty": "Aucune catégorie pour le moment.",
+        "nameTaken": "Une catégorie porte déjà ce nom.",
+        "deactivateConflict": "Impossible de désactiver cette catégorie : désactivez d’abord ses articles actifs.",
+        "moved": "Catégorie {{name}} déplacée en position {{position}}"
+      },
+      "article": {
+        "new": "Nouvel article",
+        "edit": "Modifier l’article",
+        "empty": "Aucun article ne correspond.",
+        "category": "Catégorie",
+        "chooseCategory": "Choisir une catégorie",
+        "descriptionFr": "Description (français)",
+        "descriptionAr": "Description (arabe)",
+        "price": "Prix (DT)",
+        "priceHint": "Virgule ou point acceptés, deux décimales au maximum.",
+        "imageUrl": "Image",
+        "imageHelp": "/images/nom.jpg ou https://…",
+        "preview": "Aperçu",
+        "popular": "Populaire",
+        "available": "Disponible à la commande",
+        "availableShort": "Disponible",
+        "soldOut": "Épuisé",
+        "filterActive": "État",
+        "filterAvailable": "Disponibilité",
+        "deactivateTitle": "Désactiver cet article ?",
+        "deactivateText": "« {{name}} » ne sera plus visible sur le menu public.",
+        "deactivateConfirm": "Désactiver",
+        "moved": "Article {{name}} déplacé en position {{position}}",
+        "reorderHint": "Utilisez les flèches pour changer l’ordre des articles de cette catégorie sur le menu.",
+        "reorderNeedsCategoryOnly": "Pour réordonner, filtrez sur une catégorie sans autre filtre ni recherche.",
+        "reorderTooMany": "Cette catégorie compte plus de 50 articles : le réordonnancement est désactivé."
+      }
+    },
+    "restaurant": {
+      "ordersTitle": "Prise de commandes",
+      "ordersOn": "Commandes ouvertes",
+      "ordersOff": "Commandes fermées",
+      "ordersHelp": "Fermer les commandes empêche tout nouvel envoi de commande, même pendant les horaires d’ouverture.",
+      "takeOrders": "Prendre des commandes",
+      "nowOpen": "Les commandes sont ouvertes.",
+      "nowClosed": "Les commandes sont fermées.",
+      "closeTitle": "Fermer les commandes ?",
+      "closeText": "Les clients ne pourront plus passer de nouvelles commandes jusqu’à la réouverture.",
+      "closeConfirm": "Fermer les commandes",
+      "settingsTitle": "Informations du restaurant",
+      "name": "Nom",
+      "deliveryFee": "Frais de livraison (DT)",
+      "deliveryMinimum": "Minimum de livraison (DT)",
+      "hoursTitle": "Horaires d’ouverture",
+      "opening": "Ouverture",
+      "closing": "Fermeture",
+      "errors": {
+        "required": "Ce champ est obligatoire.",
+        "tooLong": "Texte trop long.",
+        "email": "Saisissez une adresse e-mail valide.",
+        "phone": "Saisissez un numéro de téléphone valide.",
+        "priceInvalid": "Saisissez un montant valide (ex. 3,00).",
+        "priceNegative": "Le montant ne peut pas être négatif.",
+        "priceTooHigh": "Le montant est trop élevé.",
+        "priceDecimals": "Deux décimales au maximum.",
+        "imageUrl": "Valeur invalide.",
+        "category": "Valeur invalide."
+      },
+      "dayErrors": {
+        "required": "Heure requise.",
+        "format": "Format HH:mm attendu.",
+        "same": "Ouverture et fermeture identiques."
+      }
+    },
+    "users": {
+      "searchPlaceholder": "Nom, e-mail ou nom d’utilisateur",
+      "empty": "Aucun utilisateur trouvé.",
+      "deactivate": "Désactiver",
+      "reactivate": "Réactiver",
+      "deactivatedBadge": "Désactivé",
+      "deactivated": "Compte désactivé.",
+      "reactivated": "Compte réactivé.",
+      "selfExplain": "Vous ne pouvez pas désactiver votre propre compte.",
+      "confirmTitle": "Désactiver ce compte ?",
+      "confirmText": "{{name}} ne pourra plus se connecter tant que le compte est désactivé.",
+      "col": {
+        "name": "Nom",
+        "email": "E-mail",
+        "username": "Utilisateur",
+        "created": "Création",
+        "status": "État",
+        "actions": "Actions"
+      }
     }
   }
 }

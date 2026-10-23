@@ -2,6 +2,7 @@ import { useId, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/cn'
 import { CloseIcon } from './icons'
 import { useFocusTrap, useScrollLock } from './hooks'
 
@@ -15,6 +16,8 @@ interface DialogProps {
   footer?: ReactNode
   /** Clic sur le voile = fermeture (vrai par défaut). */
   dismissOnBackdrop?: boolean
+  /** Panneau large (formulaires, détails) : jusqu'à 42 rem sur écran large. */
+  wide?: boolean
 }
 
 function DialogPanel({
@@ -24,6 +27,7 @@ function DialogPanel({
   children,
   footer,
   dismissOnBackdrop = true,
+  wide = false,
 }: Omit<DialogProps, 'open'>) {
   const { t } = useTranslation()
   const panelRef = useRef<HTMLDivElement>(null)
@@ -50,7 +54,10 @@ function DialogPanel({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
-        className="relative flex max-h-[90dvh] w-full flex-col rounded-t-xl bg-sand-50 shadow-float sm:max-w-lg sm:rounded-xl"
+        className={cn(
+          'relative flex max-h-[90dvh] w-full flex-col rounded-t-xl bg-sand-50 shadow-float sm:rounded-xl',
+          wide ? 'sm:max-w-2xl' : 'sm:max-w-lg',
+        )}
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 24 }}

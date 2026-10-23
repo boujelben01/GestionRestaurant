@@ -114,6 +114,19 @@ connexion ; il en va de même pour toute route protégée ou après un 401.
   choisi de langue lui-même : la langue détectée n'est plus mémorisée, seul un clic sur le
   sélecteur écrit `resto.lang`.
 
+## Administration (`/admin`)
+
+Protégée par `<RequireRole role="Admin" forbidden={<Forbidden/>}>` : un invité est envoyé sur `/connexion` (retour mémorisé), un client connecté voit une page 403 claire, et aucune requête `/api/admin/*` n'est émise pour lui. Le back-end reste l'autorité (403 sur chaque route). L'admin a son propre layout (navigation latérale, tiroir en mobile, lien « Voir le site »), est `noindex` et chargé à la demande. Un lien « Administration » apparaît dans le menu utilisateur des seuls admins.
+
+- **Commandes** (`/admin/commandes`) : colonnes `EnAttente` / `EnPreparation` / `Prete` (onglets en mobile) alimentées par `GET /api/admin/commandes/actives` et les compteurs du jour. **Polling toutes les 10 s**, suspendu quand l'onglet est masqué et relancé au retour. Les boutons ne proposent que les transitions valides (miroir de `StatutTransitions`) et envoient la `version` ; la carte change de colonne de façon **optimiste** avec retour arrière, et un 409 (transition interdite ou commande modifiée entre-temps) affiche un toast puis recharge l'écran. L'historique (filtres statut, type, paiement, dates, recherche) passe par `GET /api/admin/commandes`. Une carte devient rouge (avec le libellé « En retard ») au-delà de 5 min en attente, 20 min en préparation, 10 min prête, mesurées depuis la dernière mise à jour.
+- **Contrat à connaître** : `GET /actives` ne renvoie ni téléphone, ni total, ni état de paiement, ni adresse. Le front charge donc le détail de chaque commande active (clé de cache incluant `version` : un seul chargement par version).
+- **Alerte sonore** : à chaque **nouvelle** commande `EnAttente`, détectée en comparant les identifiants entre deux relevés (jamais au premier chargement, jamais deux fois pour la même), le front joue un carillon généré par Web Audio (aucun fichier), annonce « Nouvelle commande CMD-xxx » dans une zone `aria-live`, affiche une pastille et préfixe le titre de l'onglet : `(3) Commandes`. Le bouton Son active ou coupe l'alerte (mémorisé dans `localStorage`, clé `resto.admin.sound`). **Les navigateurs interdisent le son tant que l'utilisateur n'a pas cliqué sur la page** : tant que ce n'est pas fait, un bouton « Cliquez ici pour autoriser le son » est affiché ; le clic sur « Son » sert aussi d'autorisation. L'alerte n'est active que sur l'écran Commandes.
+- **Menu** (`/admin/menu`) : catégories (création, modification, activer/désactiver, 409 si articles actifs, réordonnancement par boutons Monter/Descendre au clavier) et articles (filtres, bascule rapide « disponible » et « actif » optimiste, formulaire FR/AR avec prix à 2 décimales max, ImageUrl validée comme `ImageUrlRules` du back-end avec aperçu, erreurs serveur par champ). Aucune suppression : « désactiver ». Le réordonnancement d'articles exige un filtre de catégorie seul (50 articles max).
+- **Restaurant** (`/admin/restaurant`) : paramètres, horaires des 7 jours (« ferme après minuit » signalé), interrupteur « Prendre des commandes » avec confirmation à la fermeture.
+- **Utilisateurs** (`/admin/utilisateurs`) : liste paginée avec recherche, activer/désactiver ; le bouton est désactivé, avec explication, sur son propre compte (le back-end répond 400 sinon).
+
+Les écrans admin n'ont jamais été testés contre la vraie API, seulement contre le mock (`dev-mocks/`) et des tests automatisés.
+
 ## Authentification : choix et limite
 
 Le jeton JWT et son expiration sont conservés dans **localStorage** (`resto.token`), afin de
@@ -173,7 +186,7 @@ nom de la liste `HEAVY_IMAGES`.
 
 ## Tests
 
-`npm test` couvre : parcours complets (invité → connexion → retour, formulaire de commande par type, annulation, 409, « Commander à nouveau », profil), AuthContext (login, 401, expiration, rechargement du profil), erreurs
+`npm test` couvre : administration (garde de rôle, transitions, nouvelles commandes, son, optimiste + 409, validation du formulaire d'article, auto-désactivation), parcours complets (invité → connexion → retour, formulaire de commande par type, annulation, 409, « Commander à nouveau », profil), AuthContext (login, 401, expiration, rechargement du profil), erreurs
 ProblemDetails, formatage des prix et horaires, bascule de langue et `dir`, carte d'article
 (indisponible, populaire, repli d'image), filtre du menu. Les appels HTTP sont simulés par un
 adaptateur axios en mémoire (`src/test/mockApi.ts`), jamais par le vrai backend.

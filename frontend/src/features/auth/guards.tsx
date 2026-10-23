@@ -24,10 +24,14 @@ export function RequireRole({
   role,
   children,
   fallback,
+  forbidden,
 }: {
   role: string
   children: ReactNode
+  /** Affiché pendant le rechargement du profil. */
   fallback?: ReactNode
+  /** Page 403 affichée à un utilisateur connecté sans le rôle (sinon : redirection vers l'accueil). */
+  forbidden?: ReactNode
 }) {
   const { status, hasRole } = useAuth()
   const location = useLocation()
@@ -37,6 +41,6 @@ export function RequireRole({
       <Navigate to="/connexion" replace state={{ from: location.pathname + location.search }} />
     )
   }
-  if (!hasRole(role)) return <Navigate to="/" replace />
+  if (!hasRole(role)) return forbidden ? <>{forbidden}</> : <Navigate to="/" replace />
   return <>{children}</>
 }

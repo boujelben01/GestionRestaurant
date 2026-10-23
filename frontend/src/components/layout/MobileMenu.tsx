@@ -16,7 +16,7 @@ import {
 } from '@/components/ui'
 import { ZelligePattern } from '@/components/ui'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { ACCOUNT_LINKS, NAV_ITEMS } from './nav'
+import { ACCOUNT_LINKS, ADMIN_LINK, NAV_ITEMS } from './nav'
 
 interface MobileMenuProps {
   open: boolean
@@ -102,11 +102,13 @@ function MobilePanel({ onClose, user, onLogout }: Omit<MobileMenuProps, 'open'>)
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {ACCOUNT_LINKS.map((item) => (
-                <Button key={item.to} to={item.to} variant="outline" size="sm" onClick={onClose}>
-                  {t(item.key)}
-                </Button>
-              ))}
+              {(user.roles.includes('Admin') ? [...ACCOUNT_LINKS, ADMIN_LINK] : ACCOUNT_LINKS).map(
+                (item) => (
+                  <Button key={item.to} to={item.to} variant="outline" size="sm" onClick={onClose}>
+                    {t(item.key)}
+                  </Button>
+                ),
+              )}
             </div>
             <Button variant="ghost" size="sm" onClick={onLogout}>
               {t('nav.logout')}

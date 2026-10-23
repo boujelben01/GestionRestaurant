@@ -1,6 +1,7 @@
 // Faux back-end de développement, état EN MÉMOIRE (perdu au redémarrage) : menu, restaurant,
-// auth, profil, panier, commandes, tables. Reproduit les règles du vrai back-end (plafond 20,
-// 409 indisponible, minimum de livraison...). Hors bundle, aucune dépendance. Voir README.md.
+// auth, profil, panier, commandes, tables + routes ADMIN (commandes, catégories, articles,
+// restaurant, utilisateurs). Reproduit les règles du vrai back-end (plafond 20, 409 indisponible,
+// minimum de livraison, transitions de statut...). Hors bundle, aucune dépendance. Voir README.md.
 import { createServer } from 'node:http'
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -11,23 +12,75 @@ const ORIGIN = process.env.ALLOWED_ORIGIN ?? 'http://localhost:5173'
 const load = (name) =>
   JSON.parse(readFileSync(fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url)), 'utf8'))
 
-const menu = load('menu.json')
-const restaurant = load('restaurant.json')
-
 const TOKEN_TTL_MS = Number(process.env.TOKEN_TTL_MS ?? 3_600_000)
 const MAX_QTY = 20
+const MAX_PAGE_SIZE = 50
+const MAX_ACTIVES = 200
 // Codes de table valides (le QR encode /table/<code>).
 const TABLES = {
   '11111111-1111-4111-8111-111111111111': 1,
   '55555555-5555-4555-8555-555555555555': 5,
 }
+// Ordre de l'énumération StatutCommande du vrai back-end (cycle de vie, Annulee en dernier).
+const STATUTS = ['EnAttente', 'EnPreparation', 'Prete', 'Terminee', 'Annulee']
 const STATUS_FLOW = ['EnAttente', 'EnPreparation', 'Prete', 'Terminee']
+const ACTIVE_STATUTS = ['EnAttente', 'EnPreparation', 'Prete']
+const TYPES = ['SurPlace', 'ARemporter', 'Livraison']
+const NEXT_STATUTS = {
+  EnAttente: ['EnPreparation', 'Annulee'],
+  EnPreparation: ['Prete', 'Annulee'],
+  Prete: ['Terminee', 'Annulee'],
+  Terminee: [],
+  Annulee: [],
+}
 
 // ---------------------------------------------------------------------------------------------
-// État en mémoire
+// État en mémoire (menu et restaurant sont rechargés depuis fixtures/ à chaque reset)
 // ---------------------------------------------------------------------------------------------
+let categories // [{ id, nomFr, nomAr, ordre, estActive }]
+let articles // [{ id, categorieId, nomFr, nomAr, descriptionFr, descriptionAr, prix, imageUrl,
+//                estDisponible, estActif, estPopulaire, ordre, dateCreation, dateMiseAJour }]
+let restaurant // { nom, telephone, email, adresse, fraisLivraison, montantMinimumLivraison, horaires }
 let db
+
+const toIso = (d) => new Date(d).toISOString()
+
+/** Les fixtures n'ont pas estActive/estActif : ajoutés ici (true par défaut) et structure aplatie. */
+function loadFixtures() {
+  const stamp = toIso(Date.now())
+  const menu = load('menu.json')
+  categories = menu.map((c) => ({
+    id: c.id,
+    nomFr: c.nom.fr,
+    nomAr: c.nom.ar,
+    ordre: c.ordre,
+    estActive: c.estActive ?? true,
+  }))
+  articles = menu.flatMap((c) =>
+    c.articles.map((a, index) => ({
+      id: a.id,
+      categorieId: c.id,
+      nomFr: a.nom.fr,
+      nomAr: a.nom.ar,
+      descriptionFr: a.description?.fr ?? null,
+      descriptionAr: a.description?.ar ?? null,
+      prix: a.prix,
+      imageUrl: a.imageUrl ?? null,
+      estDisponible: a.disponible,
+      estActif: a.estActif ?? true,
+      estPopulaire: a.estPopulaire,
+      ordre: index + 1,
+      dateCreation: stamp,
+      dateMiseAJour: stamp,
+    })),
+  )
+  const { commandesOuvertes, ...rest } = load('restaurant.json')
+  restaurant = rest
+  return commandesOuvertes ?? true
+}
+
 function resetDb() {
+  const commandesOuvertes = loadFixtures()
   db = {
     users: [
       {
@@ -39,6 +92,8 @@ function resetDb() {
         password: 'MotDePasse123!',
         roles: ['Client'],
         langueFavorite: 'fr',
+        estActif: true,
+        dateCreation: '2026-01-05T08:00:00Z',
       },
       {
         id: 'u-admin',
@@ -49,14 +104,25 @@ function resetDb() {
         password: 'MotDePasse123!',
         roles: ['Admin'],
         langueFavorite: 'fr',
+        estActif: true,
+        dateCreation: '2026-01-01T08:00:00Z',
       },
+      ...load('users.json').map((u, i) => ({
+        id: `u-seed-${i + 1}`,
+        ...u,
+        password: 'MotDePasse123!',
+        roles: ['Client'],
+        langueFavorite: 'fr',
+        estActif: true,
+      })),
     ],
     sessions: new Map(), // token -> { userId, expires }
     carts: new Map(), // userId -> Map(articleId -> quantite)
     orders: [],
     nextOrderId: 1,
     settings: {
-      commandesOuvertes: restaurant.commandesOuvertes ?? true,
+      // Source de vérité de commandesOuvertes (GET /api/restaurant et PATCH admin).
+      commandesOuvertes,
       forceClosed: false,
       // MOCK_ALWAYS_OPEN=1 : ignore les horaires (utile le dimanche ou la nuit).
       alwaysOpen: process.env.MOCK_ALWAYS_OPEN === '1',
@@ -65,10 +131,15 @@ function resetDb() {
 }
 resetDb()
 
-const allArticles = () => menu.flatMap((c) => c.articles)
-const findArticle = (id) => allArticles().find((a) => a.id === id)
+// ---------------------------------------------------------------------------------------------
+// Helpers généraux
+// ---------------------------------------------------------------------------------------------
+const findArticle = (id) => articles.find((a) => a.id === id)
+const findCategorie = (id) => categories.find((c) => c.id === id)
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100
-const toIso = (d) => new Date(d).toISOString()
+const nomOf = (u) => u.nom ?? u.userName
+const pick = (fr, ar, lang) => (lang === 'ar' ? ar || fr : fr)
+const byOrdre = (a, b) => a.ordre - b.ordre || a.id - b.id
 const publicUser = (u) => ({
   id: u.id,
   userName: u.userName,
@@ -79,19 +150,95 @@ const publicUser = (u) => ({
   langueFavorite: u.langueFavorite,
 })
 
+/** Visible côté public : article actif ET catégorie active (indisponible = visible mais disponible:false). */
+const isVisible = (a) => a.estActif && Boolean(findCategorie(a.categorieId)?.estActive)
+const isOrderable = (a) => isVisible(a) && a.estDisponible
+
+/** Erreur RFC 7807 : à `throw` depuis une route. */
+function problem(status, title, errors) {
+  return { status, body: { status, title, ...(errors ? { errors } : {}) } }
+}
+const VALIDATION_TITLE = 'Une ou plusieurs erreurs de validation se sont produites.'
+const fieldError = (field, message) => problem(400, VALIDATION_TITLE, { [field]: [message] })
+/** Plusieurs erreurs de champ à la fois ; ne lance rien si `errors` est vide. */
+function throwIfInvalid(errors) {
+  if (Object.keys(errors).length) throw problem(400, VALIDATION_TITLE, errors)
+}
+const addError = (errors, field, message) => (errors[field] ??= []).push(message)
+
+const isNum = (v) => typeof v === 'number' && Number.isFinite(v)
+const hasMax2Decimals = (n) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-6
+/** Champ décimal 0..99999999.99, 2 décimales max (Range + MaxDecimalPlaces). */
+function checkMoney(errors, field, value) {
+  if (!isNum(value)) return addError(errors, field, 'Le champ est requis (nombre).')
+  if (value < 0 || value > 99999999.99)
+    addError(errors, field, 'La valeur doit être comprise entre 0 et 99999999.99.')
+  if (!hasMax2Decimals(value)) addError(errors, field, 'Au maximum 2 décimales sont autorisées.')
+}
+/** Chaîne obligatoire (Required + StringLength). */
+function checkRequiredString(errors, field, value, max) {
+  if (typeof value !== 'string' || !value.trim()) addError(errors, field, 'Le champ est requis.')
+  else if (value.length > max)
+    addError(errors, field, `La taille maximale est de ${max} caractères.`)
+}
+function checkOptionalString(errors, field, value, max) {
+  if (value != null && (typeof value !== 'string' || value.length > max))
+    addError(errors, field, `La taille maximale est de ${max} caractères.`)
+}
+
+/** Reprise de Common/Validation/ImageUrlRules.cs. */
+function isValidImageUrl(value) {
+  if (typeof value !== 'string' || !value || value.length > 500) return false
+  if (value.startsWith('/images/'))
+    return (
+      /^\/images\/[A-Za-z0-9._\-/]+$/.test(value) &&
+      !value.endsWith('/') &&
+      !value.includes('//') &&
+      !value.split('/').includes('..')
+    )
+  if (/[\s\u0000-\u001f\u007f]/.test(value)) return false
+  try {
+    const u = new URL(value)
+    return u.protocol === 'https:' && Boolean(u.hostname) && !u.username && !u.password
+  } catch {
+    return false
+  }
+}
+
+function paging(url, defaultSize = 20) {
+  const num = (name, fallback) => {
+    const n = Number.parseInt(url.searchParams.get(name) ?? '', 10)
+    return Number.isNaN(n) ? fallback : n
+  }
+  return {
+    page: Math.max(num('page', 1), 1),
+    pageSize: Math.min(Math.max(num('pageSize', defaultSize), 1), MAX_PAGE_SIZE),
+  }
+}
+const paged = (all, { page, pageSize }) => ({
+  items: all.slice((page - 1) * pageSize, page * pageSize),
+  page,
+  pageSize,
+  total: all.length,
+})
+
+// ---------------------------------------------------------------------------------------------
+// Menu public, panier, restaurant
+// ---------------------------------------------------------------------------------------------
 function cartResponse(userId, lang) {
   const cart = db.carts.get(userId) ?? new Map()
   const lignes = [...cart.entries()].map(([articleId, quantite]) => {
     const a = findArticle(articleId)
+    const disponible = isOrderable(a)
     return {
       articleId,
-      nom: a.nom[lang],
+      nom: pick(a.nomFr, a.nomAr, lang),
       prixUnitaire: a.prix,
       imageUrl: a.imageUrl,
-      disponible: a.disponible,
+      disponible,
       quantite,
       totalLigne: round2(a.prix * quantite),
-      avertissement: a.disponible ? null : 'indisponible',
+      avertissement: disponible ? null : 'indisponible',
     }
   })
   return {
@@ -102,40 +249,29 @@ function cartResponse(userId, lang) {
   }
 }
 
-const orderResume = (o) => ({
-  id: o.id,
-  numero: o.numero,
-  statut: o.statut,
-  typeCommande: o.typeCommande,
-  total: o.total,
-  nombreArticles: o.lignes.reduce((n, l) => n + l.quantite, 0),
-  dateCommande: o.dateCommande,
-})
-
-/** Erreur RFC 7807 : à `throw` depuis une route. */
-function problem(status, title, errors) {
-  return { status, body: { status, title, ...(errors ? { errors } : {}) } }
-}
-const fieldError = (field, message) =>
-  problem(400, 'Une ou plusieurs erreurs de validation se sont produites.', { [field]: [message] })
-
 function menuFor(lang) {
-  return menu.map((category) => ({
-    id: category.id,
-    nom: category.nom[lang],
-    ordre: category.ordre,
-    articles: category.articles.map((article, index) => ({
-      id: article.id,
-      categorieId: category.id,
-      nom: article.nom[lang],
-      description: article.description[lang],
-      prix: article.prix,
-      imageUrl: article.imageUrl,
-      estPopulaire: article.estPopulaire,
-      disponible: article.disponible,
-      ordre: index,
-    })),
-  }))
+  return categories
+    .filter((c) => c.estActive)
+    .sort(byOrdre)
+    .map((category) => ({
+      id: category.id,
+      nom: pick(category.nomFr, category.nomAr, lang),
+      ordre: category.ordre,
+      articles: articles
+        .filter((a) => a.categorieId === category.id && a.estActif)
+        .sort(byOrdre)
+        .map((a) => ({
+          id: a.id,
+          categorieId: category.id,
+          nom: pick(a.nomFr, a.nomAr, lang),
+          description: pick(a.descriptionFr, a.descriptionAr, lang),
+          prix: a.prix,
+          imageUrl: a.imageUrl,
+          estPopulaire: a.estPopulaire,
+          disponible: a.estDisponible,
+          ordre: a.ordre,
+        })),
+    }))
 }
 
 /** Heure de Tunis : calcule ouvertMaintenant comme le vrai back-end (fermeture après minuit incluse). */
@@ -169,6 +305,19 @@ function isOpenNow(horaires, now = new Date()) {
 const openNow = () =>
   !db.settings.forceClosed && (db.settings.alwaysOpen || isOpenNow(restaurant.horaires))
 
+/** RestaurantResponse : renvoyé par GET public et par les 3 routes admin. */
+const restaurantResponse = () => ({
+  nom: restaurant.nom,
+  telephone: restaurant.telephone,
+  email: restaurant.email,
+  adresse: restaurant.adresse,
+  fraisLivraison: restaurant.fraisLivraison,
+  montantMinimumLivraison: restaurant.montantMinimumLivraison,
+  commandesOuvertes: db.settings.commandesOuvertes,
+  horaires: restaurant.horaires,
+  ouvertMaintenant: openNow(),
+})
+
 async function readJson(req) {
   const chunks = []
   for await (const chunk of req) chunks.push(chunk)
@@ -181,7 +330,9 @@ function authenticate(req) {
   const token = header.startsWith('Bearer ') ? header.slice(7) : null
   const session = token ? db.sessions.get(token) : null
   if (!session || session.expires < Date.now()) return null
-  return db.users.find((u) => u.id === session.userId) ?? null
+  const user = db.users.find((u) => u.id === session.userId) ?? null
+  // Compte désactivé : les jetons existants sont refusés (401), comme dans le vrai back-end.
+  return user?.estActif ? user : null
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -189,198 +340,161 @@ const PHONE_RE = /^\+?[0-9 ().-]{6,20}$/
 const qtyError = () =>
   fieldError('Quantite', `La quantité doit être comprise entre 1 et ${MAX_QTY}.`)
 
-/** Retourne { status, body } (body absent = pas de contenu) ; les erreurs sont lancées via problem(). */
-async function route(req, url, user) {
-  const { pathname: path } = url
-  const method = req.method
-  const lang = url.searchParams.get('lang') === 'ar' ? 'ar' : 'fr'
-  const need = () => {
-    if (!user) throw problem(401, 'Authentification requise.')
-    return user
-  }
+// ---------------------------------------------------------------------------------------------
+// Commandes : modèle interne, projection client, projections admin
+// ---------------------------------------------------------------------------------------------
 
-  // --- Public ---
-  if (method === 'GET' && path === '/api/menu') {
-    // Simulations : ?fail=1 → 500 ; ?empty=1 → menu vide ; ?delay=800 → latence.
-    if (url.searchParams.get('fail')) throw problem(500, 'Erreur simulée')
-    if (url.searchParams.get('empty')) return { status: 200, body: [] }
-    return { status: 200, body: menuFor(lang) }
-  }
-  if (method === 'GET' && path === '/api/restaurant') {
-    const open = openNow()
-    return {
-      status: 200,
-      body: {
-        ...restaurant,
-        commandesOuvertes: db.settings.commandesOuvertes,
-        ouvertMaintenant: open,
-      },
-    }
-  }
-  const table = path.match(/^\/api\/tables\/([^/]+)$/)
-  if (method === 'GET' && table) {
-    const numero = TABLES[table[1].toLowerCase()]
-    if (!numero) throw problem(404, 'Table introuvable.')
-    return { status: 200, body: { numero } }
-  }
-
-  // --- Auth ---
-  if (method === 'POST' && path === '/api/auth/register') {
-    const b = await readJson(req)
-    if (!b.email || !EMAIL_RE.test(b.email)) throw fieldError('Email', "L'e-mail n'est pas valide.")
-    if (!b.password || b.password.length < 8)
-      throw fieldError('Password', 'Le mot de passe doit contenir au moins 8 caractères.')
-    if (db.users.some((u) => u.email.toLowerCase() === b.email.toLowerCase()))
-      throw problem(409, 'Un compte existe déjà avec cet identifiant ou cet e-mail.')
-    db.users.push({
-      id: `u-${randomUUID()}`,
-      userName: b.userName ?? b.email.split('@')[0],
-      nom: b.nom ?? null,
-      email: b.email,
-      telephone: b.telephone ?? null,
-      password: b.password,
-      roles: ['Client'],
-      langueFavorite: b.langueFavorite ?? 'fr',
+/** Enregistre un changement (statut, paiement, annulation) : version, dateMiseAJour, historique. */
+function touch(order, actor, statut) {
+  const date = toIso(Date.now())
+  order.version += 1
+  order.dateMiseAJour = date
+  if (statut) {
+    order.historique.push({
+      statut,
+      date,
+      parUserId: actor?.id ?? null,
+      parNom: actor ? nomOf(actor) : null,
     })
-    return { status: 201 }
   }
-  if (method === 'POST' && path === '/api/auth/login') {
-    const b = await readJson(req)
-    const wanted = String(b.identifiant ?? '').toLowerCase()
-    const u = db.users.find(
-      (x) => x.email.toLowerCase() === wanted || x.userName.toLowerCase() === wanted,
-    )
-    if (!u || u.password !== b.password) throw problem(401, 'Authentification échouée.')
-    const token = `mock-${randomUUID()}`
-    const expires = Date.now() + TOKEN_TTL_MS
-    db.sessions.set(token, { userId: u.id, expires })
-    return { status: 200, body: { token, expiresAtUtc: toIso(expires), user: publicUser(u) } }
-  }
-  if (method === 'GET' && path === '/api/auth/me') return { status: 200, body: publicUser(need()) }
-  if (method === 'PUT' && path === '/api/auth/me') {
-    const u = need()
-    const b = await readJson(req)
-    if (!['fr', 'ar'].includes(b.langueFavorite))
-      throw fieldError('LangueFavorite', "La langue doit être 'fr' ou 'ar'.")
-    u.nom = b.nom ?? null
-    u.telephone = b.telephone ?? null
-    u.langueFavorite = b.langueFavorite
-    return { status: 200, body: publicUser(u) }
-  }
-  if (method === 'POST' && path === '/api/auth/me/password') {
-    const u = need()
-    const b = await readJson(req)
-    if (u.password !== b.currentPassword)
-      throw fieldError('CurrentPassword', 'Mot de passe incorrect.')
-    if (!b.newPassword || b.newPassword.length < 8)
-      throw fieldError('NewPassword', 'Le mot de passe doit contenir au moins 8 caractères.')
-    u.password = b.newPassword
-    return { status: 204 }
-  }
+}
 
-  // --- Panier ---
-  if (path === '/api/panier' && method === 'GET')
-    return { status: 200, body: cartResponse(need().id, lang) }
-  if (path === '/api/panier' && method === 'DELETE') {
-    db.carts.delete(need().id)
-    return { status: 200, body: cartResponse(user.id, 'fr') }
-  }
-  if (path === '/api/panier/items' && method === 'POST') {
-    const u = need()
-    const b = await readJson(req)
-    if (!(b.quantite >= 1 && b.quantite <= MAX_QTY)) throw qtyError()
-    const a = findArticle(b.articleId)
-    if (!a) throw problem(404, 'Article introuvable.')
-    if (!a.disponible) throw problem(409, "Cet article n'est pas disponible pour le moment.")
-    const cart = db.carts.get(u.id) ?? new Map()
-    cart.set(a.id, Math.min((cart.get(a.id) ?? 0) + b.quantite, MAX_QTY))
-    db.carts.set(u.id, cart)
-    return { status: 200, body: cartResponse(u.id, lang) }
-  }
-  const item = path.match(/^\/api\/panier\/items\/(\d+)$/)
-  if (item && method === 'PUT') {
-    const u = need()
-    const b = await readJson(req)
-    const id = Number(item[1])
-    if (!(b.quantite >= 1 && b.quantite <= MAX_QTY)) throw qtyError()
+/** Format client existant : sans nomClient/telephone/version/dateMiseAJour/parUser*. */
+const clientOrder = (o) => ({
+  id: o.id,
+  numero: o.numero,
+  statut: o.statut,
+  typeCommande: o.typeCommande,
+  modePaiement: o.modePaiement,
+  estPayee: o.estPayee,
+  sousTotal: o.sousTotal,
+  fraisLivraison: o.fraisLivraison,
+  total: o.total,
+  note: o.note,
+  adresseLivraison: o.adresseLivraison,
+  tableNumero: o.tableNumero,
+  dateCommande: o.dateCommande,
+  lignes: o.lignes,
+  historique: o.historique.map((h) => ({ statut: h.statut, date: h.date })),
+})
+
+const orderResume = (o) => ({
+  id: o.id,
+  numero: o.numero,
+  statut: o.statut,
+  typeCommande: o.typeCommande,
+  total: o.total,
+  nombreArticles: o.lignes.reduce((n, l) => n + l.quantite, 0),
+  dateCommande: o.dateCommande,
+})
+
+const adminResume = (o) => ({
+  id: o.id,
+  numero: o.numero,
+  statut: o.statut,
+  typeCommande: o.typeCommande,
+  nomClient: o.nomClient,
+  telephone: o.telephone,
+  tableNumero: o.tableNumero,
+  total: o.total,
+  estPayee: o.estPayee,
+  nombreArticles: o.lignes.reduce((n, l) => n + l.quantite, 0),
+  dateCommande: o.dateCommande,
+  dateMiseAJour: o.dateMiseAJour,
+})
+
+const adminOrder = (o) => ({
+  id: o.id,
+  numero: o.numero,
+  statut: o.statut,
+  statutsSuivants: NEXT_STATUTS[o.statut],
+  typeCommande: o.typeCommande,
+  modePaiement: o.modePaiement,
+  estPayee: o.estPayee,
+  sousTotal: o.sousTotal,
+  fraisLivraison: o.fraisLivraison,
+  total: o.total,
+  note: o.note,
+  adresseLivraison: o.adresseLivraison,
+  tableNumero: o.tableNumero,
+  client: { userId: o.userId, nom: o.nomClient, telephone: o.telephone },
+  dateCommande: o.dateCommande,
+  dateMiseAJour: o.dateMiseAJour,
+  lignes: o.lignes,
+  historique: o.historique,
+  version: o.version,
+})
+
+const activeOrder = (o) => ({
+  id: o.id,
+  numero: o.numero,
+  statut: o.statut,
+  typeCommande: o.typeCommande,
+  nomClient: o.nomClient,
+  tableNumero: o.tableNumero,
+  note: o.note,
+  dateCommande: o.dateCommande,
+  dateMiseAJour: o.dateMiseAJour,
+  lignes: o.lignes.map((l) => ({ nomFr: l.nomFr, nomAr: l.nomAr, quantite: l.quantite })),
+  version: o.version,
+})
+
+/** Construit et enregistre une commande EnAttente (cart : tableau de [articleId, quantite]). */
+function buildOrder({
+  user,
+  nomClient,
+  telephone,
+  type,
+  tableNumero,
+  adresse,
+  note,
+  cart,
+  dateMs,
+}) {
+  const lignes = cart.map(([id, quantite]) => {
     const a = findArticle(id)
-    if (!a) throw problem(404, 'Article introuvable.')
-    const cart = db.carts.get(u.id) ?? new Map()
-    if ((!cart.has(id) || b.quantite > cart.get(id)) && !a.disponible)
-      throw problem(409, "Cet article n'est pas disponible pour le moment.")
-    cart.set(id, b.quantite)
-    db.carts.set(u.id, cart)
-    return { status: 200, body: cartResponse(u.id, lang) }
-  }
-  if (item && method === 'DELETE') {
-    const u = need()
-    db.carts.get(u.id)?.delete(Number(item[1]))
-    return { status: 200, body: cartResponse(u.id, lang) }
-  }
-
-  // --- Commandes ---
-  if (path === '/api/commandes' && method === 'POST')
-    return { status: 201, body: await createOrder(need(), await readJson(req)) }
-  if (path === '/api/commandes' && method === 'GET') {
-    const u = need()
-    const page = Math.max(Number(url.searchParams.get('page') ?? 1), 1)
-    const pageSize = Math.min(Math.max(Number(url.searchParams.get('pageSize') ?? 20), 1), 50)
-    const mine = db.orders.filter((o) => o.userId === u.id).sort((a, b) => b.id - a.id)
-    const items = mine.slice((page - 1) * pageSize, page * pageSize).map(orderResume)
-    return { status: 200, body: { items, page, pageSize, total: mine.length } }
-  }
-  const one = path.match(/^\/api\/commandes\/(\d+)(\/annuler)?$/)
-  if (one) {
-    const u = need()
-    const order = db.orders.find((o) => o.id === Number(one[1]) && o.userId === u.id)
-    if (!order) throw problem(404, 'Commande introuvable.')
-    if (method === 'GET' && !one[2]) return { status: 200, body: order }
-    if (method === 'POST' && one[2]) {
-      if (order.statut !== 'EnAttente')
-        throw problem(409, 'Seule une commande en attente peut être annulée.')
-      order.statut = 'Annulee'
-      order.historique.push({ statut: 'Annulee', date: toIso(Date.now()) })
-      return { status: 200, body: order }
+    return {
+      articleId: id,
+      nomFr: a.nomFr,
+      nomAr: a.nomAr,
+      prixUnitaire: a.prix,
+      quantite,
+      totalLigne: round2(a.prix * quantite),
     }
+  })
+  const sousTotal = round2(lignes.reduce((n, l) => n + l.totalLigne, 0))
+  const frais = type === 'Livraison' ? round2(restaurant.fraisLivraison) : 0
+  const id = db.nextOrderId++
+  const now = toIso(dateMs)
+  const order = {
+    id,
+    userId: user.id,
+    nomClient,
+    telephone,
+    numero: `CMD-${String(id).padStart(6, '0')}`,
+    statut: 'EnAttente',
+    typeCommande: type,
+    modePaiement: 'Especes',
+    estPayee: false,
+    sousTotal,
+    fraisLivraison: frais,
+    total: round2(sousTotal + frais),
+    note: note?.trim() || null,
+    adresseLivraison: adresse,
+    tableNumero,
+    dateCommande: now,
+    dateMiseAJour: now,
+    version: 1,
+    lignes,
+    historique: [{ statut: 'EnAttente', date: now, parUserId: user.id, parNom: nomOf(user) }],
   }
-
-  // --- Contrôles de test (n'existent PAS dans le vrai back-end) ---
-  if (method === 'POST' && path === '/__mock/reset') {
-    resetDb()
-    return { status: 204 }
-  }
-  if (method === 'POST' && path === '/__mock/settings') {
-    Object.assign(db.settings, await readJson(req)) // { commandesOuvertes, forceClosed }
-    return { status: 200, body: db.settings }
-  }
-  const adv = path.match(/^\/__mock\/commandes\/(\d+)\/(avancer|statut)$/)
-  if (adv && method === 'POST') {
-    const order = db.orders.find((o) => o.id === Number(adv[1]))
-    if (!order) throw problem(404, 'Commande introuvable.')
-    const next =
-      adv[2] === 'statut'
-        ? (await readJson(req)).statut
-        : STATUS_FLOW[STATUS_FLOW.indexOf(order.statut) + 1]
-    if (next) {
-      order.statut = next
-      order.historique.push({ statut: next, date: toIso(Date.now()) })
-    }
-    return { status: 200, body: order }
-  }
-  if (method === 'POST' && path === '/__mock/articles/disponibilite') {
-    const b = await readJson(req) // { id, disponible }
-    const a = findArticle(b.id)
-    if (a) a.disponible = Boolean(b.disponible)
-    return { status: 200, body: { id: b.id, disponible: a?.disponible } }
-  }
-
-  throw problem(404, 'Introuvable (mock)')
+  db.orders.push(order)
+  return order
 }
 
 async function createOrder(u, b) {
   const type = b.typeCommande
-  if (!['SurPlace', 'ARemporter', 'Livraison'].includes(type))
-    throw fieldError('TypeCommande', 'Le type de commande est invalide.')
+  if (!TYPES.includes(type)) throw fieldError('TypeCommande', 'Le type de commande est invalide.')
   if (!b.telephone || !PHONE_RE.test(b.telephone))
     throw fieldError('Telephone', "Le numéro de téléphone n'est pas valide.")
   const adresse = b.adresseLivraison?.trim() || null
@@ -421,55 +535,873 @@ async function createOrder(u, b) {
 
   const cart = db.carts.get(u.id)
   if (!cart || cart.size === 0) throw fieldError('Panier', 'Votre panier est vide.')
-  const blocked = [...cart.keys()].map(findArticle).filter((a) => !a.disponible)
+  const blocked = [...cart.keys()].map(findArticle).filter((a) => !isOrderable(a))
   if (blocked.length)
     throw problem(
       409,
-      `Ces articles ne sont plus disponibles : ${blocked.map((a) => a.nom.fr).join(', ')}. Retirez-les de votre panier.`,
+      `Ces articles ne sont plus disponibles : ${blocked.map((a) => a.nomFr).join(', ')}. Retirez-les de votre panier.`,
     )
 
-  const lignes = [...cart.entries()].map(([id, quantite]) => {
-    const a = findArticle(id)
-    return {
-      articleId: id,
-      nomFr: a.nom.fr,
-      nomAr: a.nom.ar,
-      prixUnitaire: a.prix,
-      quantite,
-      totalLigne: round2(a.prix * quantite),
-    }
-  })
-  const sousTotal = round2(lignes.reduce((n, l) => n + l.totalLigne, 0))
+  const sousTotal = round2(
+    [...cart.entries()].reduce((n, [id, q]) => n + round2(findArticle(id).prix * q), 0),
+  )
   if (type === 'Livraison' && sousTotal < restaurant.montantMinimumLivraison)
     throw fieldError(
       'Panier',
       `Le montant minimum pour une livraison est de ${restaurant.montantMinimumLivraison.toFixed(2)} DT (sous-total actuel : ${sousTotal.toFixed(2)} DT).`,
     )
-  const frais = type === 'Livraison' ? round2(restaurant.fraisLivraison) : 0
 
-  const id = db.nextOrderId++
-  const now = toIso(Date.now())
-  const order = {
-    id,
-    userId: u.id,
-    numero: `CMD-${String(id).padStart(6, '0')}`,
-    statut: 'EnAttente',
-    typeCommande: type,
-    modePaiement: 'Especes',
-    estPayee: false,
-    sousTotal,
-    fraisLivraison: frais,
-    total: round2(sousTotal + frais),
-    note: b.note?.trim() || null,
-    adresseLivraison: adresse,
+  const order = buildOrder({
+    user: u,
+    nomClient: nomOf(u),
+    telephone: b.telephone,
+    type,
     tableNumero,
-    dateCommande: now,
-    lignes,
-    historique: [{ statut: 'EnAttente', date: now }],
-  }
-  db.orders.push(order)
+    adresse,
+    note: b.note,
+    cart: [...cart.entries()],
+    dateMs: Date.now(),
+  })
   db.carts.delete(u.id)
   return order
+}
+
+// --- Admin commandes : analyse des filtres (toute saisie invalide donne un 400) ---
+
+/** Noms d'énumération uniquement (insensible à la casse) ; renvoie la forme canonique. */
+function parseEnum(value, field, names) {
+  const text = String(value).trim()
+  const found = /^\p{L}{1,30}$/u.test(text)
+    ? names.find((n) => n.toLowerCase() === text.toLowerCase())
+    : undefined
+  if (!found) throw fieldError(field, `Valeur invalide. Valeurs possibles : ${names.join(', ')}.`)
+  return found
+}
+
+/** « AAAA-MM-JJ » (jour UTC entier) ou date-heure ISO 8601 (UTC si sans fuseau). */
+function parseBound(value, field) {
+  const text = (value ?? '').trim()
+  if (!text) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const ms = Date.parse(`${text}T00:00:00Z`)
+    if (!Number.isNaN(ms) && toIso(ms).startsWith(text)) return { ms, dateOnly: true }
+  } else if (text.length <= 40 && /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/.test(text)) {
+    const ms = Date.parse(/(Z|[+-]\d{2}:?\d{2})$/i.test(text) ? text : `${text}Z`)
+    if (!Number.isNaN(ms)) return { ms, dateOnly: false }
+  }
+  throw fieldError(field, 'Date invalide : utilisez AAAA-MM-JJ ou une date-heure ISO 8601 (UTC).')
+}
+
+function listAdminOrders(url) {
+  const q = url.searchParams
+  const { page, pageSize } = paging(url)
+  const statuts = [
+    ...new Set(
+      q
+        .getAll('statut')
+        .flatMap((raw) =>
+          raw
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
+        )
+        .map((s) => parseEnum(s, 'statut', STATUTS)),
+    ),
+  ]
+  const type = q.get('typeCommande')?.trim()
+    ? parseEnum(q.get('typeCommande'), 'typeCommande', TYPES)
+    : null
+  const rawPaid = q.get('estPayee')?.trim().toLowerCase()
+  if (rawPaid && rawPaid !== 'true' && rawPaid !== 'false')
+    throw fieldError('estPayee', "La valeur n'est pas valide.")
+  const from = parseBound(q.get('du'), 'du')
+  const to = parseBound(q.get('au'), 'au')
+  if (from && to && from.ms > to.ms)
+    throw fieldError('du', 'La date de début doit précéder la date de fin.')
+  const term = q.get('recherche')?.trim().toLowerCase()
+  if (term && term.length > 100)
+    throw fieldError('recherche', 'La recherche ne peut pas dépasser 100 caractères.')
+
+  const rows = db.orders
+    .filter((o) => {
+      const d = Date.parse(o.dateCommande)
+      return (
+        (!statuts.length || statuts.includes(o.statut)) &&
+        (!type || o.typeCommande === type) &&
+        (!rawPaid || o.estPayee === (rawPaid === 'true')) &&
+        (!from || d >= from.ms) &&
+        (!to || (to.dateOnly ? d < to.ms + 86_400_000 : d <= to.ms)) &&
+        (!term ||
+          o.numero.toLowerCase().includes(term) ||
+          o.nomClient.toLowerCase().includes(term) ||
+          o.telephone.toLowerCase().includes(term))
+      )
+    })
+    .sort((a, b) => Date.parse(b.dateCommande) - Date.parse(a.dateCommande) || b.id - a.id)
+  const result = paged(rows, { page, pageSize })
+  return { ...result, items: result.items.map(adminResume) }
+}
+
+/** Compteurs du jour civil Africa/Tunis (UTC+1 toute l'année, pas d'heure d'été). */
+function compteurs() {
+  const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Tunis' }).format(new Date())
+  const start = Date.parse(`${date}T00:00:00+01:00`)
+  const today = db.orders.filter((o) => {
+    const d = Date.parse(o.dateCommande)
+    return d >= start && d < start + 86_400_000
+  })
+  const parStatut = STATUTS.map((statut) => ({
+    statut,
+    nombre: today.filter((o) => o.statut === statut).length,
+  }))
+  return {
+    date,
+    parStatut,
+    totalAujourdhui: today.length,
+    enAttente: db.orders.filter((o) => o.statut === 'EnAttente').length,
+  }
+}
+
+function findOrder(id) {
+  const order = db.orders.find((o) => o.id === Number(id))
+  if (!order) throw problem(404, 'Commande introuvable.')
+  return order
+}
+
+function changerStatut(admin, order, body) {
+  if (typeof body.statut !== 'string' || !body.statut.trim())
+    throw fieldError('Statut', 'Le champ Statut est requis.')
+  const cible = parseEnum(body.statut, 'Statut', STATUTS)
+  // Idempotence : statut déjà atteint → 200, sans doublon d'historique (avant le contrôle de version).
+  if (order.statut === cible) return adminOrder(order)
+  if (body.version != null && body.version !== order.version)
+    throw problem(409, 'La commande a été modifiée entre-temps. Rechargez-la et réessayez.')
+  if (!NEXT_STATUTS[order.statut].includes(cible))
+    throw problem(409, `${order.statut} -> ${cible} n'est pas autorisé.`)
+  order.statut = cible
+  touch(order, admin, cible)
+  return adminOrder(order)
+}
+
+// --- Seed / commandes entrantes de démonstration (hors vrai back-end) ---
+
+const SEED_TYPES = ['SurPlace', 'Livraison', 'ARemporter', 'SurPlace']
+const SEED_CLIENTS = [
+  ['Amine Ben Salah', '+21622334455'],
+  ['Salma Trabelsi', '+21698112233'],
+  ['Mohamed Gharbi', '+21650778899'],
+  ['Ines Jebali', '+21627445566'],
+  ['Karim Mansouri', '+21655990011'],
+  ['Rim Chaabane', '+21629667788'],
+  ['Walid Hamdi', '+21694223344'],
+  ['Nour Bouazizi', '+21653110022'],
+]
+const SEED_NOTES = ['Sans piment, merci.', 'Bien cuit svp.', 'Sonnez à l’interphone.']
+
+/** 1 à 3 articles distincts, commandables, choisis de façon déterministe. */
+function sampleCart(seed) {
+  const pool = articles.filter(isOrderable).sort(byOrdre)
+  const size = 1 + (seed % 3)
+  const ids = new Set()
+  for (let k = 0; k < size && pool.length; k++) ids.add(pool[(seed * 5 + k * 7) % pool.length].id)
+  return [...ids].map((id, k) => [id, 1 + ((seed + k) % 3)])
+}
+
+function seedOrders(count) {
+  const client = db.users.find((u) => u.id === 'u-client')
+  const admin = db.users.find((u) => u.id === 'u-admin')
+  const now = Date.now()
+  const ids = []
+  for (let i = 0; i < count; i++) {
+    // i = 0 : la plus ancienne, donc la plus avancée ; la dernière est EnAttente.
+    const finalIdx = (count - 1 - i) % STATUS_FLOW.length
+    const ageMin = (count - i) * 17 + (i % 3) * 5
+    const type = SEED_TYPES[i % SEED_TYPES.length]
+    const [nomClient, telephone] = SEED_CLIENTS[i % SEED_CLIENTS.length]
+    const order = buildOrder({
+      user: client,
+      nomClient,
+      telephone,
+      type,
+      tableNumero: type === 'SurPlace' ? (i % 2 === 0 ? 1 : 5) : null,
+      adresse: type === 'Livraison' ? '24 rue de Marseille, 1002 Tunis' : null,
+      note: i % 2 === 1 ? SEED_NOTES[(i >> 1) % SEED_NOTES.length] : null,
+      cart: sampleCart(i + db.orders.length),
+      dateMs: now - ageMin * 60_000,
+    })
+    // Rejoue l'historique jusqu'au statut final, étalé entre la création et maintenant.
+    for (let s = 1; s <= finalIdx; s++) {
+      const at = toIso(Date.parse(order.dateCommande) + s * 4 * 60_000)
+      order.statut = STATUS_FLOW[s]
+      order.historique.push({
+        statut: order.statut,
+        date: at,
+        parUserId: admin.id,
+        parNom: nomOf(admin),
+      })
+      order.version += 1
+      order.dateMiseAJour = at
+    }
+    if (finalIdx >= 3) order.estPayee = true
+    ids.push(order.id)
+  }
+  return ids
+}
+
+// ---------------------------------------------------------------------------------------------
+// Admin : catégories et articles
+// ---------------------------------------------------------------------------------------------
+const categorieAdmin = (c) => ({
+  id: c.id,
+  nomFr: c.nomFr,
+  nomAr: c.nomAr,
+  ordre: c.ordre,
+  estActive: c.estActive,
+  nombreArticlesActifs: articles.filter((a) => a.categorieId === c.id && a.estActif).length,
+})
+const listCategoriesAdmin = () => [...categories].sort(byOrdre).map(categorieAdmin)
+
+function findCategorieOr404(id) {
+  const c = findCategorie(Number(id))
+  if (!c) throw problem(404, 'Catégorie introuvable.')
+  return c
+}
+
+/** CategorieRequest : nomFr/nomAr requis ≤100, ordre 0..10000 facultatif. */
+function validateCategorie(b) {
+  const errors = {}
+  checkRequiredString(errors, 'NomFr', b.nomFr, 100)
+  checkRequiredString(errors, 'NomAr', b.nomAr, 100)
+  if (b.ordre != null && !(Number.isInteger(b.ordre) && b.ordre >= 0 && b.ordre <= 10000))
+    addError(errors, 'Ordre', 'La valeur doit être comprise entre 0 et 10000.')
+  throwIfInvalid(errors)
+}
+
+function ensureCategorieNameFree(nomFr, exceptId) {
+  const lowered = nomFr.toLowerCase()
+  if (categories.some((c) => c.id !== exceptId && c.nomFr.toLowerCase() === lowered))
+    throw problem(409, `Une catégorie nommée « ${nomFr} » existe déjà.`)
+}
+
+/** ReorderRequest : Ids requis (≥ 1 élément), sans doublon. */
+function readIds(b) {
+  if (!Array.isArray(b.ids) || b.ids.length < 1 || !b.ids.every(Number.isInteger))
+    throw fieldError('Ids', "La liste d'identifiants est requise.")
+  if (new Set(b.ids).size !== b.ids.length)
+    throw fieldError('Ids', 'La liste contient des identifiants en double.')
+  return b.ids
+}
+
+const renumber = (list) => list.forEach((item, i) => (item.ordre = i + 1))
+
+const articleAdmin = (a) => ({
+  id: a.id,
+  categorieId: a.categorieId,
+  nomFr: a.nomFr,
+  nomAr: a.nomAr,
+  descriptionFr: a.descriptionFr,
+  descriptionAr: a.descriptionAr,
+  prix: a.prix,
+  imageUrl: a.imageUrl,
+  estDisponible: a.estDisponible,
+  estActif: a.estActif,
+  estPopulaire: a.estPopulaire,
+  ordre: a.ordre,
+  dateCreation: a.dateCreation,
+  dateMiseAJour: a.dateMiseAJour,
+})
+
+function findArticleOr404(id) {
+  const a = findArticle(Number(id))
+  if (!a) throw problem(404, 'Article introuvable.')
+  return a
+}
+
+const catOrdre = (a) => findCategorie(a.categorieId)?.ordre ?? 0
+const articleSort = (a, b) => catOrdre(a) - catOrdre(b) || a.ordre - b.ordre || a.id - b.id
+
+/** ArticleRequest : validation du modèle (tous les champs), puis existence de la catégorie. */
+function validateArticle(b) {
+  const errors = {}
+  if (!Number.isInteger(b.categorieId) || b.categorieId < 1)
+    addError(errors, 'CategorieId', 'La valeur doit être supérieure ou égale à 1.')
+  checkRequiredString(errors, 'NomFr', b.nomFr, 150)
+  checkRequiredString(errors, 'NomAr', b.nomAr, 150)
+  checkMoney(errors, 'Prix', b.prix)
+  checkOptionalString(errors, 'DescriptionFr', b.descriptionFr, 1000)
+  checkOptionalString(errors, 'DescriptionAr', b.descriptionAr, 1000)
+  if (b.imageUrl != null && !isValidImageUrl(b.imageUrl))
+    addError(
+      errors,
+      'ImageUrl',
+      'ImageUrl doit être un chemin relatif commençant par /images/ ou une URL https.',
+    )
+  if (b.ordre != null && !(Number.isInteger(b.ordre) && b.ordre >= 0 && b.ordre <= 10000))
+    addError(errors, 'Ordre', 'La valeur doit être comprise entre 0 et 10000.')
+  throwIfInvalid(errors)
+  if (!findCategorie(b.categorieId))
+    throw fieldError('CategorieId', "Cette catégorie n'existe pas.")
+}
+
+const blankToNull = (v) => (typeof v === 'string' && v.trim() ? v.trim() : null)
+
+function applyArticle(a, b, now) {
+  a.categorieId = b.categorieId
+  a.nomFr = b.nomFr.trim()
+  a.nomAr = b.nomAr.trim()
+  a.descriptionFr = blankToNull(b.descriptionFr)
+  a.descriptionAr = blankToNull(b.descriptionAr)
+  a.prix = b.prix
+  a.imageUrl = b.imageUrl ?? null
+  a.estDisponible = b.estDisponible ?? true
+  a.estPopulaire = b.estPopulaire ?? false
+  a.dateMiseAJour = now
+}
+
+const requireBool = (b, key, field) => {
+  if (typeof b[key] !== 'boolean') throw fieldError(field, 'Le champ est requis (booléen).')
+  return b[key]
+}
+
+// ---------------------------------------------------------------------------------------------
+// Admin : restaurant
+// ---------------------------------------------------------------------------------------------
+const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/
+
+function updateRestaurant(b) {
+  const errors = {}
+  checkRequiredString(errors, 'Nom', b.nom, 100)
+  checkRequiredString(errors, 'Telephone', b.telephone, 20)
+  if (typeof b.telephone === 'string' && b.telephone.trim() && !PHONE_RE.test(b.telephone))
+    addError(errors, 'Telephone', "Le numéro de téléphone n'est pas valide.")
+  checkRequiredString(errors, 'Email', b.email, 150)
+  if (typeof b.email === 'string' && b.email.trim() && !EMAIL_RE.test(b.email))
+    addError(errors, 'Email', "L'e-mail n'est pas valide.")
+  checkRequiredString(errors, 'Adresse', b.adresse, 300)
+  checkMoney(errors, 'FraisLivraison', b.fraisLivraison)
+  checkMoney(errors, 'MontantMinimumLivraison', b.montantMinimumLivraison)
+  throwIfInvalid(errors)
+  Object.assign(restaurant, {
+    nom: b.nom.trim(),
+    telephone: b.telephone.trim(),
+    email: b.email.trim(),
+    adresse: b.adresse.trim(),
+    fraisLivraison: b.fraisLivraison,
+    montantMinimumLivraison: b.montantMinimumLivraison,
+  })
+}
+
+function updateHoraires(b) {
+  const errors = {}
+  if (!Array.isArray(b.horaires)) addError(errors, 'Horaires', 'Le champ Horaires est requis.')
+  else
+    b.horaires.forEach((h, i) => {
+      if (!Number.isInteger(h?.jourSemaine) || h.jourSemaine < 0 || h.jourSemaine > 6)
+        addError(errors, `Horaires[${i}].JourSemaine`, 'La valeur doit être comprise entre 0 et 6.')
+      for (const [key, field] of [
+        ['ouverture', 'Ouverture'],
+        ['fermeture', 'Fermeture'],
+      ])
+        if (h?.[key] != null && !HHMM_RE.test(h[key]))
+          addError(errors, `Horaires[${i}].${field}`, 'Format attendu : HH:mm.')
+    })
+  throwIfInvalid(errors)
+
+  const list = b.horaires
+  if (list.length !== 7 || new Set(list.map((h) => h.jourSemaine)).size !== 7)
+    throw fieldError('Horaires', 'Il faut exactement un horaire pour chacun des 7 jours (0 à 6).')
+  const parsed = list.map((h, i) => {
+    if (h.estFerme)
+      return { jourSemaine: h.jourSemaine, ouverture: null, fermeture: null, estFerme: true }
+    if (!h.ouverture)
+      throw fieldError(
+        `Horaires[${i}].Ouverture`,
+        "L'ouverture est requise (HH:mm) pour un jour non fermé.",
+      )
+    if (!h.fermeture)
+      throw fieldError(
+        `Horaires[${i}].Fermeture`,
+        'La fermeture est requise (HH:mm) pour un jour non fermé.',
+      )
+    if (h.ouverture === h.fermeture)
+      throw fieldError(`Horaires[${i}].Fermeture`, "La fermeture doit différer de l'ouverture.")
+    return {
+      jourSemaine: h.jourSemaine,
+      ouverture: h.ouverture,
+      fermeture: h.fermeture,
+      estFerme: false,
+    }
+  })
+  restaurant.horaires = parsed.sort((a, b2) => a.jourSemaine - b2.jourSemaine)
+}
+
+// ---------------------------------------------------------------------------------------------
+// Routage
+// ---------------------------------------------------------------------------------------------
+
+/** Retourne { status, body } (body absent = pas de contenu) ; les erreurs sont lancées via problem(). */
+async function route(req, url, user) {
+  const { pathname: path } = url
+  const method = req.method
+  const lang = url.searchParams.get('lang') === 'ar' ? 'ar' : 'fr'
+  const need = () => {
+    if (!user) throw problem(401, 'Authentification requise.')
+    return user
+  }
+  /** 401 sans jeton valide, 403 si l'utilisateur n'a pas le rôle Admin. */
+  const needAdmin = () => {
+    const u = need()
+    if (!u.roles.includes('Admin')) throw problem(403, 'Accès refusé.')
+    return u
+  }
+
+  // --- Public ---
+  if (method === 'GET' && path === '/api/menu') {
+    // Simulations : ?fail=1 → 500 ; ?empty=1 → menu vide ; ?delay=800 → latence.
+    if (url.searchParams.get('fail')) throw problem(500, 'Erreur simulée')
+    if (url.searchParams.get('empty')) return { status: 200, body: [] }
+    return { status: 200, body: menuFor(lang) }
+  }
+  if (method === 'GET' && path === '/api/restaurant')
+    return { status: 200, body: restaurantResponse() }
+  const table = path.match(/^\/api\/tables\/([^/]+)$/)
+  if (method === 'GET' && table) {
+    const numero = TABLES[table[1].toLowerCase()]
+    if (!numero) throw problem(404, 'Table introuvable.')
+    return { status: 200, body: { numero } }
+  }
+
+  // --- Auth ---
+  if (method === 'POST' && path === '/api/auth/register') {
+    const b = await readJson(req)
+    if (!b.email || !EMAIL_RE.test(b.email)) throw fieldError('Email', "L'e-mail n'est pas valide.")
+    if (!b.password || b.password.length < 8)
+      throw fieldError('Password', 'Le mot de passe doit contenir au moins 8 caractères.')
+    if (db.users.some((u) => u.email.toLowerCase() === b.email.toLowerCase()))
+      throw problem(409, 'Un compte existe déjà avec cet identifiant ou cet e-mail.')
+    db.users.push({
+      id: `u-${randomUUID()}`,
+      userName: b.userName ?? b.email.split('@')[0],
+      nom: b.nom ?? null,
+      email: b.email,
+      telephone: b.telephone ?? null,
+      password: b.password,
+      roles: ['Client'],
+      langueFavorite: b.langueFavorite ?? 'fr',
+      estActif: true,
+      dateCreation: toIso(Date.now()),
+    })
+    return { status: 201 }
+  }
+  if (method === 'POST' && path === '/api/auth/login') {
+    const b = await readJson(req)
+    const wanted = String(b.identifiant ?? '').toLowerCase()
+    const u = db.users.find(
+      (x) => x.email.toLowerCase() === wanted || x.userName.toLowerCase() === wanted,
+    )
+    if (!u || u.password !== b.password) throw problem(401, 'Authentification échouée.')
+    // Comme le vrai back-end : mot de passe valide mais compte désactivé → 403.
+    if (!u.estActif) throw problem(403, 'Ce compte est désactivé.')
+    const token = `mock-${randomUUID()}`
+    const expires = Date.now() + TOKEN_TTL_MS
+    db.sessions.set(token, { userId: u.id, expires })
+    return { status: 200, body: { token, expiresAtUtc: toIso(expires), user: publicUser(u) } }
+  }
+  if (method === 'GET' && path === '/api/auth/me') return { status: 200, body: publicUser(need()) }
+  if (method === 'PUT' && path === '/api/auth/me') {
+    const u = need()
+    const b = await readJson(req)
+    if (!['fr', 'ar'].includes(b.langueFavorite))
+      throw fieldError('LangueFavorite', "La langue doit être 'fr' ou 'ar'.")
+    u.nom = b.nom ?? null
+    u.telephone = b.telephone ?? null
+    u.langueFavorite = b.langueFavorite
+    return { status: 200, body: publicUser(u) }
+  }
+  if (method === 'POST' && path === '/api/auth/me/password') {
+    const u = need()
+    const b = await readJson(req)
+    if (u.password !== b.currentPassword)
+      throw fieldError('CurrentPassword', 'Mot de passe incorrect.')
+    if (!b.newPassword || b.newPassword.length < 8)
+      throw fieldError('NewPassword', 'Le mot de passe doit contenir au moins 8 caractères.')
+    u.password = b.newPassword
+    return { status: 204 }
+  }
+
+  // --- Panier ---
+  if (path === '/api/panier' && method === 'GET')
+    return { status: 200, body: cartResponse(need().id, lang) }
+  if (path === '/api/panier' && method === 'DELETE') {
+    db.carts.delete(need().id)
+    return { status: 200, body: cartResponse(user.id, 'fr') }
+  }
+  if (path === '/api/panier/items' && method === 'POST') {
+    const u = need()
+    const b = await readJson(req)
+    if (!(b.quantite >= 1 && b.quantite <= MAX_QTY)) throw qtyError()
+    const a = findArticle(b.articleId)
+    if (!a || !isVisible(a)) throw problem(404, 'Article introuvable.')
+    if (!a.estDisponible) throw problem(409, "Cet article n'est pas disponible pour le moment.")
+    const cart = db.carts.get(u.id) ?? new Map()
+    cart.set(a.id, Math.min((cart.get(a.id) ?? 0) + b.quantite, MAX_QTY))
+    db.carts.set(u.id, cart)
+    return { status: 200, body: cartResponse(u.id, lang) }
+  }
+  const item = path.match(/^\/api\/panier\/items\/(\d+)$/)
+  if (item && method === 'PUT') {
+    const u = need()
+    const b = await readJson(req)
+    const id = Number(item[1])
+    if (!(b.quantite >= 1 && b.quantite <= MAX_QTY)) throw qtyError()
+    const a = findArticle(id)
+    if (!a) throw problem(404, 'Article introuvable.')
+    const cart = db.carts.get(u.id) ?? new Map()
+    if ((!cart.has(id) || b.quantite > cart.get(id)) && !isOrderable(a))
+      throw problem(409, "Cet article n'est pas disponible pour le moment.")
+    cart.set(id, b.quantite)
+    db.carts.set(u.id, cart)
+    return { status: 200, body: cartResponse(u.id, lang) }
+  }
+  if (item && method === 'DELETE') {
+    const u = need()
+    db.carts.get(u.id)?.delete(Number(item[1]))
+    return { status: 200, body: cartResponse(u.id, lang) }
+  }
+
+  // --- Commandes (client) ---
+  if (path === '/api/commandes' && method === 'POST')
+    return { status: 201, body: clientOrder(await createOrder(need(), await readJson(req))) }
+  if (path === '/api/commandes' && method === 'GET') {
+    const u = need()
+    const mine = db.orders.filter((o) => o.userId === u.id).sort((a, b) => b.id - a.id)
+    const result = paged(mine, paging(url))
+    return { status: 200, body: { ...result, items: result.items.map(orderResume) } }
+  }
+  const one = path.match(/^\/api\/commandes\/(\d+)(\/annuler)?$/)
+  if (one) {
+    const u = need()
+    const order = db.orders.find((o) => o.id === Number(one[1]) && o.userId === u.id)
+    if (!order) throw problem(404, 'Commande introuvable.')
+    if (method === 'GET' && !one[2]) return { status: 200, body: clientOrder(order) }
+    if (method === 'POST' && one[2]) {
+      if (order.statut !== 'EnAttente')
+        throw problem(409, 'Seule une commande en attente peut être annulée.')
+      order.statut = 'Annulee'
+      touch(order, u, 'Annulee')
+      return { status: 200, body: clientOrder(order) }
+    }
+  }
+
+  // --- Admin : commandes ---
+  if (path === '/api/admin/commandes' && method === 'GET') {
+    needAdmin()
+    return { status: 200, body: listAdminOrders(url) }
+  }
+  if (path === '/api/admin/commandes/actives' && method === 'GET') {
+    needAdmin()
+    const rows = db.orders
+      .filter((o) => ACTIVE_STATUTS.includes(o.statut))
+      .sort((a, b) => Date.parse(a.dateCommande) - Date.parse(b.dateCommande) || a.id - b.id)
+      .slice(0, MAX_ACTIVES)
+    return { status: 200, body: rows.map(activeOrder) }
+  }
+  if (path === '/api/admin/commandes/compteurs' && method === 'GET') {
+    needAdmin()
+    return { status: 200, body: compteurs() }
+  }
+  const adminOne = path.match(/^\/api\/admin\/commandes\/(\d+)(?:\/(statut|paiement))?$/)
+  if (adminOne) {
+    const admin = needAdmin()
+    if (method === 'GET' && !adminOne[2])
+      return { status: 200, body: adminOrder(findOrder(adminOne[1])) }
+    if (method === 'PATCH' && adminOne[2] === 'statut') {
+      const order = findOrder(adminOne[1])
+      return { status: 200, body: changerStatut(admin, order, await readJson(req)) }
+    }
+    if (method === 'PATCH' && adminOne[2] === 'paiement') {
+      const order = findOrder(adminOne[1])
+      const estPayee = requireBool(await readJson(req), 'estPayee', 'EstPayee')
+      if (order.statut === 'Annulee')
+        throw problem(409, "Le paiement d'une commande annulée ne peut pas être modifié.")
+      if (order.estPayee !== estPayee) {
+        order.estPayee = estPayee
+        touch(order, null, null)
+      }
+      return { status: 200, body: adminOrder(order) }
+    }
+  }
+
+  // --- Admin : catégories ---
+  if (path === '/api/admin/categories' && method === 'GET') {
+    needAdmin()
+    return { status: 200, body: listCategoriesAdmin() }
+  }
+  if (path === '/api/admin/categories' && method === 'POST') {
+    needAdmin()
+    const b = await readJson(req)
+    validateCategorie(b)
+    const nomFr = b.nomFr.trim()
+    ensureCategorieNameFree(nomFr, null)
+    const c = {
+      id: Math.max(0, ...categories.map((x) => x.id)) + 1,
+      nomFr,
+      nomAr: b.nomAr.trim(),
+      ordre: b.ordre ?? Math.max(0, ...categories.map((x) => x.ordre)) + 1,
+      estActive: true,
+    }
+    categories.push(c)
+    return { status: 201, body: categorieAdmin(c) }
+  }
+  if (path === '/api/admin/categories/ordre' && method === 'PUT') {
+    needAdmin()
+    const ids = readIds(await readJson(req))
+    const unknown = ids.filter((id) => !findCategorie(id))
+    if (unknown.length) throw fieldError('Ids', `Catégorie(s) inconnue(s) : ${unknown.join(', ')}.`)
+    const rest = [...categories].sort(byOrdre).filter((c) => !ids.includes(c.id))
+    renumber([...ids.map(findCategorie), ...rest])
+    return { status: 200, body: listCategoriesAdmin() }
+  }
+  const catOne = path.match(/^\/api\/admin\/categories\/(\d+)(\/active)?$/)
+  if (catOne) {
+    needAdmin()
+    const c = findCategorieOr404(catOne[1])
+    if (method === 'GET' && !catOne[2]) return { status: 200, body: categorieAdmin(c) }
+    if (method === 'PUT' && !catOne[2]) {
+      const b = await readJson(req)
+      validateCategorie(b)
+      const nomFr = b.nomFr.trim()
+      ensureCategorieNameFree(nomFr, c.id)
+      Object.assign(c, { nomFr, nomAr: b.nomAr.trim(), ordre: b.ordre ?? c.ordre })
+      return { status: 200, body: categorieAdmin(c) }
+    }
+    if (method === 'PATCH' && catOne[2]) {
+      const estActive = requireBool(await readJson(req), 'estActive', 'EstActive')
+      if (!estActive) {
+        const actifs = articles.filter((a) => a.categorieId === c.id && a.estActif).length
+        if (actifs > 0)
+          throw problem(
+            409,
+            `Impossible de désactiver cette catégorie : elle contient ${actifs} article(s) actif(s). Désactivez-les d'abord.`,
+          )
+      }
+      c.estActive = estActive
+      return { status: 200, body: categorieAdmin(c) }
+    }
+  }
+
+  // --- Admin : articles ---
+  if (path === '/api/admin/articles' && method === 'GET') {
+    needAdmin()
+    const q = url.searchParams
+    const flag = (name) => {
+      const raw = q.get(name)?.trim().toLowerCase()
+      if (!raw) return null
+      if (raw !== 'true' && raw !== 'false') throw fieldError(name, "La valeur n'est pas valide.")
+      return raw === 'true'
+    }
+    const categorieId = q.get('categorieId') ? Number(q.get('categorieId')) : null
+    if (categorieId !== null && !Number.isInteger(categorieId))
+      throw fieldError('categorieId', "La valeur n'est pas valide.")
+    const actif = flag('actif')
+    const disponible = flag('disponible')
+    const term = q.get('recherche')?.trim().toLowerCase()
+    const rows = articles
+      .filter(
+        (a) =>
+          (categorieId === null || a.categorieId === categorieId) &&
+          (actif === null || a.estActif === actif) &&
+          (disponible === null || a.estDisponible === disponible) &&
+          (!term || a.nomFr.toLowerCase().includes(term) || a.nomAr.toLowerCase().includes(term)),
+      )
+      .sort(articleSort)
+    const result = paged(rows, paging(url))
+    return { status: 200, body: { ...result, items: result.items.map(articleAdmin) } }
+  }
+  if (path === '/api/admin/articles' && method === 'POST') {
+    needAdmin()
+    const b = await readJson(req)
+    validateArticle(b)
+    const now = toIso(Date.now())
+    const a = {
+      id: Math.max(0, ...articles.map((x) => x.id)) + 1,
+      estActif: true,
+      dateCreation: now,
+      ordre:
+        b.ordre ??
+        Math.max(
+          0,
+          ...articles.filter((x) => x.categorieId === b.categorieId).map((x) => x.ordre),
+        ) + 1,
+    }
+    applyArticle(a, b, now)
+    articles.push(a)
+    return { status: 201, body: articleAdmin(a) }
+  }
+  if (path === '/api/admin/articles/ordre' && method === 'PUT') {
+    needAdmin()
+    const ids = readIds(await readJson(req))
+    const listed = ids.map(findArticle)
+    const unknown = ids.filter((id, i) => !listed[i])
+    if (unknown.length) throw fieldError('Ids', `Article(s) inconnu(s) : ${unknown.join(', ')}.`)
+    const categorieIds = new Set(listed.map((a) => a.categorieId))
+    if (categorieIds.size !== 1)
+      throw fieldError('Ids', 'Tous les articles doivent appartenir à la même catégorie.')
+    const [categorieId] = categorieIds
+    const rest = articles
+      .filter((a) => a.categorieId === categorieId && !ids.includes(a.id))
+      .sort(byOrdre)
+    const now = toIso(Date.now())
+    const ordered = [...listed, ...rest]
+    renumber(ordered)
+    ordered.forEach((a) => (a.dateMiseAJour = now))
+    return { status: 200, body: ordered.sort(byOrdre).map(articleAdmin) }
+  }
+  const artOne = path.match(/^\/api\/admin\/articles\/(\d+)(?:\/(disponible|actif))?$/)
+  if (artOne) {
+    needAdmin()
+    const a = findArticleOr404(artOne[1])
+    const now = toIso(Date.now())
+    if (method === 'GET' && !artOne[2]) return { status: 200, body: articleAdmin(a) }
+    if (method === 'PUT' && !artOne[2]) {
+      const b = await readJson(req)
+      validateArticle(b)
+      applyArticle(a, b, now)
+      a.ordre = b.ordre ?? a.ordre
+      return { status: 200, body: articleAdmin(a) }
+    }
+    if (method === 'PATCH' && artOne[2] === 'disponible') {
+      a.estDisponible = requireBool(await readJson(req), 'estDisponible', 'EstDisponible')
+      a.dateMiseAJour = now
+      return { status: 200, body: articleAdmin(a) }
+    }
+    if (method === 'PATCH' && artOne[2] === 'actif') {
+      a.estActif = requireBool(await readJson(req), 'estActif', 'EstActif')
+      a.dateMiseAJour = now
+      return { status: 200, body: articleAdmin(a) }
+    }
+  }
+
+  // --- Admin : restaurant ---
+  if (path === '/api/admin/restaurant' && method === 'PUT') {
+    needAdmin()
+    updateRestaurant(await readJson(req))
+    return { status: 200, body: restaurantResponse() }
+  }
+  if (path === '/api/admin/restaurant/horaires' && method === 'PUT') {
+    needAdmin()
+    updateHoraires(await readJson(req))
+    return { status: 200, body: restaurantResponse() }
+  }
+  if (path === '/api/admin/restaurant/commandes-ouvertes' && method === 'PATCH') {
+    needAdmin()
+    db.settings.commandesOuvertes = requireBool(
+      await readJson(req),
+      'commandesOuvertes',
+      'CommandesOuvertes',
+    )
+    return { status: 200, body: restaurantResponse() }
+  }
+
+  // --- Admin : utilisateurs ---
+  const adminUser = (u) => ({
+    id: u.id,
+    userName: u.userName,
+    email: u.email,
+    nom: u.nom,
+    estActif: u.estActif,
+    dateCreation: u.dateCreation,
+  })
+  if (path === '/api/admin/users' && method === 'GET') {
+    needAdmin()
+    const term = url.searchParams.get('search')?.trim().toLowerCase()
+    const rows = db.users
+      .filter(
+        (u) =>
+          !term ||
+          u.userName.toLowerCase().includes(term) ||
+          u.email.toLowerCase().includes(term) ||
+          (u.nom ?? '').toLowerCase().includes(term),
+      )
+      .sort((a, b) => a.userName.localeCompare(b.userName, 'en'))
+    const result = paged(rows, paging(url))
+    return { status: 200, body: { ...result, items: result.items.map(adminUser) } }
+  }
+  const userActif = path.match(/^\/api\/admin\/users\/([^/]+)\/actif$/)
+  if (userActif && method === 'PATCH') {
+    const admin = needAdmin()
+    const estActif = requireBool(await readJson(req), 'estActif', 'EstActif')
+    const id = decodeURIComponent(userActif[1])
+    if (!estActif && id === admin.id)
+      throw problem(400, 'Un administrateur ne peut pas se désactiver lui-même.')
+    const target = db.users.find((u) => u.id === id)
+    if (!target) throw problem(404, 'Utilisateur introuvable.')
+    target.estActif = estActif
+    return { status: 200, body: adminUser(target) }
+  }
+
+  // --- Contrôles de test (n'existent PAS dans le vrai back-end) ---
+  if (method === 'POST' && path === '/__mock/reset') {
+    resetDb() // utilisateurs, sessions, paniers, commandes, menu, restaurant, disponibilités, réglages
+    return { status: 204 }
+  }
+  if (method === 'POST' && path === '/__mock/settings') {
+    Object.assign(db.settings, await readJson(req)) // { commandesOuvertes, forceClosed }
+    return { status: 200, body: db.settings }
+  }
+  if (method === 'POST' && path === '/__mock/seed') {
+    const b = await readJson(req)
+    const count = Math.min(Math.max(Number.isInteger(b.count) ? b.count : 4, 1), 50)
+    return { status: 201, body: { ids: seedOrders(count) } }
+  }
+  if (method === 'POST' && path === '/__mock/commandes/new') {
+    // Commande « entrante » EnAttente, créée maintenant, pendant que l'écran admin tourne.
+    const b = await readJson(req)
+    const client = db.users.find((u) => u.id === 'u-client')
+    const type = TYPES.includes(b.typeCommande) ? b.typeCommande : 'ARemporter'
+    const [nom, tel] = SEED_CLIENTS[db.nextOrderId % SEED_CLIENTS.length]
+    const cart = Array.isArray(b.lignes)
+      ? b.lignes
+          .filter((l) => findArticle(l.articleId))
+          .map((l) => [l.articleId, Math.min(Math.max(Number(l.quantite) || 1, 1), MAX_QTY)])
+      : sampleCart(db.nextOrderId)
+    if (!cart.length) throw fieldError('Lignes', 'Aucun article valide.')
+    const order = buildOrder({
+      user: client,
+      nomClient: b.nomClient ?? nom,
+      telephone: b.telephone ?? tel,
+      type,
+      tableNumero: type === 'SurPlace' ? (b.tableNumero ?? 1) : null,
+      adresse:
+        type === 'Livraison' ? (b.adresseLivraison ?? '24 rue de Marseille, 1002 Tunis') : null,
+      note: b.note,
+      cart,
+      dateMs: Date.now(),
+    })
+    return { status: 201, body: adminOrder(order) }
+  }
+  const adv = path.match(/^\/__mock\/commandes\/(\d+)\/(avancer|statut)$/)
+  if (adv && method === 'POST') {
+    const order = db.orders.find((o) => o.id === Number(adv[1]))
+    if (!order) throw problem(404, 'Commande introuvable.')
+    const next =
+      adv[2] === 'statut'
+        ? (await readJson(req)).statut
+        : STATUS_FLOW[STATUS_FLOW.indexOf(order.statut) + 1]
+    if (next) {
+      order.statut = next
+      touch(order, null, next)
+    }
+    return { status: 200, body: clientOrder(order) }
+  }
+  if (method === 'POST' && path === '/__mock/articles/disponibilite') {
+    const b = await readJson(req) // { id, disponible }
+    const a = findArticle(b.id)
+    if (a) a.estDisponible = Boolean(b.disponible)
+    return { status: 200, body: { id: b.id, disponible: a?.estDisponible } }
+  }
+
+  throw problem(404, 'Introuvable (mock)')
 }
 
 const server = createServer(async (req, res) => {
@@ -488,6 +1420,7 @@ const server = createServer(async (req, res) => {
     result = await route(req, url, authenticate(req))
   } catch (error) {
     if (error && typeof error.status === 'number') result = error
+    else if (error instanceof SyntaxError) result = problem(400, 'Corps JSON invalide.')
     else {
       console.error(error)
       result = problem(500, 'Erreur du mock')

@@ -15,3 +15,13 @@ export const TableEntry = lazy(() => import('@/pages/TableEntry'))
 export const Orders = lazy(() => import('@/pages/Orders'))
 export const OrderDetail = lazy(() => import('@/pages/OrderDetail'))
 export const Profile = lazy(() => import('@/pages/Profile'))
+
+// Administration : chargée uniquement pour les comptes Admin.
+export const AdminLayout = lazy(() =>
+  import('@/components/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })),
+)
+export const Forbidden = lazy(() => import('@/pages/admin/Forbidden'))
+export const AdminOrders = lazy(() => import('@/pages/admin/AdminOrders'))
+export const AdminMenu = lazy(() => import('@/pages/admin/AdminMenu'))
+export const AdminRestaurant = lazy(() => import('@/pages/admin/AdminRestaurant'))
+export const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'))

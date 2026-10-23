@@ -160,3 +160,40 @@ export const TableIcon = (p: IconProps) => (
     <path d="M3 9h18M5 9l1 10M19 9l-1 10M12 9v10" />
   </Base>
 )
+export const BellIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16ZM10 20.5a2 2 0 0 0 4 0" />
+  </Base>
+)
+export const BellOffIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M6 16V11a6 6 0 0 1 9-5.2M18 11v5l1.5 2h-15M10 20.5a2 2 0 0 0 4 0M3 3l18 18" />
+  </Base>
+)
+export const EditIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" />
+  </Base>
+)
+export const ArrowUpIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 19V5M6 11l6-6 6 6" />
+  </Base>
+)
+export const ArrowDownIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 5v14M6 13l6 6 6-6" />
+  </Base>
+)
+export const SettingsIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" />
+  </Base>
+)
+export const UsersIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="9" cy="8.5" r="3.2" />
+    <path d="M3 20c.6-3.4 3-5 6-5s5.4 1.6 6 5M16 5.5a3 3 0 0 1 0 6M18 15.2c1.6.7 2.7 2.2 3 4.8" />
+  </Base>
+)

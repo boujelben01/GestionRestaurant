@@ -1,7 +1,7 @@
 {
   "brand": {
     "name": "ريستو",
-    "tagline": "أكل تونسي بنّة، محضّر في الدار",
+    "tagline": "ريستو",
     "description": "بريك، لبلابي، مقلوب، شاورما وأطباق تونسية: اطلب أونلاين من مطعمك التونسي."
   },
   "lang": {
@@ -24,7 +24,8 @@
     "mobile": "قائمة التنقل",
     "orders": "طلباتي",
     "cart": "السلة",
-    "profile": "الملف الشخصي"
+    "profile": "الملف الشخصي",
+    "admin": "الإدارة"
   },
   "a11y": {
     "skipToContent": "انتقل إلى المحتوى الرئيسي",
@@ -448,6 +449,243 @@
       "saved": "كلمة السر تبدّلت.",
       "mismatch": "كلمتين السر موش كيف كيف.",
       "wrongCurrent": "كلمة السر الحالية غالطة."
+    }
+  },
+  "admin": {
+    "nav": {
+      "title": "الإدارة",
+      "main": "قائمة التنقل للإدارة",
+      "open": "افتح قائمة التنقل",
+      "close": "سكّر قائمة التنقل",
+      "viewSite": "شوف الموقع",
+      "orders": "الطلبات",
+      "menu": "القائمة",
+      "restaurant": "المطعم",
+      "users": "المستخدمين",
+      "pendingCount_zero": "ما فما حتى طلب في الانتظار",
+      "pendingCount_one": "طلب واحد في الانتظار",
+      "pendingCount_two": "طلبين في الانتظار",
+      "pendingCount_few": "{{count}} طلبات في الانتظار",
+      "pendingCount_many": "{{count}} طلب في الانتظار",
+      "pendingCount_other": "{{count}} طلب في الانتظار"
+    },
+    "forbidden": {
+      "title": "الدخول ممنوع",
+      "text": "حسابك ما عندوش صلاحيات الإدارة. إذا تظن إنو غلطة، اتصل بمسؤول المطعم."
+    },
+    "errors": {
+      "forbidden": "هذا الإجراء موش مسموح لهذا الحساب."
+    },
+    "common": {
+      "active": "مفعّل",
+      "inactive": "موقوف",
+      "all": "الكل",
+      "edit": "عدّل",
+      "save": "سجّل",
+      "saved": "تسجّل.",
+      "search": "قلّب",
+      "resetFilters": "رجّع الفلاتر من الأول",
+      "previous": "السابق",
+      "next": "التالي",
+      "pagination": "الصفحات",
+      "pageOf": "الصفحة {{page}} من {{pages}}",
+      "results_zero": "ما فما حتى نتيجة",
+      "results_one": "نتيجة واحدة",
+      "results_two": "نتيجتين",
+      "results_few": "{{count}} نتائج",
+      "results_many": "{{count}} نتيجة",
+      "results_other": "{{count}} نتيجة"
+    },
+    "sound": {
+      "on": "الصوت شغّال",
+      "off": "الصوت مقطوع",
+      "unlock": "اضغط هنا باش تسمح بالصوت (المتصفح يطلب هذا)",
+      "unsupported": "الصوت موش متوفر في هذا المتصفح."
+    },
+    "orders": {
+      "views": "عروض الطلبات",
+      "viewActive": "الجارية",
+      "viewHistory": "السجل",
+      "statusTabs": "حالات الطلبات الجارية",
+      "today_zero": "اليوم: ما فما حتى طلب",
+      "today_one": "اليوم: طلب واحد",
+      "today_two": "اليوم: طلبين",
+      "today_few": "اليوم: {{count}} طلبات",
+      "today_many": "اليوم: {{count}} طلب",
+      "today_other": "اليوم: {{count}} طلب",
+      "newCount_zero": "ما فما حتى طلب جديد",
+      "newCount_one": "طلب جديد",
+      "newCount_two": "طلبين جداد",
+      "newCount_few": "{{count}} طلبات جداد",
+      "newCount_many": "{{count}} طلب جديد",
+      "newCount_other": "{{count}} طلب جديد",
+      "newAnnounce_zero": "طلب جديد {{numero}}",
+      "newAnnounce_one": "طلب جديد {{numero}}",
+      "newAnnounce_two": "طلبين جداد {{numero}}",
+      "newAnnounce_few": "طلبات جداد {{numero}}",
+      "newAnnounce_many": "طلبات جداد {{numero}}",
+      "newAnnounce_other": "طلبات جداد {{numero}}",
+      "newBadge": "جديد",
+      "dismiss": "(تعليم كمشاهد)",
+      "connectionLost": "الاتصال تقطع: المعطيات المعروضة ممكن تكون قديمة.",
+      "emptyColumn": "ما فما حتى طلب",
+      "statusAnnounce": "{{numero}}: {{status}}",
+      "justNow": "توّا",
+      "late": "متأخر",
+      "note": "ملاحظة",
+      "customer": "الحريف",
+      "paid": "مخلّص",
+      "unpaid": "باش يتخلّص",
+      "markPaid": "علّم كمخلّص",
+      "markUnpaid": "علّم كغير مخلّص",
+      "cancel": "ألغي",
+      "cancelTitle": "تلغي الطلب {{numero}}؟",
+      "cancelText": "الحريف بش يشوف طلبو ملغي. هذا الإجراء نهائي.",
+      "openDetail": "شوف تفاصيل الطلب {{numero}}",
+      "action": {
+        "EnPreparation": "حضّر",
+        "Prete": "جاهز",
+        "Terminee": "مكتمل"
+      },
+      "errors": {
+        "conflict": "الطلب تبدّل ولا هذه المرحلة ما عادش ممكنة: الشاشة تحدّثت."
+      },
+      "history": "السجل",
+      "by": "من طرف {{name}}",
+      "bySystem": "أوتوماتيكي",
+      "filters": "فلاتر السجل",
+      "filterStatus": "الحالة",
+      "filterType": "النوع",
+      "filterPaid": "الدفع",
+      "filterFrom": "من",
+      "filterTo": "إلى",
+      "filterSearch": "بحث",
+      "searchPlaceholder": "الرقم، الاسم ولا الهاتف",
+      "historyEmpty": "ما فما حتى طلب يطابق هذه الفلاتر.",
+      "col": {
+        "number": "الرقم",
+        "date": "التاريخ",
+        "customer": "الحريف",
+        "type": "النوع",
+        "total": "المجموع",
+        "payment": "الدفع",
+        "status": "الحالة"
+      }
+    },
+    "menu": {
+      "articles": "المنتجات",
+      "categories": "الأصناف",
+      "nameFr": "الاسم (فرنسي)",
+      "nameAr": "الاسم (عربي)",
+      "moveUp": "طلّع {{name}}",
+      "moveDown": "نزّل {{name}}",
+      "activeArticles_zero": "ما فما حتى منتج مفعّل",
+      "activeArticles_one": "منتج واحد مفعّل",
+      "activeArticles_two": "منتجين مفعّلين",
+      "activeArticles_few": "{{count}} منتجات مفعّلة",
+      "activeArticles_many": "{{count}} منتج مفعّل",
+      "activeArticles_other": "{{count}} منتج مفعّل",
+      "errors": {
+        "required": "هذه الخانة إجبارية.",
+        "tooLong": "النص طويل برشا (الأقصى {{max}} حرف).",
+        "priceInvalid": "اكتب سعر صحيح (مثلا 4,50).",
+        "priceNegative": "السعر ما ينجمش يكون بالسالب.",
+        "priceTooHigh": "السعر غالي برشا.",
+        "priceDecimals": "رقمين بعد الفاصلة كحد أقصى.",
+        "imageUrl": "استعمل « /images/nom.jpg » ولا رابط https://…",
+        "category": "اختار صنف."
+      },
+      "category": {
+        "new": "صنف جديد",
+        "edit": "عدّل الصنف",
+        "empty": "ما فما حتى صنف توّا.",
+        "nameTaken": "فما صنف عندو نفس الاسم.",
+        "deactivateConflict": "ما تنجمش توقّف هذا الصنف: وقّف المنتجات المفعّلة متاعو الأول.",
+        "moved": "الصنف {{name}} تنقل للمرتبة {{position}}"
+      },
+      "article": {
+        "new": "منتج جديد",
+        "edit": "عدّل المنتج",
+        "empty": "ما فما حتى منتج يطابق.",
+        "category": "الصنف",
+        "chooseCategory": "اختار صنف",
+        "descriptionFr": "الوصف (فرنسي)",
+        "descriptionAr": "الوصف (عربي)",
+        "price": "السعر (د.ت)",
+        "priceHint": "الفاصلة ولا النقطة مقبولين، رقمين بعد الفاصلة كحد أقصى.",
+        "imageUrl": "الصورة",
+        "imageHelp": "/images/nom.jpg ولا https://…",
+        "preview": "معاينة",
+        "popular": "الأكثر طلبا",
+        "available": "متوفر للطلب",
+        "availableShort": "متوفر",
+        "soldOut": "خلص",
+        "filterActive": "الحالة",
+        "filterAvailable": "التوفّر",
+        "deactivateTitle": "توقّف هذا المنتج؟",
+        "deactivateText": "« {{name}} » ما عادش يظهر في القائمة العامة.",
+        "deactivateConfirm": "وقّف",
+        "moved": "المنتج {{name}} تنقل للمرتبة {{position}}",
+        "reorderHint": "استعمل الأسهم باش تبدّل ترتيب منتجات هذا الصنف في القائمة.",
+        "reorderNeedsCategoryOnly": "باش تعاود الترتيب، فلتر على صنف واحد بلا فلاتر أخرى ولا بحث.",
+        "reorderTooMany": "هذا الصنف فيه أكثر من 50 منتج: إعادة الترتيب موقوفة."
+      }
+    },
+    "restaurant": {
+      "ordersTitle": "قبول الطلبات",
+      "ordersOn": "الطلبات مفتوحة",
+      "ordersOff": "الطلبات مسكّرة",
+      "ordersHelp": "تسكير الطلبات يمنع أي طلب جديد، حتى وقت ساعات العمل.",
+      "takeOrders": "نقبل الطلبات",
+      "nowOpen": "الطلبات تفتحت.",
+      "nowClosed": "الطلبات تسكّرت.",
+      "closeTitle": "تسكّر الطلبات؟",
+      "closeText": "الحرفاء ما عادش ينجمو يبعثو طلبات جداد حتى تعاود تفتحها.",
+      "closeConfirm": "سكّر الطلبات",
+      "settingsTitle": "معلومات المطعم",
+      "name": "الاسم",
+      "deliveryFee": "مصاريف التوصيل (د.ت)",
+      "deliveryMinimum": "أدنى طلب للتوصيل (د.ت)",
+      "hoursTitle": "ساعات العمل",
+      "opening": "الفتح",
+      "closing": "التسكير",
+      "errors": {
+        "required": "هذه الخانة إجبارية.",
+        "tooLong": "النص طويل برشا.",
+        "email": "اكتب بريد إلكتروني صحيح.",
+        "phone": "اكتب رقم هاتف صحيح.",
+        "priceInvalid": "اكتب مبلغ صحيح (مثلا 3,00).",
+        "priceNegative": "المبلغ ما ينجمش يكون بالسالب.",
+        "priceTooHigh": "المبلغ كبير برشا.",
+        "priceDecimals": "رقمين بعد الفاصلة كحد أقصى.",
+        "imageUrl": "قيمة غير صحيحة.",
+        "category": "قيمة غير صحيحة."
+      },
+      "dayErrors": {
+        "required": "الوقت مطلوب.",
+        "format": "الصيغة المطلوبة HH:mm.",
+        "same": "وقت الفتح والتسكير كيف كيف."
+      }
+    },
+    "users": {
+      "searchPlaceholder": "الاسم، البريد ولا اسم المستخدم",
+      "empty": "ما لقينا حتى مستخدم.",
+      "deactivate": "وقّف",
+      "reactivate": "فعّل من جديد",
+      "deactivatedBadge": "موقوف",
+      "deactivated": "الحساب توقّف.",
+      "reactivated": "الحساب تفعّل من جديد.",
+      "selfExplain": "ما تنجمش توقّف حسابك إنت.",
+      "confirmTitle": "توقّف هذا الحساب؟",
+      "confirmText": "{{name}} ما عادش ينجم يدخل كان الحساب موقوف.",
+      "col": {
+        "name": "الاسم",
+        "email": "البريد",
+        "username": "المستخدم",
+        "created": "الإنشاء",
+        "status": "الحالة",
+        "actions": "إجراءات"
+      }
     }
   }
 }

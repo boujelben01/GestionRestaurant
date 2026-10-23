@@ -9,3 +9,6 @@ export const ACCOUNT_LINKS = [
   { to: '/commandes', key: 'nav.orders' },
   { to: '/profil', key: 'nav.profile' },
 ] as const
+
+/** Lien d'administration : affiché seulement aux comptes ayant le rôle Admin. */
+export const ADMIN_LINK = { to: '/admin', key: 'nav.admin' } as const
