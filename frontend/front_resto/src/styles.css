@@ -1,0 +1,263 @@
+/* Styles pour la page d'accueil */
+.home-container {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    padding: 20px;
+  }
+  
+  .home-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .home-header h1 {
+    font-size: 36px;
+    color: #333;
+  }
+  
+  .home-header p {
+    font-size: 18px;
+    color: #555;
+  }
+  
+  .home-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .home-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 24px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    margin: 10px 0;
+    cursor: pointer;
+  }
+  
+  .home-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .home-footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 14px;
+    color: #888;
+  }
+  
+  
+  /* Styles pour la page Menu */
+  .menu-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f7f7f7;
+  }
+  
+  .menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .menu-item {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .menu-item h2 {
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .menu-item p {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .menu-item button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .menu-item button:hover {
+    background-color: #0056b3;
+  }
+  
+  .back-btn {
+    background-color: #ccc;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .back-btn:hover {
+    background-color: #aaa;
+  }
+  /* Styles pour la page Profil */
+  .profil-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f7f7f7;
+  }
+  
+  .user-info {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-info p {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .logout-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .logout-btn:hover {
+    background-color: #c0392b;
+  }
+  /* Styles pour la page Commandes */
+  .commandes-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f7f7f7;
+  }
+  
+  .commandes-container h2 {
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .commandes-container ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .commandes-container li {
+    background-color: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .commandes-container button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .commandes-container button:hover {
+    background-color: #0056b3;
+  }
+  
+  .commandes-container button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  /* Auth.css */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Prend toute la hauteur de l'écran */
+    background-color: #f4f4f9;
+    font-family: Arial, sans-serif;
+  }
+  
+  .auth-box {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Largeur maximale */
+    text-align: center;
+  }
+  
+  .auth-title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .auth-form label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-align: left;
+  }
+  
+  .auth-form input {
+    padding: 0.8rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .auth-button {
+    background-color: #4CAF50; /* Vert */
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .auth-button:hover {
+    background-color: #45a049;
+  }
+  
+  .auth-error {
+    color: red;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  
+  .auth-footer {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .auth-footer a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
+  
