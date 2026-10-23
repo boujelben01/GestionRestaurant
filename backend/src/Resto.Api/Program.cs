@@ -5,6 +5,9 @@ using Resto.Api.Common;
 using Resto.Api.Data;
 using Resto.Api.Domain;
 using Resto.Api.Features.Auth;
+using Resto.Api.Features.Menu;
+using Resto.Api.Features.Menu.Admin;
+using Resto.Api.Features.Restaurant;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +30,11 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthRateLimiting();
+
+builder.Services.AddScoped<MenuService>();
+builder.Services.AddScoped<CategorieAdminService>();
+builder.Services.AddScoped<ArticleAdminService>();
+builder.Services.AddScoped<RestaurantService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:5173"];

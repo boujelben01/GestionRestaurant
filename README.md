@@ -57,6 +57,39 @@ Toutes les routes exigent un jeton `Authorization: Bearer <jwt>`, sauf `register
 
 Un compte désactivé est refusé à chaque requête, même avec un jeton encore valide. Les erreurs suivent RFC 7807 (`application/problem+json`).
 
+## Menu et restaurant
+
+Routes publiques (anonymes, GET). `lang=fr|ar` (défaut `fr`, repli sur le français si la traduction est vide). Le menu est servi avec `Cache-Control: public, max-age=60` : une modification admin peut mettre jusqu'à 60 s à apparaître.
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET | `/api/menu` | Catégories actives avec leurs articles actifs |
+| GET | `/api/menu/categories` | Catégories actives |
+| GET | `/api/menu/articles` | Articles paginés (`categorieId`, `populaire`, `recherche`, `page`, `pageSize` ≤ 50) |
+| GET | `/api/menu/articles/{id}` | Détail d'un article |
+| GET | `/api/restaurant` | Paramètres, horaires des 7 jours, `ouvertMaintenant` (fuseau Africa/Tunis) |
+
+Un article indisponible reste visible (`disponible: false`). Un article inactif, ou dont la catégorie est inactive, n'est jamais renvoyé.
+
+Administration (rôle Admin). Il n'y a aucune route DELETE : « supprimer » = désactiver.
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET, POST | `/api/admin/categories` | Liste complète (inactives incluses), création |
+| GET, PUT | `/api/admin/categories/{id}` | Détail, modification |
+| PATCH | `/api/admin/categories/{id}/active` | Active/désactive (409 si articles actifs) |
+| PUT | `/api/admin/categories/ordre` | Réordonne : `{ "ids": [..] }` dans le nouvel ordre |
+| GET, POST | `/api/admin/articles` | Liste paginée (`categorieId`, `actif`, `disponible`, `recherche`), création |
+| GET, PUT | `/api/admin/articles/{id}` | Détail, modification |
+| PATCH | `/api/admin/articles/{id}/disponible` | Disponible ou non |
+| PATCH | `/api/admin/articles/{id}/actif` | Active/désactive |
+| PUT | `/api/admin/articles/ordre` | Réordonne (articles d'une même catégorie) |
+| PUT | `/api/admin/restaurant` | Paramètres (frais, minimum, téléphone, e-mail, adresse) |
+| PUT | `/api/admin/restaurant/horaires` | Remplace les 7 horaires (`HH:mm`, `jourSemaine` 0 = dimanche à 6 = samedi) |
+| PATCH | `/api/admin/restaurant/commandes-ouvertes` | Ouvre ou ferme la prise de commandes |
+
+`ImageUrl` : chemin relatif `/images/<nom>` (lettres, chiffres, `.`, `_`, `-`) ou URL `https`. Une fermeture antérieure à l'ouverture signifie une fermeture après minuit.
+
 ## Tests
 
 ```powershell

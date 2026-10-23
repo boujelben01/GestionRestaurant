@@ -80,12 +80,52 @@ public class ApiFactory : WebApplicationFactory<Program>
             await CreateUserAsync(users, "admin", Roles.Admin, active: true);
             await CreateUserAsync(users, "client", Roles.Client, active: true);
             await CreateUserAsync(users, "inactif", Roles.Client, active: false);
+            await SeedCatalogAsync(scope.ServiceProvider.GetRequiredService<AppDbContext>());
             _seeded = true;
         }
         finally
         {
             _seedLock.Release();
         }
+    }
+
+    public async Task<int> ArticleIdAsync(string nomFr)
+    {
+        await EnsureSeededAsync();
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return (await db.Articles.SingleAsync(a => a.NomFr == nomFr)).Id;
+    }
+
+    public async Task<int> CategorieIdAsync(string nomFr)
+    {
+        await EnsureSeededAsync();
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return (await db.Categories.SingleAsync(c => c.NomFr == nomFr)).Id;
+    }
+
+    private static async Task SeedCatalogAsync(AppDbContext db)
+    {
+        var entrees = new Categorie { NomFr = "Entrées", NomAr = "المقبلات", Ordre = 1 };
+        var archive = new Categorie { NomFr = "Archive", NomAr = "أرشيف", Ordre = 2, EstActive = false };
+        db.Categories.AddRange(entrees, archive);
+        db.Articles.AddRange(
+            new Article { Categorie = entrees, NomFr = "Brik", NomAr = "بريك", Prix = 3.5m, Ordre = 1, EstPopulaire = true, ImageUrl = "/images/brik.jpg" },
+            new Article { Categorie = entrees, NomFr = "Soupe", NomAr = "", Prix = 4m, Ordre = 2, EstDisponible = false },
+            new Article { Categorie = entrees, NomFr = "Ancien plat", NomAr = "قديم", Prix = 5m, Ordre = 3, EstActif = false },
+            new Article { Categorie = archive, NomFr = "Caché", NomAr = "مخفي", Prix = 6m, Ordre = 1 });
+
+        db.ParametresRestaurant.Add(new ParametresRestaurant
+        {
+            Id = 1, Nom = "Resto", Telephone = "+216 70 000 000", Email = "contact@resto.local",
+            Adresse = "Tunis", FraisLivraison = 3m, MontantMinimumLivraison = 15m, CommandesOuvertes = true
+        });
+        db.Horaires.AddRange(Enumerable.Range(0, 7).Select(day => new Horaire
+        {
+            JourSemaine = day, Ouverture = new TimeOnly(11, 0), Fermeture = new TimeOnly(23, 0)
+        }));
+        await db.SaveChangesAsync();
     }
 
     private static async Task CreateUserAsync(UserManager<ApplicationUser> users, string name, string role, bool active)

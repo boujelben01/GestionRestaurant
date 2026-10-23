@@ -62,3 +62,108 @@ Content-Type: application/json
 
 ### Santé (anonyme)
 GET {{host}}/health
+
+### Menu public (fr ou ar)
+GET {{host}}/api/menu?lang=ar
+
+### Articles : filtres et pagination
+GET {{host}}/api/menu/articles?populaire=true&recherche=brik&page=1&pageSize=20
+
+### Détail d'un article
+GET {{host}}/api/menu/articles/1?lang=fr
+
+### Restaurant : infos, horaires, ouvertMaintenant
+GET {{host}}/api/restaurant
+
+### Admin : créer une catégorie
+POST {{host}}/api/admin/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nomFr": "Spécialités", "nomAr": "تخصصات" }
+
+### Admin : désactiver une catégorie (409 si elle a des articles actifs)
+PATCH {{host}}/api/admin/categories/1/active
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "estActive": false }
+
+### Admin : réordonner les catégories
+PUT {{host}}/api/admin/categories/ordre
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "ids": [2, 1, 3] }
+
+### Admin : liste des articles (filtres)
+GET {{host}}/api/admin/articles?actif=true&disponible=false&categorieId=1
+Authorization: Bearer {{token}}
+
+### Admin : créer un article
+POST {{host}}/api/admin/articles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "categorieId": 1,
+  "nomFr": "Brik au fromage",
+  "nomAr": "بريك بالجبن",
+  "descriptionFr": "Brik croustillant au fromage.",
+  "descriptionAr": "بريك مقرمش بالجبن.",
+  "prix": 3.5,
+  "imageUrl": "/images/default.svg",
+  "estPopulaire": false
+}
+
+### Admin : article indisponible / désactivé
+PATCH {{host}}/api/admin/articles/1/disponible
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "estDisponible": false }
+
+###
+PATCH {{host}}/api/admin/articles/1/actif
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "estActif": false }
+
+### Admin : paramètres du restaurant
+PUT {{host}}/api/admin/restaurant
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Resto",
+  "telephone": "+216 70 000 000",
+  "email": "contact@resto.local",
+  "adresse": "Avenue Habib Bourguiba, Tunis",
+  "fraisLivraison": 3,
+  "montantMinimumLivraison": 15
+}
+
+### Admin : horaires (0 = dimanche ... 6 = samedi ; fermeture < ouverture = après minuit)
+PUT {{host}}/api/admin/restaurant/horaires
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "horaires": [
+    { "jourSemaine": 0, "estFerme": true },
+    { "jourSemaine": 1, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 2, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 3, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 4, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 5, "ouverture": "18:00", "fermeture": "02:00", "estFerme": false },
+    { "jourSemaine": 6, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false }
+  ]
+}
+
+### Admin : ouvrir / fermer la prise de commandes
+PATCH {{host}}/api/admin/restaurant/commandes-ouvertes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "commandesOuvertes": false }
