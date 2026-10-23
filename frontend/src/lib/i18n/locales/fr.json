@@ -1,0 +1,227 @@
+{
+  "brand": {
+    "name": "Resto",
+    "tagline": "Cuisine tunisienne, faite maison",
+    "description": "Brik, lablabi, makloub, chawarma et plats tounsi : commandez en ligne auprès de votre restaurant tunisien."
+  },
+  "lang": {
+    "fr": "Français",
+    "ar": "العربية",
+    "frShort": "FR",
+    "arShort": "عربي"
+  },
+  "nav": {
+    "home": "Accueil",
+    "menu": "Menu",
+    "contact": "Contact",
+    "account": "Mon compte",
+    "login": "Connexion",
+    "register": "Créer un compte",
+    "logout": "Se déconnecter",
+    "openMenu": "Ouvrir le menu de navigation",
+    "closeMenu": "Fermer le menu de navigation",
+    "main": "Navigation principale",
+    "mobile": "Menu de navigation",
+    "orders": "Mes commandes",
+    "cart": "Panier"
+  },
+  "a11y": {
+    "skipToContent": "Aller au contenu principal",
+    "language": "Choisir la langue",
+    "switchToLang": "Afficher le site en {{language}}",
+    "close": "Fermer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "notifications": "Notifications",
+    "userMenu": "Menu du compte de {{name}}",
+    "loadingPage": "Chargement de la page",
+    "cartUnavailable_one": "Panier, bientôt disponible, {{count}} article",
+    "cartUnavailable_other": "Panier, bientôt disponible, {{count}} articles",
+    "opensInNewTab": "s'ouvre dans un nouvel onglet",
+    "callUs": "Appeler le restaurant",
+    "writeToUs": "Écrire au restaurant"
+  },
+  "common": {
+    "retry": "Réessayer",
+    "back": "Retour",
+    "backHome": "Retour à l'accueil",
+    "optional": "facultatif",
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "seeMenu": "Voir le menu",
+    "orderNow": "Commander",
+    "comingSoon": "Bientôt disponible",
+    "or": "ou",
+    "price": "Prix",
+    "free": "Offert"
+  },
+  "seo": {
+    "homeTitle": "Cuisine tunisienne à emporter et sur place",
+    "homeDescription": "Brik, lablabi, makloub, chawarma et plats tounsi préparés chaque jour. Consultez le menu et commandez en ligne.",
+    "menuTitle": "Notre menu",
+    "menuDescription": "Découvrez notre carte : briks, lablabi, makloub, chawarma, plats tounsi et desserts maison.",
+    "contactTitle": "Contact et horaires",
+    "contactDescription": "Adresse, téléphone, e-mail et horaires d'ouverture de votre restaurant tunisien.",
+    "loginTitle": "Connexion",
+    "loginDescription": "Connectez-vous pour commander et suivre vos commandes.",
+    "registerTitle": "Créer un compte",
+    "registerDescription": "Créez votre compte pour commander plus vite et retrouver vos commandes.",
+    "notFoundTitle": "Page introuvable",
+    "errorTitle": "Une erreur est survenue"
+  },
+  "home": {
+    "eyebrow": "Cuisine tunisienne",
+    "title": "Le goût de la Tunisie, à votre table",
+    "subtitle": "Des recettes de famille, des produits frais et le piquant qu'il faut, préparés chaque jour.",
+    "popularTitle": "Les plats qu'on adore",
+    "popularSubtitle": "Les préférés de nos clients",
+    "seeAll": "Voir tout le menu",
+    "whyTitle": "Pourquoi nous choisir",
+    "why1Title": "Fait maison",
+    "why1Text": "Pâtes, sauces et harissa préparées sur place, chaque jour.",
+    "why2Title": "Produits frais",
+    "why2Text": "Légumes, viandes et poissons choisis le matin même.",
+    "why3Title": "Rapide et chaleureux",
+    "why3Text": "Sur place, à emporter ou livré : on s'occupe de tout."
+  },
+  "menu": {
+    "title": "Notre menu",
+    "subtitle": "Tout est préparé à la commande.",
+    "allCategories": "Tout",
+    "categories": "Catégories",
+    "popular": "Populaire",
+    "unavailable": "Indisponible",
+    "addToCart": "Ajouter au panier",
+    "addedToCart": "{{name}} ajouté au panier",
+    "emptyCategoryTitle": "Rien ici pour le moment",
+    "emptyCategoryText": "Cette catégorie n'a pas encore de plats. Revenez bientôt !",
+    "emptyTitle": "Le menu arrive bientôt",
+    "emptyText": "Nous préparons notre carte. Revenez nous voir très vite.",
+    "loadError": "Impossible de charger le menu.",
+    "priceFrom": "À partir de {{price}}"
+  },
+  "cart": {
+    "title": "Votre panier",
+    "comingSoon": "Le panier arrive bientôt",
+    "empty": "Votre panier est vide",
+    "emptyText": "Parcourez le menu et ajoutez vos plats préférés.",
+    "subtotal": "Sous-total",
+    "total": "Total",
+    "delivery": "Livraison",
+    "quantity": "Quantité",
+    "increase": "Ajouter un exemplaire de {{name}}",
+    "decrease": "Retirer un exemplaire de {{name}}",
+    "remove": "Retirer {{name}} du panier",
+    "continue": "Continuer la commande",
+    "warningInactive": "Ce plat n'est plus au menu.",
+    "warningUnavailable": "Ce plat est momentanément indisponible."
+  },
+  "order": {
+    "type": {
+      "SurPlace": "Sur place",
+      "ARemporter": "À emporter",
+      "Livraison": "Livraison"
+    },
+    "status": {
+      "EnAttente": "En attente",
+      "EnPreparation": "En préparation",
+      "Prete": "Prête",
+      "Terminee": "Terminée",
+      "Annulee": "Annulée"
+    },
+    "number": "Commande {{number}}",
+    "phone": "Téléphone",
+    "note": "Note pour la cuisine",
+    "address": "Adresse de livraison",
+    "place": "Passer la commande",
+    "success": "Commande envoyée, merci !"
+  },
+  "contact": {
+    "title": "Contact et horaires",
+    "subtitle": "Une question, une réservation, une commande spéciale ? Écrivez-nous ou passez nous voir.",
+    "address": "Adresse",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "hours": "Horaires d'ouverture",
+    "call": "Appeler",
+    "write": "Écrire",
+    "directions": "Itinéraire",
+    "loadError": "Impossible de charger les informations du restaurant."
+  },
+  "restaurant": {
+    "openNow": "Ouvert maintenant",
+    "closedNow": "Fermé actuellement",
+    "today": "Aujourd'hui",
+    "closed": "Fermé",
+    "hoursRange": "{{open}} – {{close}}"
+  },
+  "footer": {
+    "tagline": "Cuisine tunisienne, faite maison.",
+    "explore": "Explorer",
+    "contact": "Nous trouver",
+    "hours": "Horaires",
+    "hoursUnavailable": "Horaires momentanément indisponibles.",
+    "contactUnavailable": "Coordonnées momentanément indisponibles.",
+    "rights": "© {{year}} {{name}}. Tous droits réservés."
+  },
+  "auth": {
+    "login": {
+      "title": "Content de vous revoir",
+      "subtitle": "Connectez-vous pour commander et suivre vos commandes.",
+      "identifiant": "E-mail ou nom d'utilisateur",
+      "identifiantPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte"
+    },
+    "register": {
+      "title": "Créer votre compte",
+      "subtitle": "Quelques secondes pour commander plus vite.",
+      "name": "Nom complet",
+      "email": "Adresse e-mail",
+      "phone": "Téléphone",
+      "phoneHint": "Utile pour vous joindre au sujet d'une commande.",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins {{min}} caractères.",
+      "submit": "Créer mon compte",
+      "hasAccount": "Déjà un compte ?",
+      "signIn": "Se connecter"
+    },
+    "welcome": "Bienvenue, {{name}} !",
+    "loggedOut": "Vous êtes déconnecté.",
+    "sessionExpired": "Votre session a expiré. Reconnectez-vous pour continuer.",
+    "errors": {
+      "invalidCredentials": "E-mail ou mot de passe incorrect.",
+      "locked": "Trop de tentatives. Réessayez dans quelques minutes.",
+      "emailTaken": "Un compte existe déjà avec cette adresse e-mail.",
+      "form": "Corrigez les champs signalés pour continuer."
+    }
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire.",
+    "email": "Saisissez une adresse e-mail valide.",
+    "passwordMin": "Le mot de passe doit contenir au moins {{min}} caractères.",
+    "phone": "Saisissez un numéro de téléphone valide.",
+    "tooLong": "{{max}} caractères maximum."
+  },
+  "errors": {
+    "generic": "Une erreur inattendue est survenue. Veuillez réessayer.",
+    "network": "Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez.",
+    "server": "Le serveur rencontre un problème. Réessayez dans un instant.",
+    "loadFailedTitle": "Chargement impossible",
+    "loadFailed": "Nous n'avons pas pu charger ces informations.",
+    "page": {
+      "title": "Oups, quelque chose s'est mal passé",
+      "text": "La page n'a pas pu s'afficher. Réessayez, ou retournez à l'accueil."
+    },
+    "notFound": {
+      "title": "Cette page n'existe pas",
+      "text": "Le lien est peut-être erroné, ou la page a été déplacée. Retrouvons votre chemin vers la table."
+    }
+  }
+}
