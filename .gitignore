@@ -6,3 +6,4 @@ dist/
 *.user
 secrets.json
 .env
+.omc/
