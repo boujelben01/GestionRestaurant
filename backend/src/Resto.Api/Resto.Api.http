@@ -1,0 +1,64 @@
+@host = http://localhost:5118
+@token = <coller-le-token-du-login>
+
+### Inscription (rôle Client attribué automatiquement)
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "nom": "Yazid",
+  "email": "client@example.com",
+  "password": "MotDePasse123!",
+  "telephone": "+21620123456",
+  "langueFavorite": "fr"
+}
+
+### Connexion (identifiant = nom d'utilisateur ou e-mail)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifiant": "client@example.com",
+  "password": "MotDePasse123!"
+}
+
+### Profil courant
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Modifier le profil
+PUT {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Yazid B.",
+  "telephone": "+21620123456",
+  "langueFavorite": "ar"
+}
+
+### Changer le mot de passe
+POST {{host}}/api/auth/me/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "MotDePasse123!",
+  "newPassword": "NouveauMotDePasse123!"
+}
+
+### Admin : liste paginée des utilisateurs
+GET {{host}}/api/admin/users?page=1&pageSize=20&search=yazid
+Authorization: Bearer {{token}}
+
+### Admin : activer / désactiver un utilisateur
+PATCH {{host}}/api/admin/users/<id>/actif
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "estActif": false
+}
+
+### Santé (anonyme)
+GET {{host}}/health
