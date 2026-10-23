@@ -16,7 +16,7 @@ import {
 } from '@/components/ui'
 import { ZelligePattern } from '@/components/ui'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { NAV_ITEMS } from './nav'
+import { ACCOUNT_LINKS, NAV_ITEMS } from './nav'
 
 interface MobileMenuProps {
   open: boolean
@@ -94,14 +94,21 @@ function MobilePanel({ onClose, user, onLogout }: Omit<MobileMenuProps, 'open'>)
         transition={{ duration: 0.45, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
       >
         {user ? (
-          <div className="flex items-center justify-between gap-3 rounded-lg bg-white p-4 shadow-soft">
+          <div className="flex flex-col gap-3 rounded-lg bg-white p-4 shadow-soft">
             <div className="min-w-0">
               <p className="truncate font-semibold">{user.nom?.trim() || user.userName}</p>
               <p className="truncate text-sm text-ink-500" dir="ltr">
                 {user.email}
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={onLogout}>
+            <div className="grid grid-cols-2 gap-2">
+              {ACCOUNT_LINKS.map((item) => (
+                <Button key={item.to} to={item.to} variant="outline" size="sm" onClick={onClose}>
+                  {t(item.key)}
+                </Button>
+              ))}
+            </div>
+            <Button variant="ghost" size="sm" onClick={onLogout}>
               {t('nav.logout')}
             </Button>
           </div>

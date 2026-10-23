@@ -11,8 +11,7 @@ import {
   ZelligeDivider,
   ZelligePattern,
 } from '@/components/ui'
-import { useAuth } from '@/features/auth/AuthContext'
-import { ArticleCard } from '@/features/menu/ArticleCard'
+import { ConnectedArticleCard } from '@/features/cart/ConnectedArticleCard'
 import { useMenu } from '@/features/menu/api'
 import { ArticleGridSkeleton } from '@/features/menu/MenuSkeleton'
 import { InfoBand } from '@/features/restaurant/InfoBand'
@@ -85,13 +84,11 @@ function Hero() {
 
 function PopularSection() {
   const { t } = useTranslation()
-  const { isAuthenticated } = useAuth()
   const { data, isPending, isError, refetch, isFetching } = useMenu()
   const popular = (data ?? [])
     .flatMap((category) => category.articles)
     .filter((article) => article.estPopulaire)
     .slice(0, POPULAR_LIMIT)
-  const addHint = isAuthenticated ? t('common.comingSoon') : t('menu.signInToOrder')
 
   return (
     <section aria-labelledby="popular-title" className="container-page pt-24 pb-8">
@@ -132,7 +129,7 @@ function PopularSection() {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {popular.map((article, index) => (
               <Reveal as="li" key={article.id} index={index % 3} className="h-full">
-                <ArticleCard article={article} addHint={addHint} />
+                <ConnectedArticleCard article={article} />
               </Reveal>
             ))}
           </ul>

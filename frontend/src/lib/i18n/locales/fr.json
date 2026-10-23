@@ -23,7 +23,8 @@
     "main": "Navigation principale",
     "mobile": "Menu de navigation",
     "orders": "Mes commandes",
-    "cart": "Panier"
+    "cart": "Panier",
+    "profile": "Profil"
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal",
@@ -35,11 +36,11 @@
     "notifications": "Notifications",
     "userMenu": "Menu du compte de {{name}}",
     "loadingPage": "Chargement de la page",
-    "cartUnavailable_one": "Panier, bientôt disponible, {{count}} article",
-    "cartUnavailable_other": "Panier, bientôt disponible, {{count}} articles",
     "opensInNewTab": "s'ouvre dans un nouvel onglet",
     "callUs": "Appeler le restaurant",
-    "writeToUs": "Écrire au restaurant"
+    "writeToUs": "Écrire au restaurant",
+    "cartCount_one": "Panier, {{count}} article",
+    "cartCount_other": "Panier, {{count}} articles"
   },
   "common": {
     "retry": "Réessayer",
@@ -137,11 +138,11 @@
     "resetFilters": "Réinitialiser",
     "signInToOrder": "Connectez-vous pour commander",
     "add": "Ajouter",
-    "addAria": "Ajouter {{name}} au panier"
+    "addAria": "Ajouter {{name}} au panier",
+    "unavailableHint": "Article momentanément indisponible"
   },
   "cart": {
     "title": "Votre panier",
-    "comingSoon": "Le panier arrive bientôt",
     "empty": "Votre panier est vide",
     "emptyText": "Parcourez le menu et ajoutez vos plats préférés.",
     "subtotal": "Sous-total",
@@ -152,8 +153,37 @@
     "decrease": "Retirer un exemplaire de {{name}}",
     "remove": "Retirer {{name}} du panier",
     "continue": "Continuer la commande",
-    "warningInactive": "Ce plat n'est plus au menu.",
-    "warningUnavailable": "Ce plat est momentanément indisponible."
+    "warningInactive": "Cet article n’est plus au menu : retirez-le.",
+    "warningUnavailable": "Cet article n’est plus disponible : retirez-le.",
+    "added": "{{name}} ajouté au panier",
+    "view": "Voir le panier",
+    "inCart": "{{count}} au panier",
+    "errors": {
+      "unavailable": "Cet article n'est plus disponible.",
+      "notFound": "Cet article n'existe plus."
+    },
+    "unitPrice": "{{price}} l’unité",
+    "quantityOf": "Quantité de {{name}}",
+    "maxReached": "Maximum {{max}} par article",
+    "maxHint": "Vous pouvez commander jusqu’à {{max}} exemplaires de chaque article.",
+    "quantityChanged": "{{name}} : quantité {{count}}",
+    "removedAnnounce": "{{name}} retiré du panier",
+    "clearedAnnounce": "Panier vidé",
+    "itemCount_one": "{{count}} article",
+    "itemCount_other": "{{count}} articles",
+    "closedBanner": "Le restaurant ne prend pas de commandes pour le moment. Vous pouvez remplir votre panier et commander plus tard.",
+    "closedReason": "Commande impossible : le restaurant est fermé pour le moment.",
+    "blockedReason": "Retirez les articles indisponibles pour passer la commande.",
+    "loadError": "Impossible de charger votre panier.",
+    "linesLabel": "Articles du panier",
+    "clear": "Vider le panier",
+    "addMore": "Ajouter des plats",
+    "summary": "Récapitulatif du panier",
+    "feesNote": "Les frais de livraison éventuels sont calculés à l’étape suivante.",
+    "checkout": "Passer la commande",
+    "clearTitle": "Vider le panier ?",
+    "clearText": "Tous les articles seront retirés de votre panier.",
+    "clearConfirm": "Oui, vider"
   },
   "order": {
     "type": {
@@ -268,5 +298,74 @@
       "title": "Cette page n'existe pas",
       "text": "Le lien est peut-être erroné, ou la page a été déplacée. Retrouvons votre chemin vers la table."
     }
+  },
+  "table": {
+    "banner": "Vous êtes à la table {{number}}",
+    "number": "Table {{number}}",
+    "leave": "Quitter la table",
+    "title": "Votre table",
+    "checking": "Vérification de votre table…",
+    "notFoundTitle": "Table introuvable",
+    "notFoundText": "Ce code de table n’est pas valide. Scannez à nouveau le QR code posé sur votre table, ou parcourez le menu."
+  },
+  "checkout": {
+    "title": "Finaliser la commande",
+    "subtitle": "Quelques informations et c’est parti.",
+    "stepType": "Comment souhaitez-vous être servi ?",
+    "stepContact": "Vos coordonnées",
+    "stepDelivery": "Livraison",
+    "stepTable": "Votre table",
+    "typeDesc": {
+      "ARemporter": "Retrait au comptoir",
+      "Livraison": "Chez vous · frais {{fee}}",
+      "SurPlace": "Servi à la table {{number}}"
+    },
+    "counter": "{{count}} / {{max}} caractères",
+    "notePlaceholder": "Allergies, sans piment, cuisson…",
+    "addressHint": "Rue, numéro, repères · {{min}} à {{max}} caractères ({{count}} saisis)",
+    "deliveryInfo": "Frais de livraison : {{fee}} · commande minimum : {{minimum}}.",
+    "belowMinimum": "Il manque {{missing}} pour atteindre le minimum de livraison.",
+    "addMore": "Ajouter des plats",
+    "backToCart": "Retour au panier",
+    "summary": "Récapitulatif",
+    "previewNote": "Aperçu : le montant définitif est confirmé à la création de la commande.",
+    "payment": "Paiement :",
+    "cash": "Espèces à la réception",
+    "confirm": "Confirmer la commande",
+    "sending": "Envoi en cours…",
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "phone": "Saisissez un numéro de téléphone valide.",
+      "tooLong": "{{max}} caractères maximum.",
+      "addressLength": "L’adresse doit contenir entre {{min}} et {{max}} caractères.",
+      "tableRequired": "Scannez le QR code de votre table pour commander sur place."
+    },
+    "failure": {
+      "empty": "Votre panier est vide.",
+      "minimum": "Le minimum de commande pour la livraison n’est pas atteint.",
+      "closed": "Le restaurant ne prend plus de commandes pour le moment.",
+      "unavailable": "Certains articles ne sont plus disponibles. Retirez-les de votre panier.",
+      "fields": "Vérifiez les informations signalées.",
+      "network": "Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez.",
+      "server": "Le serveur rencontre un problème. Réessayez dans un instant.",
+      "generic": "La commande n’a pas pu être envoyée. Veuillez réessayer."
+    },
+    "blocker": {
+      "unavailable": "Retirez les articles indisponibles de votre panier.",
+      "closed": "Le restaurant ne prend pas de commandes pour le moment.",
+      "minimum": "Le minimum de livraison n’est pas atteint."
+    }
+  },
+  "confirmation": {
+    "title": "Commande confirmée",
+    "heading": "Merci, votre commande est envoyée !",
+    "waiting": "Elle est en attente de préparation. Nous vous préviendrons dès qu’elle avance.",
+    "numberLabel": "Numéro de commande",
+    "type": "Mode",
+    "table": "Table",
+    "track": "Suivre ma commande",
+    "backToMenu": "Retour au menu",
+    "notFoundTitle": "Commande introuvable",
+    "notFoundText": "Cette commande n’existe pas ou ne vous appartient pas."
   }
 }

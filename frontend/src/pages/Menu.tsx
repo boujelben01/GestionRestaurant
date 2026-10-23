@@ -14,8 +14,8 @@ import {
   Skeleton,
   StarIcon,
 } from '@/components/ui'
-import { useAuth } from '@/features/auth/AuthContext'
-import { ArticleCard } from '@/features/menu/ArticleCard'
+import { ConnectedArticleCard } from '@/features/cart/ConnectedArticleCard'
+import { TableBanner } from '@/features/orders/TableBanner'
 import { useMenu } from '@/features/menu/api'
 import { CategoryNav } from '@/features/menu/CategoryNav'
 import { countArticles, filterCategories } from '@/features/menu/filter'
@@ -28,7 +28,6 @@ const SEARCH_DELAY_MS = 250
 
 export default function Menu() {
   const { t } = useTranslation()
-  const { isAuthenticated } = useAuth()
   const { data, isPending, isError, refetch, isFetching } = useMenu()
 
   const [query, setQuery] = useState('')
@@ -44,7 +43,6 @@ export default function Menu() {
   const ids = useMemo(() => categories.map((c) => c.id), [categories])
   const { activeId, select } = useScrollSpy(ids)
 
-  const addHint = isAuthenticated ? t('common.comingSoon') : t('menu.signInToOrder')
   const reset = () => {
     setQuery('')
     setPopularOnly(false)
@@ -53,6 +51,7 @@ export default function Menu() {
   return (
     <>
       <Seo title={t('seo.menuTitle')} description={t('seo.menuDescription')} />
+      <TableBanner />
       <PageHeader title={t('menu.title')} subtitle={t('menu.subtitle')}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1 sm:max-w-md">
@@ -178,7 +177,7 @@ export default function Menu() {
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {category.articles.map((article, index) => (
                   <Reveal as="li" key={article.id} index={index % 3} className="h-full">
-                    <ArticleCard article={article} addHint={addHint} />
+                    <ConnectedArticleCard article={article} />
                   </Reveal>
                 ))}
               </ul>

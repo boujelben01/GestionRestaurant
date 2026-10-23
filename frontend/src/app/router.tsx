@@ -1,8 +1,27 @@
+import type { ReactNode } from 'react'
 import { createBrowserRouter, type RouteObject } from 'react-router-dom'
-import { Layout } from '@/components/layout/Layout'
+import { Layout, PageFallback } from '@/components/layout/Layout'
+import { RequireAuth } from '@/features/auth/guards'
 import ErrorPage from '@/pages/ErrorPage'
-import { Contact, Home, Login, Menu, NotFound, Register } from './lazyPages'
+import {
+  Cart,
+  Checkout,
+  Contact,
+  Home,
+  Login,
+  Menu,
+  NotFound,
+  OrderConfirmation,
+  OrderDetail,
+  Orders,
+  Profile,
+  Register,
+  TableEntry,
+} from './lazyPages'
 import { Root } from './Root'
+
+/** Page réservée aux connectés : redirige vers /connexion (state.from) sinon. */
+const guarded = (page: ReactNode) => <RequireAuth fallback={<PageFallback />}>{page}</RequireAuth>
 
 export const routes: RouteObject[] = [
   {
@@ -22,6 +41,13 @@ export const routes: RouteObject[] = [
               { path: 'contact', element: <Contact /> },
               { path: 'connexion', element: <Login /> },
               { path: 'inscription', element: <Register /> },
+              { path: 'table/:code', element: <TableEntry /> },
+              { path: 'panier', element: guarded(<Cart />) },
+              { path: 'commande', element: guarded(<Checkout />) },
+              { path: 'commande/:id/confirmation', element: guarded(<OrderConfirmation />) },
+              { path: 'commandes', element: guarded(<Orders />) },
+              { path: 'commandes/:id', element: guarded(<OrderDetail />) },
+              { path: 'profil', element: guarded(<Profile />) },
               { path: '*', element: <NotFound /> },
             ],
           },

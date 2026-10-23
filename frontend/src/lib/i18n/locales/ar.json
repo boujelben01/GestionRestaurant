@@ -23,7 +23,8 @@
     "main": "التنقل الرئيسي",
     "mobile": "قائمة التنقل",
     "orders": "طلباتي",
-    "cart": "السلة"
+    "cart": "السلة",
+    "profile": "الملف الشخصي"
   },
   "a11y": {
     "skipToContent": "انتقل إلى المحتوى الرئيسي",
@@ -35,10 +36,15 @@
     "notifications": "الإشعارات",
     "userMenu": "قائمة حساب {{name}}",
     "loadingPage": "جاري تحميل الصفحة",
-    "cartUnavailable": "السلة، موش متوفرة توّا، {{count}} منتج",
     "opensInNewTab": "تتحل في نافذة جديدة",
     "callUs": "اتصل بالمطعم",
-    "writeToUs": "ابعث رسالة للمطعم"
+    "writeToUs": "ابعث رسالة للمطعم",
+    "cartCount_zero": "السلة، فارغة",
+    "cartCount_one": "السلة، منتج واحد",
+    "cartCount_two": "السلة، منتجين",
+    "cartCount_few": "السلة، {{count}} منتجات",
+    "cartCount_many": "السلة، {{count}} منتج",
+    "cartCount_other": "السلة، {{count}} منتج"
   },
   "common": {
     "retry": "عاود المحاولة",
@@ -140,11 +146,11 @@
     "resetFilters": "رجّع من الأول",
     "signInToOrder": "سجّل دخولك باش تطلب",
     "add": "زيد",
-    "addAria": "زيد {{name}} للسلة"
+    "addAria": "زيد {{name}} للسلة",
+    "unavailableHint": "المنتج موش متوفر توّا"
   },
   "cart": {
     "title": "سلّتك",
-    "comingSoon": "السلة قريبا",
     "empty": "سلّتك فارغة",
     "emptyText": "شوف القائمة وزيد الأطباق اللي تحبّها.",
     "subtotal": "المجموع الجزئي",
@@ -155,8 +161,41 @@
     "decrease": "نقّص وحدة من {{name}}",
     "remove": "شيل {{name}} من السلة",
     "continue": "كمّل الطلب",
-    "warningInactive": "هذا الطبق ما عادش في القائمة.",
-    "warningUnavailable": "هذا الطبق موش متوفر توّا."
+    "warningInactive": "هذا المنتج ما عادش في القائمة: شيلو.",
+    "warningUnavailable": "هذا المنتج ما عادش متوفر: شيلو.",
+    "added": "تزادت {{name}} للسلة",
+    "view": "شوف السلة",
+    "inCart": "{{count}} في السلة",
+    "errors": {
+      "unavailable": "هذا المنتج ما عادش متوفر.",
+      "notFound": "هذا المنتج ما عادش موجود."
+    },
+    "unitPrice": "{{price}} للوحدة",
+    "quantityOf": "كمية {{name}}",
+    "maxReached": "الحد الأقصى {{max}} لكل منتج",
+    "maxHint": "تنجم تطلب حتى {{max}} وحدة من كل منتج.",
+    "quantityChanged": "{{name}}: الكمية {{count}}",
+    "removedAnnounce": "تشال {{name}} من السلة",
+    "clearedAnnounce": "السلة تفرّغت",
+    "itemCount_zero": "ما فما حتى منتج",
+    "itemCount_one": "منتج واحد",
+    "itemCount_two": "منتجين",
+    "itemCount_few": "{{count}} منتجات",
+    "itemCount_many": "{{count}} منتج",
+    "itemCount_other": "{{count}} منتج",
+    "closedBanner": "المطعم موش قاعد يقبل طلبات توّا. تنجم تعمّر سلّتك وتطلب بعد.",
+    "closedReason": "ما تنجمش تطلب: المطعم مسكّر توّا.",
+    "blockedReason": "شيل المنتجات الغير متوفرة باش تكمّل الطلب.",
+    "loadError": "ما نجمناش نحمّلو سلّتك.",
+    "linesLabel": "منتجات السلة",
+    "clear": "فرّغ السلة",
+    "addMore": "زيد أطباق",
+    "summary": "ملخّص السلة",
+    "feesNote": "مصاريف التوصيل (إذا فما) تتحسب في المرحلة الجاية.",
+    "checkout": "كمّل الطلب",
+    "clearTitle": "تفرّغ السلة؟",
+    "clearText": "كل المنتجات بش تتشال من سلّتك.",
+    "clearConfirm": "إي، فرّغ"
   },
   "order": {
     "type": {
@@ -271,5 +310,74 @@
       "title": "هذه الصفحة غير موجودة",
       "text": "يمكن الرابط غالط، ولا الصفحة تبدّلت. يا الله نرجعو للطريق."
     }
+  },
+  "table": {
+    "banner": "إنت في الطاولة {{number}}",
+    "number": "الطاولة {{number}}",
+    "leave": "اخرج من الطاولة",
+    "title": "طاولتك",
+    "checking": "نتأكدو من طاولتك…",
+    "notFoundTitle": "الطاولة غير موجودة",
+    "notFoundText": "كود الطاولة هذا موش صحيح. سكّاني من جديد الكود اللي على طاولتك، ولا شوف القائمة."
+  },
+  "checkout": {
+    "title": "كمّل الطلب",
+    "subtitle": "شوية معلومات ونبدأو.",
+    "stepType": "كيفاش تحب تتخدم؟",
+    "stepContact": "معلوماتك",
+    "stepDelivery": "التوصيل",
+    "stepTable": "طاولتك",
+    "typeDesc": {
+      "ARemporter": "تاخذو من المطعم",
+      "Livraison": "لين تحب · المصاريف {{fee}}",
+      "SurPlace": "يجيك للطاولة {{number}}"
+    },
+    "counter": "{{count}} / {{max}} حرف",
+    "notePlaceholder": "حساسية، بلا حار، طريقة الطبخ…",
+    "addressHint": "الشارع، الرقم، علامة مميزة · من {{min}} إلى {{max}} حرف (كتبت {{count}})",
+    "deliveryInfo": "مصاريف التوصيل: {{fee}} · أدنى طلب: {{minimum}}.",
+    "belowMinimum": "ناقصك {{missing}} باش توصل للحد الأدنى للتوصيل.",
+    "addMore": "زيد أطباق",
+    "backToCart": "ارجع للسلة",
+    "summary": "الملخّص",
+    "previewNote": "تقدير: المبلغ النهائي يتأكد وقت إنشاء الطلب.",
+    "payment": "الدفع:",
+    "cash": "كاش عند الاستلام",
+    "confirm": "أكّد الطلب",
+    "sending": "جاري الإرسال…",
+    "errors": {
+      "required": "هذه الخانة إجبارية.",
+      "phone": "اكتب رقم هاتف صحيح.",
+      "tooLong": "{{max}} حرف على أقصى تقدير.",
+      "addressLength": "العنوان لازم يكون بين {{min}} و{{max}} حرف.",
+      "tableRequired": "سكّاني كود طاولتك باش تطلب في المطعم."
+    },
+    "failure": {
+      "empty": "سلّتك فارغة.",
+      "minimum": "ما وصلتش للحد الأدنى للتوصيل.",
+      "closed": "المطعم ما عادش يقبل طلبات توّا.",
+      "unavailable": "فما منتجات ما عادش متوفرة. شيلها من سلّتك.",
+      "fields": "راجع المعلومات المشار إليها.",
+      "network": "ما نجمناش نوصلو للسيرفر. تأكد من الأنترنات وعاود المحاولة.",
+      "server": "السيرفر عندو مشكل. عاود بعد لحظات.",
+      "generic": "الطلب ما تبعثش. عاود المحاولة."
+    },
+    "blocker": {
+      "unavailable": "شيل المنتجات الغير متوفرة من سلّتك.",
+      "closed": "المطعم موش قاعد يقبل طلبات توّا.",
+      "minimum": "ما وصلتش للحد الأدنى للتوصيل."
+    }
+  },
+  "confirmation": {
+    "title": "الطلب تأكّد",
+    "heading": "يعطيك الصحة، طلبك تبعث!",
+    "waiting": "طلبك في انتظار التحضير. نعلموك كيف يتقدّم.",
+    "numberLabel": "رقم الطلب",
+    "type": "النوع",
+    "table": "الطاولة",
+    "track": "تتبّع طلبي",
+    "backToMenu": "ارجع للقائمة",
+    "notFoundTitle": "الطلب غير موجود",
+    "notFoundText": "هذا الطلب ما موجودش ولا موش متاعك."
   }
 }

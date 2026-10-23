@@ -1,6 +1,6 @@
 import type { SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Badge, Card, StarIcon, Tooltip } from '@/components/ui'
+import { Badge, Card, PlusIcon, StarIcon, Tooltip } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { formatPrice } from '@/lib/format'
 import type { MenuArticle } from '@/lib/types'
@@ -9,8 +9,14 @@ import { FALLBACK_IMAGE, resolveImage } from './images'
 
 interface ArticleCardProps {
   article: MenuArticle
-  /** Infobulle du bouton « Ajouter » (désactivé à ce stade). Défaut : « Bientôt disponible ». */
+  /** Infobulle du bouton « Ajouter » quand il est inactif (défaut : « Indisponible » ou « Bientôt disponible »). */
   addHint?: string
+  /** Sans `onAdd`, la carte reste pure : le bouton est visible mais inactif. */
+  onAdd?: (article: MenuArticle) => void
+  /** Ajout en cours pour cet article : bouton occupé, clics ignorés. */
+  adding?: boolean
+  /** Quantité déjà au panier : pastille discrète si > 0. */
+  inCartQuantity?: number
   className?: string
 }
 
@@ -22,12 +28,20 @@ function swapToFallback(event: SyntheticEvent<HTMLImageElement>) {
 
 /**
  * Carte d'article : ligne compacte sur mobile, carte verticale dès `sm`. Un article indisponible
- * reste affiché (image en niveaux de gris, badge) ; le bouton Ajouter est visible mais inactif.
+ * reste affiché (image en niveaux de gris, badge) et son bouton Ajouter est inactif.
  */
-export function ArticleCard({ article, addHint, className }: ArticleCardProps) {
+export function ArticleCard({
+  article,
+  addHint,
+  onAdd,
+  adding = false,
+  inCartQuantity = 0,
+  className,
+}: ArticleCardProps) {
   const { t } = useTranslation()
   const lang = useLang()
   const unavailable = !article.disponible
+  const interactive = Boolean(onAdd) && !unavailable
 
   return (
     <Card
@@ -69,6 +83,11 @@ export function ArticleCard({ article, addHint, className }: ArticleCardProps) {
           )}
           {unavailable && <Badge tone="neutral">{t('menu.unavailable')}</Badge>}
         </div>
+        {inCartQuantity > 0 && (
+          <p className="w-fit rounded-full bg-olive-100 px-2.5 py-0.5 text-xs font-semibold text-olive-700">
+            {t('cart.inCart', { count: inCartQuantity })}
+          </p>
+        )}
         {article.description && (
           <p className="line-clamp-2 text-sm text-ink-700">{article.description}</p>
         )}
@@ -81,16 +100,36 @@ export function ArticleCard({ article, addHint, className }: ArticleCardProps) {
           >
             {formatPrice(article.prix, lang)}
           </p>
-          <Tooltip content={addHint ?? t('common.comingSoon')} placement="top" align="end">
+          {interactive ? (
             <button
               type="button"
-              aria-disabled="true"
+              aria-disabled={adding || undefined}
+              aria-busy={adding || undefined}
               aria-label={t('menu.addAria', { name: article.nom })}
-              className="inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-full bg-sand-200 px-5 text-sm font-semibold text-ink-700"
+              onClick={() => !adding && onAdd?.(article)}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-terracotta-600 px-5 text-sm font-semibold text-white transition-[background-color,transform] duration-200 hover:bg-terracotta-700 active:scale-[0.96] aria-disabled:opacity-70"
             >
+              <PlusIcon className="size-4" />
               {t('menu.add')}
             </button>
-          </Tooltip>
+          ) : (
+            <Tooltip
+              content={
+                addHint ?? (unavailable ? t('menu.unavailableHint') : t('common.comingSoon'))
+              }
+              placement="top"
+              align="end"
+            >
+              <button
+                type="button"
+                aria-disabled="true"
+                aria-label={t('menu.addAria', { name: article.nom })}
+                className="inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-full bg-sand-200 px-5 text-sm font-semibold text-ink-700"
+              >
+                {t('menu.add')}
+              </button>
+            </Tooltip>
+          )}
         </div>
       </div>
     </Card>

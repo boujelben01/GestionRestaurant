@@ -20,6 +20,32 @@ export function applyDocumentLang(lang: Lang) {
   document.documentElement.dir = dirOf(lang)
 }
 
+/** Vrai si l'utilisateur a déjà choisi une langue lui-même (sélecteur ou profil). */
+export function hasExplicitLang(): boolean {
+  try {
+    return localStorage.getItem(LANG_STORAGE_KEY) !== null
+  } catch {
+    return false
+  }
+}
+
+/** Change la langue ET la mémorise comme choix explicite. */
+export function setExplicitLang(lang: Lang) {
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, lang)
+  } catch {
+    /* stockage indisponible : le choix vaut pour la session */
+  }
+  return i18n.changeLanguage(lang)
+}
+
+/** À la connexion : applique langueFavorite seulement si aucune langue n'a été choisie. */
+export function applyFavoriteLang(favorite: string | undefined | null) {
+  if (!favorite || hasExplicitLang()) return
+  const lang = normalizeLang(favorite)
+  if (lang !== currentLang()) void i18n.changeLanguage(lang)
+}
+
 /** Langue active, toujours « fr » ou « ar » (utilisée pour ?lang= côté API). */
 export function currentLang(): Lang {
   return normalizeLang(i18n.resolvedLanguage ?? i18n.language)
@@ -39,7 +65,9 @@ void i18n
       // localStorage d'abord, puis la langue du navigateur.
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: LANG_STORAGE_KEY,
-      caches: ['localStorage'],
+      // On n'écrit PAS la langue détectée : seul un choix explicite (setExplicitLang) est mémorisé,
+      // ce qui permet d'appliquer la langue favorite du profil à la connexion.
+      caches: [],
     },
     returnNull: false,
   })

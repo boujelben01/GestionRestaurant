@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/features/auth/AuthContext'
+import { useCartCount } from '@/features/cart/api'
 import { cn } from '@/lib/cn'
 import type { User } from '@/lib/types'
 import {
@@ -11,40 +12,42 @@ import {
   ChevronDownIcon,
   Logo,
   MenuIcon,
-  Tooltip,
   UserIcon,
   useToast,
 } from '@/components/ui'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
-import { NAV_ITEMS } from './nav'
+import { ACCOUNT_LINKS, NAV_ITEMS } from './nav'
 
 function displayName(user: User) {
   return user.nom?.trim() || user.userName
 }
 
-/** Panier : volontairement désactivé à ce stade (compteur 0), focalisable pour exposer l'infobulle. */
-function CartButton() {
+/** Lien panier : compteur réel (0 pour un invité), badge animé en opacité + échelle. */
+function CartLink() {
   const { t } = useTranslation()
-  const count = 0
+  const count = useCartCount()
   return (
-    <Tooltip content={t('cart.comingSoon')} align="end">
-      <button
-        type="button"
-        aria-disabled="true"
-        aria-label={t('a11y.cartUnavailable', { count })}
-        onClick={(event) => event.preventDefault()}
-        className="relative grid size-11 place-items-center rounded-full text-ink-700 opacity-70 transition-colors hover:bg-sand-200"
+    <Link
+      to="/panier"
+      aria-label={t('a11y.cartCount', { count })}
+      className="relative grid size-11 place-items-center rounded-full text-ink-700 transition-colors hover:bg-sand-200"
+    >
+      <CartIcon className="size-6" />
+      <motion.span
+        key={count}
+        aria-hidden="true"
+        initial={{ scale: 0.6, opacity: 0.4 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+        className={cn(
+          'tabular absolute end-0.5 top-0.5 grid min-w-5 place-items-center rounded-full px-1 text-[11px] leading-5 font-bold',
+          count > 0 ? 'bg-terracotta-600 text-white' : 'bg-ink-700 text-sand-50',
+        )}
       >
-        <CartIcon className="size-6" />
-        <span
-          aria-hidden="true"
-          className="tabular absolute end-0.5 top-0.5 grid min-w-5 place-items-center rounded-full bg-ink-700 px-1 text-[11px] leading-5 font-bold text-sand-50"
-        >
-          {count}
-        </span>
-      </button>
-    </Tooltip>
+        {count}
+      </motion.span>
+    </Link>
   )
 }
 
@@ -111,6 +114,21 @@ function UserMenu({ user, onLogout }: { user: User; onLogout: () => void }) {
                 {user.email}
               </p>
             </div>
+            <nav
+              aria-label={t('nav.account')}
+              className="flex flex-col border-t border-sand-200 py-1"
+            >
+              {ACCOUNT_LINKS.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-11 items-center rounded-md px-3 text-sm font-semibold transition-colors hover:bg-sand-100"
+                >
+                  {t(item.key)}
+                </Link>
+              ))}
+            </nav>
             <button
               type="button"
               onClick={() => {
@@ -181,7 +199,7 @@ export function Header() {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
-          <CartButton />
+          <CartLink />
           <div className="hidden md:block">
             {status === 'authenticated' && user ? (
               <UserMenu user={user} onLogout={handleLogout} />

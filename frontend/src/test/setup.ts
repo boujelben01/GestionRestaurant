@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import { afterEach } from 'vitest'
+
+// Les pages sont chargées en lazy : la première transformation peut dépasser 1 s.
+configure({ asyncUtilTimeout: 5000 })
 
 afterEach(() => {
   cleanup()
@@ -34,3 +37,8 @@ if (!('IntersectionObserver' in window)) {
 }
 
 window.scrollTo = (() => {}) as typeof window.scrollTo
+
+// jsdom n'implémente pas le défilement d'éléments (barre de catégories du menu).
+Element.prototype.scrollBy ??= (() => {}) as typeof Element.prototype.scrollBy
+Element.prototype.scrollTo ??= (() => {}) as typeof Element.prototype.scrollTo
+Element.prototype.scrollIntoView ??= (() => {}) as typeof Element.prototype.scrollIntoView

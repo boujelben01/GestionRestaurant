@@ -59,6 +59,47 @@ termine la session (jeton effacé, caches privés vidés, redirection vers `/con
 toast). Les erreurs RFC 7807 deviennent des `AppError` (`status`, `fieldErrors` par champ en
 camelCase, `isNetwork`). TanStack Query ne relance pas les 4xx (2 essais max sinon).
 
+## Routes
+
+| Route                          | Accès    | Rôle                                     |
+| ------------------------------ | -------- | ---------------------------------------- |
+| `/`, `/menu`, `/contact`       | public   | Pages publiques                          |
+| `/connexion`, `/inscription`   | public   | Authentification                         |
+| `/table/:code`                 | public   | Entrée par QR de table (voir ci-dessous) |
+| `/panier`                      | connecté | Panier                                   |
+| `/commande`                    | connecté | Formulaire de commande                   |
+| `/commande/:id/confirmation`   | connecté | Confirmation après création              |
+| `/commandes`, `/commandes/:id` | connecté | Historique et suivi                      |
+| `/profil`                      | connecté | Profil et mot de passe                   |
+
+Les invités ne peuvent pas commander (décision du back-end). Un invité qui clique sur « Ajouter »
+est envoyé sur `/connexion` avec `state.from` (chemin + query) et revient à la page d'origine après
+connexion ; il en va de même pour toute route protégée ou après un 401.
+
+## Panier et commande
+
+- **Panier** (`features/cart`) : requêtes TanStack Query sous la clé `['private','cart',lang]`
+  (vidée à la déconnexion). Les mutations (ajout, quantité, suppression, vider) sont **optimistes**
+  avec retour arrière en cas d'erreur, puis le cache est remplacé par la réponse du serveur. Les
+  montants affichés sont ceux du serveur ; le client ne calcule que l'aperçu optimiste et l'aperçu
+  des frais de livraison. Plafond 20 par ligne. Un double clic sur « Ajouter » pour un même article
+  en vol est ignoré. Une ligne `inactif` / `indisponible` bloque la commande.
+- **Formulaire** (`features/orders/checkout.ts`) : type (À emporter, Livraison, Sur place),
+  téléphone, note, adresse (10 à 500 caractères, livraison seulement), code de table (sur place
+  seulement). `buildOrderRequest` n'envoie que les champs applicables au type, jamais `userId` ni
+  `panierId`. Frais et minimum de livraison viennent de `/api/restaurant` ; sous le minimum, le bouton
+  est bloqué. Paiement : espèces à la réception (seule option).
+- **Erreurs de `POST /api/commandes`** : le back-end ne renvoie que du texte (pas de code d'erreur)
+  et réutilise un même statut pour plusieurs cas (400 panier vide / minimum, 409 fermé /
+  indisponible). Le front relit donc le panier et `/api/restaurant` après l'échec pour classer
+  l'erreur (`empty`, `minimum`, `closed`, `unavailable`, `fields`, `network`, `server`) au lieu de
+  lire le message français. Anti-doublon : bouton désactivé pendant l'envoi (le serveur sérialise
+  aussi les créations concurrentes).
+- **QR de table** : le QR d'une table encode `<site>/table/<code>` (le code est le GUID de la table).
+  `/table/:code` appelle `GET /api/tables/{code}`, mémorise `{code, numero}` dans `sessionStorage`
+  (visite en cours seulement), affiche le bandeau « Vous êtes à la table N » et ouvre `/menu`.
+  « Sur place » n'est proposé que si une table est mémorisée. Un code refusé par l'API la fait oublier.
+
 ## Authentification : choix et limite
 
 Le jeton JWT et son expiration sont conservés dans **localStorage** (`resto.token`), afin de

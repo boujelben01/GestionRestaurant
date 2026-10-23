@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
+import { setExplicitLang } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import type { Lang } from '@/lib/types'
 
@@ -36,7 +37,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             dir={code === 'ar' ? 'rtl' : 'ltr'}
             aria-pressed={selected}
             aria-label={i18n.t(nameKey, { lng: code })}
-            onClick={() => void i18n.changeLanguage(code)}
+            onClick={() => void setExplicitLang(code)}
             className={cn(
               'min-h-11 min-w-11 rounded-full px-3 text-sm font-semibold transition-colors duration-200',
               selected ? 'bg-ink-900 text-sand-50' : 'text-ink-700 hover:bg-sand-300/60',

@@ -147,6 +147,10 @@ export interface Commande {
   historique: HistoriqueStatut[]
 }
 
+export interface TableResponse {
+  numero: number
+}
+
 export interface PagedResult<T> {
   items: T[]
   page: number

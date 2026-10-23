@@ -33,12 +33,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const toast = useCallback(
-    (message: string, { variant = 'info', duration }: ToastOptions = {}) => {
+    (message: string, { variant = 'info', duration, action }: ToastOptions = {}) => {
       const id = nextId.current++
-      setToasts((current) => [...current, { id, message, variant }].slice(-MAX_TOASTS))
+      setToasts((current) => [...current, { id, message, variant, action }].slice(-MAX_TOASTS))
       timers.current.set(
         id,
-        setTimeout(() => dismiss(id), duration ?? (variant === 'error' ? 7000 : 4500)),
+        setTimeout(
+          () => dismiss(id),
+          duration ?? (action ? 7000 : variant === 'error' ? 7000 : 4500),
+        ),
       )
       return id
     },
@@ -94,6 +97,18 @@ export function Toaster() {
           >
             <span className="shrink-0">{styles[item.variant].icon}</span>
             <p className="flex-1 py-1.5 text-sm font-medium">{item.message}</p>
+            {item.action && (
+              <button
+                type="button"
+                onClick={() => {
+                  item.action?.onClick()
+                  dismiss(item.id)
+                }}
+                className="inline-flex min-h-11 shrink-0 items-center rounded-full px-3 text-sm font-bold underline underline-offset-4 transition-colors hover:bg-white/15"
+              >
+                {item.action.label}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => dismiss(item.id)}

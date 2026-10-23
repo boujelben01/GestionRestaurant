@@ -128,3 +128,35 @@ export const ExternalIcon = ({ className = '', ...p }: IconProps) => (
     <path d="M14 4h6v6M20 4l-9 9M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10" />
   </Base>
 )
+export const MinusIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M5 12h14" />
+  </Base>
+)
+export const PlusIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Base>
+)
+export const TrashIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5h6V7" />
+  </Base>
+)
+export const BagIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M5 8h14l-1 12H6L5 8ZM9 8V6.5a3 3 0 0 1 6 0V8" />
+  </Base>
+)
+export const BikeIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="6" cy="16" r="3.2" />
+    <circle cx="18" cy="16" r="3.2" />
+    <path d="M6 16l4-8h4l4 8M10 8H8M14 8l-2 8" />
+  </Base>
+)
+export const TableIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M3 9h18M5 9l1 10M19 9l-1 10M12 9v10" />
+  </Base>
+)
