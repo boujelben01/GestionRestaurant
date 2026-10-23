@@ -46,6 +46,13 @@ i18next v26 utilise `Intl.PluralRules` : le français a `_one` / `_other`, l'ara
 | `confirmation.heading` (« يعطيك الصحة، طلبك تبعث! »)                                          | Registre familier ; « تبعث » (envoyé) à confirmer.                                                                         |
 | `table.*` (« إنت في الطاولة », « اخرج من الطاولة », « سكّاني »)                               | Vocabulaire de la table/QR (« سكّاني » = scannez) à valider.                                                               |
 | `menu.unavailableHint`                                                                        | Texte d'infobulle distinct du badge « Indisponible » (évite un doublon dans le DOM).                                       |
+| `orders.loaded_*`, `orders.loadMore` (« زيد حمّل »)                                           | Six formes plurielles arabes avec « من {{total}} » ; verbe « حمّل » à valider.                                             |
+| `orderDetail.cancelConflict` (« تاخذ في التحضير من قبل »)                                     | Message du 409 d'annulation.                                                                                               |
+| `orderDetail.payOnReceipt` (« يتخلّص عند الاستلام »), `orderDetail.paid`                      | Vocabulaire du paiement.                                                                                                   |
+| `orderDetail.reason.*`, `orderDetail.added`, `orderDetail.skipped`                            | Raisons du résumé « Commander à nouveau ».                                                                                 |
+| `orderDetail.autoUpdate` (« تحديث أوتوماتيكي »)                                               | Indicateur de polling.                                                                                                     |
+| `profile.*` (« ملفّي الشخصي », « بدّل كلمة السر », « كلمتين السر موش كيف كيف »)               | Libellés du profil et du changement de mot de passe.                                                                       |
+| `order.status.*` (« في الانتظار », « ملغاة »…)                                                | Statuts : mélange fusha/dialecte à homogénéiser.                                                                           |
 
 ## Conventions
 

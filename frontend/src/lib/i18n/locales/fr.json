@@ -58,7 +58,8 @@
     "comingSoon": "Bientôt disponible",
     "or": "ou",
     "price": "Prix",
-    "free": "Offert"
+    "free": "Offert",
+    "close": "Fermer"
   },
   "seo": {
     "homeTitle": "Cuisine tunisienne à emporter et sur place",
@@ -367,5 +368,70 @@
     "backToMenu": "Retour au menu",
     "notFoundTitle": "Commande introuvable",
     "notFoundText": "Cette commande n’existe pas ou ne vous appartient pas."
+  },
+  "orders": {
+    "title": "Mes commandes",
+    "subtitle": "Retrouvez et suivez toutes vos commandes.",
+    "loadError": "Impossible de charger vos commandes.",
+    "emptyTitle": "Aucune commande pour le moment",
+    "emptyText": "Vos prochaines commandes apparaîtront ici.",
+    "view": "Voir le détail de la commande",
+    "loadMore": "Charger plus",
+    "loaded_one": "{{count}} commande affichée sur {{total}}",
+    "loaded_other": "{{count}} commandes affichées sur {{total}}"
+  },
+  "orderDetail": {
+    "back": "Mes commandes",
+    "timeline": "Étapes de la commande",
+    "tracking": "Suivi de la commande",
+    "items": "Articles",
+    "info": "Informations",
+    "autoUpdate": "Mise à jour automatique",
+    "paid": "Payée",
+    "payOnReceipt": "À régler à la réception",
+    "statusChanged": "Statut de la commande : {{status}}",
+    "cancel": "Annuler la commande",
+    "cancelTitle": "Annuler cette commande ?",
+    "cancelText": "Cette action est définitive. Seule une commande en attente peut être annulée.",
+    "keep": "Non, la garder",
+    "cancelConfirm": "Oui, annuler",
+    "cancelled": "Commande annulée.",
+    "cancelConflict": "La commande a déjà été prise en charge : elle ne peut plus être annulée.",
+    "reorder": "Commander à nouveau",
+    "reorderDone": "Les articles ont été ajoutés à votre panier.",
+    "reorderTitle": "Commander à nouveau",
+    "added": "Ajoutés au panier",
+    "skipped": "Non ajoutés",
+    "reason": {
+      "unavailable": "actuellement indisponible",
+      "removed": "n’est plus au menu",
+      "error": "n’a pas pu être ajouté",
+      "noArticle": "article supprimé du menu"
+    },
+    "notFoundTitle": "Commande introuvable",
+    "notFoundText": "Cette commande n’existe pas ou ne vous appartient pas.",
+    "loadError": "Impossible de charger cette commande."
+  },
+  "profile": {
+    "title": "Mon profil",
+    "subtitle": "Vos informations et votre mot de passe.",
+    "info": "Mes informations",
+    "name": "Nom",
+    "email": "Adresse e-mail",
+    "emailHint": "L’adresse e-mail ne peut pas être modifiée.",
+    "phone": "Téléphone",
+    "language": "Langue favorite",
+    "save": "Enregistrer",
+    "saved": "Profil mis à jour.",
+    "password": {
+      "title": "Changer le mot de passe",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Confirmer le nouveau mot de passe",
+      "submit": "Modifier le mot de passe",
+      "saved": "Mot de passe modifié.",
+      "mismatch": "Les deux mots de passe ne sont pas identiques.",
+      "wrongCurrent": "Le mot de passe actuel est incorrect."
+    }
   }
 }

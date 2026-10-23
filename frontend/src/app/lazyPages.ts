@@ -12,13 +12,6 @@ export const Checkout = lazy(() => import('@/pages/Checkout'))
 export const OrderConfirmation = lazy(() => import('@/pages/OrderConfirmation'))
 export const TableEntry = lazy(() => import('@/pages/TableEntry'))
 
-// Placeholders protégés : le contenu arrive à l'étape F4.
-export const Orders = lazy(() =>
-  import('@/pages/OrdersPlaceholder').then((m) => ({ default: m.OrdersPlaceholder })),
-)
-export const OrderDetail = lazy(() =>
-  import('@/pages/OrdersPlaceholder').then((m) => ({ default: m.OrderDetailPlaceholder })),
-)
-export const Profile = lazy(() =>
-  import('@/pages/OrdersPlaceholder').then((m) => ({ default: m.ProfilePlaceholder })),
-)
+export const Orders = lazy(() => import('@/pages/Orders'))
+export const OrderDetail = lazy(() => import('@/pages/OrderDetail'))
+export const Profile = lazy(() => import('@/pages/Profile'))

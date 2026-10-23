@@ -100,6 +100,20 @@ connexion ; il en va de même pour toute route protégée ou après un 401.
   (visite en cours seulement), affiche le bandeau « Vous êtes à la table N » et ouvre `/menu`.
   « Sur place » n'est proposé que si une table est mémorisée. Un code refusé par l'API la fait oublier.
 
+## Suivi, historique et profil
+
+- **Mes commandes** : liste paginée « Charger plus » (10 par page), plus récentes d'abord.
+- **Détail** : frise de statuts construite depuis `historique` (EnAttente → EnPreparation → Prete →
+  Terminee, variante Annulee), dates en fuseau Africa/Tunis. **Polling** : `useOrder` relit la
+  commande toutes les 15 s tant que le statut n'est ni `Terminee` ni `Annulee` ; react-query le
+  suspend quand l'onglet est masqué. Annulation possible seulement en `EnAttente` (409 = la commande
+  a déjà été prise en charge, le détail est rechargé). « Commander à nouveau » ajoute au panier les
+  lignes dont l'article existe encore et est disponible, aux prix actuels, et résume le reste.
+- **Profil** : nom, téléphone, langue favorite (`PUT /api/auth/me`), changement de mot de passe,
+  déconnexion. La langue favorite s'applique à la connexion seulement si l'utilisateur n'a jamais
+  choisi de langue lui-même : la langue détectée n'est plus mémorisée, seul un clic sur le
+  sélecteur écrit `resto.lang`.
+
 ## Authentification : choix et limite
 
 Le jeton JWT et son expiration sont conservés dans **localStorage** (`resto.token`), afin de
@@ -159,7 +173,7 @@ nom de la liste `HEAVY_IMAGES`.
 
 ## Tests
 
-`npm test` couvre : AuthContext (login, 401, expiration, rechargement du profil), erreurs
+`npm test` couvre : parcours complets (invité → connexion → retour, formulaire de commande par type, annulation, 409, « Commander à nouveau », profil), AuthContext (login, 401, expiration, rechargement du profil), erreurs
 ProblemDetails, formatage des prix et horaires, bascule de langue et `dir`, carte d'article
 (indisponible, populaire, repli d'image), filtre du menu. Les appels HTTP sont simulés par un
 adaptateur axios en mémoire (`src/test/mockApi.ts`), jamais par le vrai backend.

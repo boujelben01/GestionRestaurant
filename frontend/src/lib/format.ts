@@ -47,3 +47,18 @@ export function formatTime(hhmm: string, lang: Lang): string {
     timeZone: 'UTC',
   }).format(date)
 }
+
+/** Date et heure d'une valeur ISO (UTC) affichées dans le fuseau du restaurant (Africa/Tunis). */
+export function formatDateTime(iso: string, lang: Lang): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat(LOCALES[lang], {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Africa/Tunis',
+  }).format(date)
+}
