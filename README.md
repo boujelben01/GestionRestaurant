@@ -120,6 +120,55 @@ Règles métier de `POST /api/commandes` :
 
 **Anti-doublon.** La création s'exécute dans une seule transaction (via la stratégie d'exécution EF, car `EnableRetryOnFailure` est actif). Elle commence par `SELECT ... FOR UPDATE` sur la ligne du panier de l'utilisateur : deux requêtes simultanées (ou un double clic) sont sérialisées, la seconde lit un panier déjà vidé par la première et reçoit 400 « panier vide ». Le panier est vidé dans la même transaction que la création. Si PostgreSQL signale un échec transitoire après le commit, la nouvelle tentative trouve un panier vide (400) plutôt que de créer un doublon. L'annulation s'appuie sur `xmin` : une modification concurrente donne un 409.
 
+## Administration des commandes
+
+Rôle Admin uniquement (401 sans jeton, 403 pour un Client). Aucune route DELETE ni modification des lignes ou du total : l'historique comptable reste intact. Les DTO admin sont distincts des DTO client et ne contiennent aucune donnée Identity (ni hash, ni security stamp) ; le nom et le téléphone du client sont ceux figés sur la commande.
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET | `/api/admin/commandes` | Liste paginée (`page`, `pageSize` ≤ 50), plus récentes d'abord, avec filtres (voir ci-dessous) |
+| GET | `/api/admin/commandes/{id}` | Détail : lignes `nomFr`/`nomAr`, totaux, adresse, table, note, client, historique **avec l'auteur** de chaque changement, `statutsSuivants`, `version` |
+| GET | `/api/admin/commandes/actives` | Écran cuisine : `EnAttente`, `EnPreparation`, `Prete`, plus anciennes d'abord, 200 au plus, avec les lignes à préparer |
+| GET | `/api/admin/commandes/compteurs` | Compteurs par statut **du jour** (fuseau Africa/Tunis) + nombre de commandes `EnAttente` toutes dates confondues |
+| PATCH | `/api/admin/commandes/{id}/statut` | `{ "statut": "Prete", "version": 12345 }` : applique une transition valide (`version` facultative) |
+| PATCH | `/api/admin/commandes/{id}/paiement` | `{ "estPayee": true }` : marque payée ou non payée |
+
+**Filtres de la liste** : `statut` (répétable, `statut=EnAttente&statut=Prete`, ou séparé par des virgules ; insensible à la casse), `typeCommande`, `estPayee`, `du` / `au`, `recherche` (numéro, nom du client ou téléphone, insensible à la casse, 100 caractères max). `du` et `au` sont en UTC, bornes incluses : `2024-06-30` couvre le jour entier, une date-heure ISO 8601 (`2024-06-30T10:00:00Z`) est prise à la seconde près. Toute valeur invalide (statut inconnu, nombre à la place d'un nom, date illisible, `du` après `au`) donne un 400, jamais un 500.
+
+**Compteurs** : `parStatut` contient un compteur par statut (0 compris) pour la journée civile `date` du restaurant (minuit à minuit à Tunis), `totalAujourdhui` leur somme, `enAttente` toutes les commandes en attente quelle que soit leur date (pour la pastille et l'alerte sonore : une commande oubliée depuis hier compte).
+
+### Cycle de vie d'une commande
+
+Un seul moteur de règles (`StatutTransitions`) sert l'administration et l'annulation par le client.
+
+```mermaid
+stateDiagram-v2
+    [*] --> EnAttente : création (client)
+    EnAttente --> EnPreparation
+    EnAttente --> Annulee
+    EnPreparation --> Prete
+    EnPreparation --> Annulee
+    Prete --> Terminee
+    Prete --> Annulee
+    Terminee --> [*]
+    Annulee --> [*]
+```
+
+- Toute autre transition est refusée en **409** (« EnAttente -> Terminee n'est pas autorisé. »). `Terminee` et `Annulee` sont finaux : une commande annulée ne revient jamais en arrière.
+- Redemander le statut courant est **idempotent** : 200, aucune ligne d'historique ajoutée.
+- Chaque changement écrit une ligne d'historique (statut, date, auteur) et met à jour `dateMiseAJour`. Le client voit le nouveau statut et l'historique via `GET /api/commandes/{id}`.
+- Le client ne peut annuler lui-même qu'une commande `EnAttente` (`POST /api/commandes/{id}/annuler`, 409 sinon) ; dès que l'admin l'a prise en charge, l'annulation passe par l'admin.
+- Paiement : refusé (409) sur une commande `Annulee` ; autorisé sur une commande `Terminee`. Redemander la même valeur est idempotent.
+
+### Concurrence
+
+`Commande.Version` est la colonne système PostgreSQL `xmin` (jeton de concurrence EF). Deux protections :
+
+1. **Optimiste explicite** : si `version` (lue dans le détail ou dans `actives`) est fournie et ne correspond plus à la commande, le PATCH répond 409 « La commande a été modifiée entre-temps. Rechargez-la et réessayez. » sans rien écrire.
+2. **Au moment de l'écriture** : si la commande change entre la lecture et l'UPDATE (autre admin, annulation du client), `UPDATE ... WHERE xmin = ...` ne touche aucune ligne, EF lève `DbUpdateConcurrencyException` et le gestionnaire global répond 409.
+
+Cas particulier : si le statut demandé est déjà le statut courant, la réponse est 200 même avec une `version` périmée (l'objectif est atteint, rien à écrire). Ces mécanismes n'ont été exercés que de façon partielle : voir la limite des tests ci-dessous.
+
 ## Tests
 
 ```powershell
@@ -127,4 +176,4 @@ cd backend
 dotnet test
 ```
 
-Les tests d'intégration utilisent un fournisseur EF InMemory : il ne reproduit pas les contraintes PostgreSQL (CHECK, index uniques, clés étrangères). Ils ne vérifient que l'autorisation et le flux d'authentification.
+Les tests d'intégration utilisent un fournisseur EF InMemory : il ne reproduit pas les contraintes PostgreSQL (CHECK, index uniques, clés étrangères) ni `xmin` (la colonne `Version` reste à 0 et n'est jamais incrémentée) ni de vraies transactions. Ils vérifient l'autorisation, les flux métier et la comparaison explicite de `version` ; la détection de concurrence par `xmin` et l'anti-doublon à la création ne sont pas exercés.

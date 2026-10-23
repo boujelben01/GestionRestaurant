@@ -162,7 +162,9 @@ public class CommandeService(AppDbContext db, TimeProvider time)
         var commande = await db.Commandes.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId, ct)
             ?? throw AppException.NotFound("Commande introuvable.");
 
-        if (commande.Statut != StatutCommande.EnAttente)
+        // Même moteur de règles que l'administration (StatutTransitions) ; le client, lui, ne peut annuler
+        // qu'une commande encore en attente.
+        if (!StatutTransitions.CanClientCancel(commande.Statut))
         {
             throw AppException.Conflict("Seule une commande en attente peut être annulée.");
         }

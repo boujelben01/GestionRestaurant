@@ -229,3 +229,47 @@ Authorization: Bearer {{token}}
 ### Annuler une commande en attente
 POST {{host}}/api/commandes/1/annuler
 Authorization: Bearer {{token}}
+
+### Admin commandes : liste (statut répétable ou « A,B » ; du/au en UTC, jour entier si AAAA-MM-JJ)
+GET {{host}}/api/admin/commandes?statut=EnAttente&statut=EnPreparation&typeCommande=Livraison&estPayee=false&du=2024-06-01&au=2024-06-30&recherche=dupont&page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### Admin commandes : écran cuisine (EnAttente, EnPreparation, Prete ; plus anciennes d'abord, 200 max)
+GET {{host}}/api/admin/commandes/actives
+Authorization: Bearer {{token}}
+
+### Admin commandes : compteurs du jour (Africa/Tunis) + commandes en attente
+GET {{host}}/api/admin/commandes/compteurs
+Authorization: Bearer {{token}}
+
+### Admin commandes : détail (historique avec auteur, statutsSuivants, version)
+GET {{host}}/api/admin/commandes/1
+Authorization: Bearer {{token}}
+
+### Admin commandes : changer le statut (transitions : EnAttente→EnPreparation|Annulee, EnPreparation→Prete|Annulee, Prete→Terminee|Annulee)
+PATCH {{host}}/api/admin/commandes/1/statut
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "statut": "EnPreparation" }
+
+### Admin commandes : changer le statut avec contrôle de concurrence (409 si la version a changé)
+PATCH {{host}}/api/admin/commandes/1/statut
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "statut": "Prete", "version": 12345 }
+
+### Admin commandes : transition interdite → 409 « EnAttente -> Terminee n'est pas autorisé. »
+PATCH {{host}}/api/admin/commandes/1/statut
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "statut": "Terminee" }
+
+### Admin commandes : marquer payée / non payée (409 sur une commande annulée)
+PATCH {{host}}/api/admin/commandes/1/paiement
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "estPayee": true }
