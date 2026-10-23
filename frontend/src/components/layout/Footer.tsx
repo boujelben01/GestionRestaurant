@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useRestaurant } from '@/features/restaurant/api'
+import { HoursTable } from '@/features/restaurant/HoursTable'
 import { cn } from '@/lib/cn'
-import { formatTime, todayInTunis, weekdayName } from '@/lib/format'
-import type { Horaire } from '@/lib/types'
-import { useLang } from '@/lib/useLang'
 import {
   Badge,
   ErrorState,
@@ -18,55 +16,9 @@ import {
 } from '@/components/ui'
 import { NAV_ITEMS } from './nav'
 
-/** Semaine commençant le lundi (usage local) ; 0 = dimanche en fin de liste. */
-const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]
-
 const columnTitle = 'text-eyebrow mb-4 text-gold-400'
 const link =
   'inline-flex min-h-11 items-center gap-3 rounded-md text-sand-200 underline-offset-4 transition-colors hover:text-white hover:underline'
-
-function HoursList({ horaires }: { horaires: Horaire[] }) {
-  const { t } = useTranslation()
-  const lang = useLang()
-  const today = todayInTunis()
-  const byDay = new Map(horaires.map((h) => [h.jourSemaine, h]))
-
-  return (
-    <dl className="flex flex-col text-sm">
-      {WEEK_ORDER.map((day) => {
-        const h = byDay.get(day)
-        const closed = !h || h.estFerme || !h.ouverture || !h.fermeture
-        const isToday = day === today
-        return (
-          <div
-            key={day}
-            className={cn(
-              'flex items-baseline justify-between gap-4 border-b border-sand-50/10 py-2',
-              isToday ? 'font-semibold text-white' : 'text-sand-300',
-            )}
-          >
-            <dt>
-              {weekdayName(day, lang)}
-              {isToday && <span className="sr-only"> ({t('restaurant.today')})</span>}
-            </dt>
-            <dd className="tabular">
-              {closed ? (
-                t('restaurant.closed')
-              ) : (
-                <bdi dir="ltr">
-                  {t('restaurant.hoursRange', {
-                    open: formatTime(h.ouverture!, lang),
-                    close: formatTime(h.fermeture!, lang),
-                  })}
-                </bdi>
-              )}
-            </dd>
-          </div>
-        )
-      })}
-    </dl>
-  )
-}
 
 function FooterSkeleton() {
   return (
@@ -161,7 +113,7 @@ export function Footer() {
             </h2>
             {isPending && <FooterSkeleton />}
             {isError && <p className="text-sand-300">{t('footer.hoursUnavailable')}</p>}
-            {data && <HoursList horaires={data.horaires} />}
+            {data && <HoursTable horaires={data.horaires} tone="dark" />}
           </section>
         </div>
 

@@ -86,7 +86,29 @@
     "why2Title": "Produits frais",
     "why2Text": "Légumes, viandes et poissons choisis le matin même.",
     "why3Title": "Rapide et chaleureux",
-    "why3Text": "Sur place, à emporter ou livré : on s'occupe de tout."
+    "why3Text": "Sur place, à emporter ou livré : on s'occupe de tout.",
+    "heroImageAlt": "Makloub grillé garni de poulet, avec des frites maison",
+    "secondaryImageAlt": "Un plat tounsi coloré, servi à table",
+    "reserve": "Réserver",
+    "reserveSoon": "La réservation en ligne arrive bientôt",
+    "popularEmptyTitle": "Nos plats populaires arrivent",
+    "popularEmptyText": "La sélection du moment sera bientôt affichée. En attendant, parcourez toute la carte.",
+    "story": {
+      "eyebrow": "Notre maison",
+      "title": "Une cuisine de partage",
+      "p1": "Ici, on cuisine comme à la maison : des recettes qui se transmettent, des épices dosées à la main et le plaisir de bien recevoir.",
+      "p2": "Que vous soyez de passage ou habitué, installez-vous : on s’occupe du reste.",
+      "imageAlt": "Un dessert maison au chocolat, servi avec soin"
+    },
+    "info": {
+      "title": "Passez nous voir",
+      "today": "Aujourd’hui",
+      "allHours": "Tous les horaires"
+    },
+    "cta": {
+      "title": "Une petite faim ?",
+      "text": "Parcourez le menu et choisissez vos plats du jour."
+    }
   },
   "menu": {
     "title": "Notre menu",
@@ -102,7 +124,20 @@
     "emptyTitle": "Le menu arrive bientôt",
     "emptyText": "Nous préparons notre carte. Revenez nous voir très vite.",
     "loadError": "Impossible de charger le menu.",
-    "priceFrom": "À partir de {{price}}"
+    "priceFrom": "À partir de {{price}}",
+    "search": "Rechercher un plat",
+    "searchPlaceholder": "Rechercher un plat (brik, lablabi…)",
+    "clearSearch": "Effacer la recherche",
+    "popularOnly": "Populaires",
+    "categoriesNav": "Catégories du menu",
+    "resultCount_one": "{{count}} plat",
+    "resultCount_other": "{{count}} plats",
+    "noResultsTitle": "Aucun plat trouvé",
+    "noResultsText": "Essayez un autre mot ou retirez les filtres.",
+    "resetFilters": "Réinitialiser",
+    "signInToOrder": "Connectez-vous pour commander",
+    "add": "Ajouter",
+    "addAria": "Ajouter {{name}} au panier"
   },
   "cart": {
     "title": "Votre panier",
@@ -150,14 +185,24 @@
     "call": "Appeler",
     "write": "Écrire",
     "directions": "Itinéraire",
-    "loadError": "Impossible de charger les informations du restaurant."
+    "loadError": "Impossible de charger les informations du restaurant.",
+    "mapLink": "Voir sur Google Maps",
+    "form": {
+      "title": "Écrivez-nous",
+      "soon": "Le formulaire arrive bientôt. En attendant, appelez-nous ou écrivez-nous par e-mail.",
+      "name": "Votre nom",
+      "email": "Votre e-mail",
+      "message": "Votre message",
+      "submit": "Envoyer"
+    }
   },
   "restaurant": {
     "openNow": "Ouvert maintenant",
     "closedNow": "Fermé actuellement",
     "today": "Aujourd'hui",
     "closed": "Fermé",
-    "hoursRange": "{{open}} – {{close}}"
+    "hoursRange": "{{open}} – {{close}}",
+    "afterMidnight": "ferme après minuit"
   },
   "footer": {
     "tagline": "Cuisine tunisienne, faite maison.",

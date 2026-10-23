@@ -257,3 +257,11 @@
 :lang(ar) {
   font-family: 'Cairo', var(--font-sans);
 }
+
+/* Barres défilantes (catégories) : défilement tactile sans barre visible. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

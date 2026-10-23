@@ -18,19 +18,27 @@ apparaissent (« 3 articles » en arabe : `_few`).
 
 ## Clés les plus incertaines (priorité de relecture)
 
-| Clé                                                                | Remarque                                                                      |
-| ------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| `brand.name`, `brand.tagline`                                      | « ريستو » est un nom provisoire ; « بنّة » (délicieux) à confirmer.           |
-| `menu.addToCart` (« زيد للسلة »), `cart.continue` (« كمّل الطلب ») | Formules imposées par le cahier des charges, à valider en contexte.           |
-| `a11y.cartUnavailable`                                             | Pas de forme plurielle arabe ; formulation « موش متوفرة توّا ».               |
-| `a11y.switchToLang`                                                | Construction « بـ{{language}} » avec un nom de langue en français : à tester. |
-| `order.success` (« يعطيك الصحة »)                                  | Registre familier : à confirmer.                                              |
-| `order.status.*`, `order.type.*`                                   | Termes d'usage restaurant (« للأخذ », « في المطعم ») à valider.               |
-| `auth.errors.locked`                                               | « برشا محاولات » : à confirmer.                                               |
-| `home.why*`, `home.subtitle`                                       | Ton publicitaire, mélange fusha/dialecte à homogénéiser.                      |
-| `errors.notFound.text` (« يا الله نرجعو للطريق »)                  | Expression imagée, ajustable.                                                 |
-| `restaurant.closed` / `restaurant.closedNow`                       | « مسكّر » (dialecte) vs « مغلق » (fusha).                                     |
-| `common.yes`                                                       | « إي » (dialecte) ; « نعم » en fusha.                                         |
+| Clé                                                                                           | Remarque                                                                                                  |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `brand.name`, `brand.tagline`                                                                 | « ريستو » est un nom provisoire ; « بنّة » (délicieux) à confirmer.                                       |
+| `menu.addToCart` (« زيد للسلة »), `cart.continue` (« كمّل الطلب »)                            | Formules imposées par le cahier des charges, à valider en contexte.                                       |
+| `a11y.cartUnavailable`                                                                        | Pas de forme plurielle arabe ; formulation « موش متوفرة توّا ».                                           |
+| `a11y.switchToLang`                                                                           | Construction « بـ{{language}} » avec un nom de langue en français : à tester.                             |
+| `order.success` (« يعطيك الصحة »)                                                             | Registre familier : à confirmer.                                                                          |
+| `order.status.*`, `order.type.*`                                                              | Termes d'usage restaurant (« للأخذ », « في المطعم ») à valider.                                           |
+| `auth.errors.locked`                                                                          | « برشا محاولات » : à confirmer.                                                                           |
+| `home.why*`, `home.subtitle`                                                                  | Ton publicitaire, mélange fusha/dialecte à homogénéiser.                                                  |
+| `errors.notFound.text` (« يا الله نرجعو للطريق »)                                             | Expression imagée, ajustable.                                                                             |
+| `restaurant.closed` / `restaurant.closedNow`                                                  | « مسكّر » (dialecte) vs « مغلق » (fusha).                                                                 |
+| `common.yes`                                                                                  | « إي » (dialecte) ; « نعم » en fusha.                                                                     |
+| `menu.resultCount_*`                                                                          | Six formes plurielles arabes écrites à la main (« طبقين », « {{count}} أطباق »…) : à valider.             |
+| `menu.add` (« زيد »), `menu.addAria`, `menu.signInToOrder`                                    | Libellés courts du bouton Ajouter et de son infobulle.                                                    |
+| `menu.search*` (« قلّب على طبق »), `menu.noResults*`, `menu.resetFilters` (« رجّع من الأول ») | Registre familier à confirmer.                                                                            |
+| `home.story.*`, `home.why*`                                                                   | **Textes génériques à remplacer** par l'histoire réelle du restaurant (aucun fait précis volontairement). |
+| `home.cta.title` (« جيعان شوية؟ »), `home.info.title` (« عدّي علينا »)                        | Tournures très orales.                                                                                    |
+| `home.reserve`, `home.reserveSoon`                                                            | « احجز » : à confirmer.                                                                                   |
+| `restaurant.afterMidnight` (« يسكّر بعد نصف الليل »)                                          | Mention affichée pour une fermeture après minuit.                                                         |
+| `contact.form.*` (« اكتبلنا », « ابعث »), `contact.mapLink`                                   | Formulaire inactif pour l'instant.                                                                        |
 
 ## Conventions
 

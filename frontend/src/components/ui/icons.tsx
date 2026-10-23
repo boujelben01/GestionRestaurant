@@ -106,3 +106,25 @@ export const PlateIcon = (p: IconProps) => (
     <circle cx="12" cy="12" r="4.6" />
   </Base>
 )
+export const SearchIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="m16 16 4.5 4.5" />
+  </Base>
+)
+export const StarIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m12 3.8 2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8L12 3.8Z" />
+  </Base>
+)
+export const ClockIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3.2 2" />
+  </Base>
+)
+export const ExternalIcon = ({ className = '', ...p }: IconProps) => (
+  <Base className={`rtl:-scale-x-100 ${className}`} {...p}>
+    <path d="M14 4h6v6M20 4l-9 9M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10" />
+  </Base>
+)

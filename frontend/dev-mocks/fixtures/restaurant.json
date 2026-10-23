@@ -1,0 +1,18 @@
+{
+  "nom": "Resto",
+  "telephone": "+216 71 000 000",
+  "email": "contact@resto.example",
+  "adresse": "12 avenue Habib Bourguiba, 1000 Tunis",
+  "fraisLivraison": 3,
+  "montantMinimumLivraison": 20,
+  "commandesOuvertes": true,
+  "horaires": [
+    { "jourSemaine": 0, "ouverture": null, "fermeture": null, "estFerme": true },
+    { "jourSemaine": 1, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 2, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 3, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 4, "ouverture": "11:00", "fermeture": "23:00", "estFerme": false },
+    { "jourSemaine": 5, "ouverture": "12:00", "fermeture": "23:30", "estFerme": false },
+    { "jourSemaine": 6, "ouverture": "12:00", "fermeture": "02:00", "estFerme": false }
+  ]
+}

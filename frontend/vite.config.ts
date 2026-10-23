@@ -15,16 +15,16 @@ export default defineConfig({
           groups: [
             {
               name: 'motion',
-              test: /node_modules[\/](motion|framer-motion|motion-dom|motion-utils)[\/]/,
+              test: /node_modules[/](motion|framer-motion|motion-dom|motion-utils)[/]/,
             },
             {
               name: 'i18n',
-              test: /node_modules[\/](i18next|react-i18next|i18next-browser-languagedetector)[\/]/,
+              test: /node_modules[/](i18next|react-i18next|i18next-browser-languagedetector)[/]/,
             },
-            { name: 'data', test: /node_modules[\/](@tanstack|axios)[\/]/ },
+            { name: 'data', test: /node_modules[/](@tanstack|axios)[/]/ },
             {
               name: 'react',
-              test: /node_modules[\/](react|react-dom|react-router|react-router-dom|scheduler|react-helmet-async)[\/]/,
+              test: /node_modules[/](react|react-dom|react-router|react-router-dom|scheduler|react-helmet-async)[/]/,
             },
           ],
         },
