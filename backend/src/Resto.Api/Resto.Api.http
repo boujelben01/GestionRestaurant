@@ -167,3 +167,65 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 { "commandesOuvertes": false }
+
+### Panier : lire (lang=fr|ar)
+GET {{host}}/api/panier?lang=fr
+Authorization: Bearer {{token}}
+
+### Panier : ajouter un article (cumule, plafond 20)
+POST {{host}}/api/panier/items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "articleId": 1, "quantite": 2 }
+
+### Panier : fixer la quantité
+PUT {{host}}/api/panier/items/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "quantite": 3 }
+
+### Panier : retirer une ligne / vider
+DELETE {{host}}/api/panier/items/1
+Authorization: Bearer {{token}}
+
+###
+DELETE {{host}}/api/panier
+Authorization: Bearer {{token}}
+
+### Table : numéro depuis le code du QR (anonyme)
+GET {{host}}/api/tables/<code-guid>
+
+### Commande à emporter
+POST {{host}}/api/commandes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "typeCommande": "ARemporter", "telephone": "+21620123456", "note": "Sans harissa" }
+
+### Commande sur place (code de la table)
+POST {{host}}/api/commandes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "typeCommande": "SurPlace", "telephone": "+21620123456", "tableCode": "<code-guid>" }
+
+### Commande en livraison
+POST {{host}}/api/commandes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "typeCommande": "Livraison", "telephone": "+21620123456", "adresseLivraison": "12 rue de la Liberté, Tunis" }
+
+### Mes commandes
+GET {{host}}/api/commandes?page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### Détail d'une commande
+GET {{host}}/api/commandes/1
+Authorization: Bearer {{token}}
+
+### Annuler une commande en attente
+POST {{host}}/api/commandes/1/annuler
+Authorization: Bearer {{token}}

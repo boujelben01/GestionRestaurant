@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Resto.Api.Common;
 using Resto.Api.Data;
 using Resto.Api.Domain;
 using Resto.Api.Features.Auth;
+using Resto.Api.Features.Restaurant;
 
 namespace Resto.Tests;
 
@@ -17,6 +19,8 @@ namespace Resto.Tests;
 public class ApiFactory : WebApplicationFactory<Program>
 {
     public const string Password = "Passw0rd!test";
+    public static readonly Guid TableCode = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    public static readonly Guid InactiveTableCode = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
     private readonly string _databaseName = Guid.NewGuid().ToString();
     private readonly SemaphoreSlim _seedLock = new(1, 1);
@@ -31,7 +35,9 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<DbContextOptions<AppDbContext>>();
-            services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(_databaseName));
+            services.AddDbContext<AppDbContext>(options => options
+                .UseInMemoryDatabase(_databaseName)
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
         });
     }
 
@@ -121,10 +127,82 @@ public class ApiFactory : WebApplicationFactory<Program>
             Id = 1, Nom = "Resto", Telephone = "+216 70 000 000", Email = "contact@resto.local",
             Adresse = "Tunis", FraisLivraison = 3m, MontantMinimumLivraison = 15m, CommandesOuvertes = true
         });
-        db.Horaires.AddRange(Enumerable.Range(0, 7).Select(day => new Horaire
+        db.Horaires.AddRange(OpenWindow());
+        db.Tables.AddRange(
+            new RestaurantTable { Numero = 1, Code = TableCode, Capacite = 4, EstActive = true },
+            new RestaurantTable { Numero = 2, Code = InactiveTableCode, Capacite = 4, EstActive = false });
+        await db.SaveChangesAsync();
+    }
+
+    // Fenêtre de ±3 h autour de l'heure de Tunis, valable les 7 jours : le restaurant est « ouvert » quelle que soit l'heure du test.
+    private static List<Horaire> OpenWindow()
+    {
+        var local = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, OpeningHours.TunisZone).DateTime;
+        return Enumerable.Range(0, 7).Select(day => new Horaire
         {
-            JourSemaine = day, Ouverture = new TimeOnly(11, 0), Fermeture = new TimeOnly(23, 0)
-        }));
+            JourSemaine = day,
+            Ouverture = TimeOnly.FromDateTime(local.AddHours(-3)),
+            Fermeture = TimeOnly.FromDateTime(local.AddHours(3))
+        }).ToList();
+    }
+
+    public async Task ResetRestaurantAsync() => await SetRestaurantAsync(open: true, commandesOuvertes: true);
+
+    public async Task SetRestaurantAsync(bool open, bool commandesOuvertes)
+    {
+        await EnsureSeededAsync();
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        db.Horaires.RemoveRange(await db.Horaires.ToListAsync());
+        var horaires = OpenWindow();
+        if (!open)
+        {
+            horaires.ForEach(h => { h.EstFerme = true; h.Ouverture = null; h.Fermeture = null; });
+        }
+        db.Horaires.AddRange(horaires);
+        (await db.ParametresRestaurant.SingleAsync()).CommandesOuvertes = commandesOuvertes;
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<HttpClient> CreateClientForNewUserAsync()
+    {
+        await EnsureSeededAsync();
+        var userName = "u" + Guid.NewGuid().ToString("N")[..10];
+        using (var scope = Services.CreateScope())
+        {
+            await CreateUserAsync(scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>(), userName, Roles.Client, active: true);
+        }
+        return await CreateClientAsync(userName);
+    }
+
+    public async Task<int> CreateArticleAsync(string nomFr, decimal prix = 5m)
+    {
+        await EnsureSeededAsync();
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var categorie = await db.Categories.SingleAsync(c => c.NomFr == "Entrées");
+        var article = new Article { CategorieId = categorie.Id, NomFr = nomFr, NomAr = nomFr, Prix = prix, Ordre = 99 };
+        db.Articles.Add(article);
+        await db.SaveChangesAsync();
+        return article.Id;
+    }
+
+    public async Task SetArticleAsync(int id, bool? disponible = null, bool? actif = null)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var article = await db.Articles.SingleAsync(a => a.Id == id);
+        article.EstDisponible = disponible ?? article.EstDisponible;
+        article.EstActif = actif ?? article.EstActif;
+        await db.SaveChangesAsync();
+    }
+
+    public async Task SetCommandeStatutAsync(int id, StatutCommande statut)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        (await db.Commandes.SingleAsync(c => c.Id == id)).Statut = statut;
         await db.SaveChangesAsync();
     }
 

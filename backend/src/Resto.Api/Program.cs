@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -5,8 +6,10 @@ using Resto.Api.Common;
 using Resto.Api.Data;
 using Resto.Api.Domain;
 using Resto.Api.Features.Auth;
+using Resto.Api.Features.Commandes;
 using Resto.Api.Features.Menu;
 using Resto.Api.Features.Menu.Admin;
+using Resto.Api.Features.Panier;
 using Resto.Api.Features.Restaurant;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +38,8 @@ builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<CategorieAdminService>();
 builder.Services.AddScoped<ArticleAdminService>();
 builder.Services.AddScoped<RestaurantService>();
+builder.Services.AddScoped<PanierService>();
+builder.Services.AddScoped<CommandeService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:5173"];
@@ -45,7 +50,9 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(
+        new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: false)));
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

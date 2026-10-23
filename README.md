@@ -90,6 +90,36 @@ Administration (rôle Admin). Il n'y a aucune route DELETE : « supprimer » = d
 
 `ImageUrl` : chemin relatif `/images/<nom>` (lettres, chiffres, `.`, `_`, `-`) ou URL `https`. Une fermeture antérieure à l'ouverture signifie une fermeture après minuit.
 
+## Panier et commandes
+
+Toutes ces routes exigent un compte connecté. **Décision assumée : les invités anonymes ne peuvent pas commander** (la FallbackPolicy exige un jeton) ; un client sur place doit créer un compte, puis scanner le QR de sa table. L'identité vient toujours du jeton : aucun `userId` ni `panierId` n'est lu dans les requêtes.
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET | `/api/panier?lang=` | Panier (créé à la volée) : lignes, prix courants, sous-total, `avertissement` par ligne (`inactif`, `indisponible`) |
+| POST | `/api/panier/items` | `{articleId, quantite}` : ajoute et cumule (plafond 20) |
+| PUT | `/api/panier/items/{articleId}` | `{quantite}` (1 à 20) : fixe la quantité |
+| DELETE | `/api/panier/items/{articleId}` | Retire la ligne (idempotent) |
+| DELETE | `/api/panier` | Vide le panier (idempotent) |
+| POST | `/api/commandes` | `{typeCommande, telephone, note?, adresseLivraison?, tableCode?}` : crée la commande depuis le panier |
+| GET | `/api/commandes` | Mes commandes, paginées (`page`, `pageSize` ≤ 50), plus récentes d'abord |
+| GET | `/api/commandes/{id}` | Détail avec lignes et historique (404 si la commande d'un autre) |
+| POST | `/api/commandes/{id}/annuler` | Annule une commande `EnAttente` (409 sinon) |
+| GET | `/api/tables/{code}` | Anonyme : `{numero}` d'une table active, sinon 404 |
+
+Les énumérations (`typeCommande`, `statut`...) s'échangent en chaînes : `SurPlace`, `ARemporter`, `Livraison` ; `EnAttente`, `EnPreparation`, `Prete`, `Terminee`, `Annulee`.
+
+Règles métier de `POST /api/commandes` :
+
+- Refus (409) si `CommandesOuvertes` est faux ou si le restaurant est fermé (horaires, fuseau Africa/Tunis).
+- Panier vide : 400. Article devenu inactif ou indisponible : 409 avec la liste des articles, le panier reste intact.
+- `Livraison` : adresse de 10 à 500 caractères, sous-total ≥ montant minimum (sinon 400), frais = paramètre du restaurant. Les autres types : frais = 0.
+- `SurPlace` : `tableCode` (Guid du QR) d'une table active obligatoire. `ARemporter` : ni adresse ni table. Un champ non applicable au type est refusé (400).
+- Sous-total, frais et total sont recalculés côté serveur (2 décimales, arrondi « away from zero ») ; les prix sont lus en base, jamais envoyés par le client. Paiement : espèces, `estPayee = false`.
+- Les lignes copient `NomFr`, `NomAr` et le prix au moment de la commande. Numéro `CMD-000123` dérivé de l'identifiant.
+
+**Anti-doublon.** La création s'exécute dans une seule transaction (via la stratégie d'exécution EF, car `EnableRetryOnFailure` est actif). Elle commence par `SELECT ... FOR UPDATE` sur la ligne du panier de l'utilisateur : deux requêtes simultanées (ou un double clic) sont sérialisées, la seconde lit un panier déjà vidé par la première et reçoit 400 « panier vide ». Le panier est vidé dans la même transaction que la création. Si PostgreSQL signale un échec transitoire après le commit, la nouvelle tentative trouve un panier vide (400) plutôt que de créer un doublon. L'annulation s'appuie sur `xmin` : une modification concurrente donne un 409.
+
 ## Tests
 
 ```powershell
