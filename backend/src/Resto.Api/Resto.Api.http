@@ -303,3 +303,15 @@ Content-Type: application/json
 POST {{host}}/api/admin/tables/1/regenerer-code
 Authorization: Bearer {{token}}
 
+### Plan de salle : état de chaque table, encaisser, libérer
+GET {{host}}/api/admin/tables/salle
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/admin/tables/1/encaisser
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/admin/tables/1/liberer
+Authorization: Bearer {{token}}
+

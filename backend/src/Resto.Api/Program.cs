@@ -44,6 +44,7 @@ builder.Services.AddScoped<PanierService>();
 builder.Services.AddScoped<CommandeService>();
 builder.Services.AddScoped<CommandeAdminService>();
 builder.Services.AddScoped<TableAdminService>();
+builder.Services.AddScoped<SalleService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:5173"];

@@ -187,6 +187,22 @@ Rôle Admin uniquement (401 sans jeton, 403 pour un Client). Aucune route DELETE
 - **Désactiver** une table refuse les nouvelles commandes sur place (400 sur `tableCode`) et rend son QR muet ; les commandes passées ne changent pas (lien par identifiant interne).
 - **Effet de bord à connaître :** le numéro affiché sur une commande est lu sur la table (jointure), il n'est pas copié sur la commande. **Modifier le numéro d'une table change donc aussi le numéro montré sur ses commandes passées.** Désactiver ou régénérer le code n'a pas cet effet.
 
+## Plan de salle
+
+Rôle Admin uniquement. L'état d'une table n'est **jamais stocké** : il est déduit de ses commandes sur place (`SurPlace`), calculé par le serveur.
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET | `/api/admin/tables/salle` | Pour chaque table (par numéro) : `etat`, `totalAEncaisser`, `nombreCommandes`, `premiereCommandeUtc`, `commandes` |
+| POST | `/api/admin/tables/{id}/encaisser` | Marque payées les commandes non payées et non annulées de la table (historique inchangé) ; 409 si rien à encaisser |
+| POST | `/api/admin/tables/{id}/liberer` | Libère la table ; 409 s'il reste des commandes en cours ou non payées |
+
+- **Commandes suivies** : celles de la table qui ne sont ni `Annulee`, ni `Terminee` et payée.
+- **États** : `Inactive` (table désactivée, prioritaire) ; `Occupee` (au moins une commande `EnAttente`, `EnPreparation` ou `Prete`) ; `AEncaisser` (plus rien en cours mais au moins une commande non payée) ; `Libre` sinon. `totalAEncaisser` somme les commandes suivies non payées (frais inclus) ; `premiereCommandeUtc` donne le début de l'occupation.
+- **Encaisser** : un second appel immédiat renvoie 409 (« rien à encaisser »), sans aucun effet.
+- **Libérer** : exige que plus rien ne soit en attente ou en préparation et que tout soit payé (le message de 409 nomme chaque raison et propose d'encaisser ou de terminer d'abord). Les commandes encore `Prete` passent alors en `Terminee` (historique + auteur, via `StatutTransitions`). Sur une table déjà libre : 200 sans effet.
+- **Implémentation** : deux requêtes pour toute la salle (les tables, puis les commandes suivies en colonnes simples), agrégées en mémoire : pas de N+1. **Limite** : `xmin` protège les commandes déjà lues ; une commande créée sur la table entre la lecture et l'écriture de « Libérer » n'est pas détectée (la table restera simplement « Occupée » au relevé suivant).
+
 ## Tests
 
 ```powershell

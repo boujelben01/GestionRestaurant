@@ -158,4 +158,17 @@ public class SqlTranslationTests
 
         HasSql(Sql(TableAdminService.ListQuery(db)), "ORDER BY");
     }
+
+    [Fact]
+    public void The_floor_plan_orders_query_translates_for_the_whole_room_and_for_one_table()
+    {
+        using var db = NpgsqlContext();
+
+        var all = Sql(SalleService.TrackedOrdersQuery(db));
+        var one = Sql(SalleService.TrackedOrdersQuery(db, 3));
+
+        HasSql(all, "ORDER BY");
+        HasSql(all, "WHERE");
+        HasSql(one, "WHERE");
+    }
 }
