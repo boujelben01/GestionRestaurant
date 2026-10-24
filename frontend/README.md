@@ -129,6 +129,17 @@ Protégée par `<RequireRole role="Admin" forbidden={<Forbidden/>}>` : un invit�
 
 Les écrans admin n'ont jamais été testés contre la vraie API, seulement contre le mock (`dev-mocks/`) et des tests automatisés.
 
+## Tableau de bord (`/admin/tableau-de-bord`)
+
+Page d'accueil de l'administration (`/admin` y redirige), lien en tête de la navigation.
+
+- **Période** : 7 j, 30 j, 90 j ou personnalisée (du / au), stockée dans l'URL (`?du=AAAA-MM-JJ&au=AAAA-MM-JJ`) pour être partagée et rechargée. Jours civils de **Tunis**, bornes incluses, 366 jours au plus (comme le back-end). Une adresse invalide ramène aux 30 derniers jours avec un bandeau. Les dates `AAAA-MM-JJ` sont rendues sans décalage de fuseau.
+- **Indicateurs** : chiffre d'affaires, commandes, panier moyen, annulations, à encaisser, nouveaux clients, avec la variation par rapport à la période précédente de même durée. La variation est toujours **flèche + pourcentage + texte** (jamais la couleur seule) ; elle vaut « pas de comparaison » quand la période précédente est à 0 (le back-end renvoie `null`). Pour les annulations et le montant à encaisser, une hausse est présentée comme défavorable.
+- **Graphiques** : courbe des ventes (chiffre d'affaires et commandes), top des articles, heures de pointe (heure de Tunis), répartition par type, par statut et par catégorie. **SVG maison, aucune dépendance** (le chunk de la page pèse environ 8,5 Ko en gzip). Chaque graphique est une `<figure>` avec légende, résumé en une phrase et un **tableau de données équivalent masqué visuellement** ; au clavier, une seule tabulation par graphique puis les flèches pour parcourir les valeurs. Contraste des éléments graphiques d'au moins 3:1, séries distinguées aussi par la forme (plein, pointillé, motifs). L'axe du temps reste de gauche à droite en arabe.
+- **États par section** : chaque graphique a son propre chargement (squelette de mêmes dimensions), son erreur (code HTTP et référence, « Réessayer ») et le reste de la page continue de s'afficher. Une période sans commande affiche un état vide à la place des graphiques, en gardant le sélecteur.
+- **Actualisation** : toutes les 60 s (suspendue onglet masqué) et bouton « Actualiser » ; « Mis à jour à HH:mm » en heure de Tunis.
+- **Mock** : `dev-mocks` génère 60 jours de commandes fictives de façon déterministe (graine fixe) : mêmes chiffres à chaque lancement. Ces données ne sont pas réelles.
+
 ## Salle et QR codes (`/admin/tables`)
 
 Deux onglets, mémorisés dans l'URL (`?vue=salle` par défaut, `?vue=gestion`).
@@ -199,7 +210,7 @@ nom de la liste `HEAVY_IMAGES`.
 
 ## Tests
 
-`npm test` couvre : tables et QR (URL du QR, avertissement localhost, ajout, doublon, désactivation et régénération avec confirmation, impression des seules tables actives), plan de salle (états, encaisser, libérer, 409), administration (garde de rôle, transitions, nouvelles commandes, son, optimiste + 409, validation du formulaire d'article, auto-désactivation), parcours complets (invité → connexion → retour, formulaire de commande par type, annulation, 409, « Commander à nouveau », profil), AuthContext (login, 401, expiration, rechargement du profil), erreurs
+`npm test` couvre : tableau de bord (période et URL, variations, états de chargement / erreur / vide, accessibilité des graphiques), tables et QR (URL du QR, avertissement localhost, ajout, doublon, désactivation et régénération avec confirmation, impression des seules tables actives), plan de salle (états, encaisser, libérer, 409), administration (garde de rôle, transitions, nouvelles commandes, son, optimiste + 409, validation du formulaire d'article, auto-désactivation), parcours complets (invité → connexion → retour, formulaire de commande par type, annulation, 409, « Commander à nouveau », profil), AuthContext (login, 401, expiration, rechargement du profil), erreurs
 ProblemDetails, formatage des prix et horaires, bascule de langue et `dir`, carte d'article
 (indisponible, populaire, repli d'image), filtre du menu. Les appels HTTP sont simulés par un
 adaptateur axios en mémoire (`src/test/mockApi.ts`), jamais par le vrai backend.

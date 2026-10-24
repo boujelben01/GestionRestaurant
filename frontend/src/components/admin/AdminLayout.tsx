@@ -8,6 +8,7 @@ import { PageFallback } from '@/components/layout/Layout'
 import { Seo } from '@/components/Seo'
 import {
   BagIcon,
+  ChartIcon,
   Button,
   CloseIcon,
   Logo,
@@ -26,6 +27,11 @@ import { useAuth } from '@/features/auth/AuthContext'
 import { cn } from '@/lib/cn'
 
 const ITEMS: Array<{ to: string; key: string; icon: ReactNode }> = [
+  {
+    to: '/admin/tableau-de-bord',
+    key: 'admin.nav.dashboard',
+    icon: <ChartIcon className="size-5" />,
+  },
   { to: '/admin/commandes', key: 'admin.nav.orders', icon: <BagIcon className="size-5" /> },
   { to: '/admin/menu', key: 'admin.nav.menu', icon: <PlateIcon className="size-5" /> },
   {
@@ -121,6 +127,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
 }
 
 const TITLES: Record<string, string> = {
+  'tableau-de-bord': 'admin.nav.dashboard',
   commandes: 'admin.nav.orders',
   menu: 'admin.nav.menu',
   restaurant: 'admin.nav.restaurant',

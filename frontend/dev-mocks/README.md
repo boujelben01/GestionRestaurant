@@ -56,6 +56,13 @@ Panier : `GET /api/panier`, `POST /api/panier/items`, `PUT|DELETE /api/panier/it
 - Articles (`/api/admin/articles`) : `GET ?categorieId=&actif=&disponible=&recherche=&page=&pageSize=`,
   `GET /{id}`, `POST`, `PUT /{id}`, `PATCH /{id}/disponible` `{estDisponible}`,
   `PATCH /{id}/actif` `{estActif}`, `PUT /ordre` `{ids}` (même catégorie). Pas de DELETE.
+- Statistiques (`/api/admin/statistiques`, GET) : `/resume`, `/ventes-par-jour`,
+  `/top-articles?limite=&lang=`, `/heures-de-pointe`, `/repartition?lang=`. Paramètres `du`/`au`
+  (`AAAA-MM-JJ`, jours civils Africa/Tunis UTC+1, bornes incluses ; défaut = 30 derniers jours ;
+  format invalide, `du` > `au` ou > 366 jours = 400 sur `du`/`au`). Mêmes réponses et règles que le
+  vrai back-end (CA hors frais, annulées exclues sauf `nombreAnnulees`/`parStatut`, variation
+  `null` si période précédente = 0, `limite` bornée 1..20, « Autres »/« أخرى » en dernier).
+  Elles agrègent l'historique fictif (ci-dessous) ET les commandes créées en direct.
 - Restaurant : `PUT /api/admin/restaurant`, `PUT /api/admin/restaurant/horaires`,
   `PATCH /api/admin/restaurant/commandes-ouvertes` `{commandesOuvertes}` ; renvoient le même objet
   que `GET /api/restaurant`, qui reflète ensuite les changements.
@@ -136,3 +143,17 @@ champs `estActive`/`estActif` n'y figurent pas : ils valent `true` au chargement
 livraison 3 DT, minimum de livraison 20 DT. `commandesOuvertes` y est la valeur initiale ;
 ensuite la source de vérité est le réglage en mémoire.
 `fixtures/users.json` : 10 clients fictifs.
+
+### Historique fictif des statistiques (`statsDemo.mjs`)
+
+DONNÉES FICTIVES, générées à chaque démarrage et à chaque `/__mock/reset`, de façon déterministe
+(PRNG mulberry32, graine fixe) : mêmes chiffres tant que la date du jour (Tunis) ne change pas.
+Contenu : 60 jours + aujourd'hui (jusqu'à l'heure courante) de commandes Terminee/Annulee
+(~19 commandes/jour en moyenne, dimanche quasi fermé, week-end plus fort, pics 12h-14h et
+19h-22h heure de Tunis, ~6 % annulées, ~45 % à emporter / 35 % sur place / 20 % livraison avec les
+frais du restaurant, 1 à 4 lignes pondérées vers brik, lablabi, makloub, chawarma, ~4 % de lignes
+d'anciens plats supprimés `articleId: null`, ~3 % de commandes non payées hier/aujourd'hui) soit
+~14 000 DT de CA sur 30 jours, plus 24 clients créés sur les 60 jours (`nouveauxClients`).
+Stockées dans `db.history` / `db.historyClients`, séparées de `db.orders` : elles n'apparaissent
+dans aucun écran existant (commandes client, admin, actives, compteurs, salle), seulement dans les
+statistiques.

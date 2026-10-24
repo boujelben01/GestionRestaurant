@@ -314,3 +314,61 @@ export interface SalleTable {
   premiereCommandeUtc: string | null
   commandes: SalleOrder[]
 }
+
+// --- Statistiques (Features/Statistiques) ---
+
+export interface StatsValues {
+  /** Somme des lignes des commandes non annulées, hors frais de livraison. */
+  chiffreAffaires: number
+  nombreCommandes: number
+  panierMoyen: number
+  nombreAnnulees: number
+  /** Total (frais de livraison inclus) des commandes non annulées et non payées. */
+  montantAEncaisser: number
+  nouveauxClients: number
+}
+
+/** Variation en % par rapport à la période précédente ; null quand la valeur précédente est 0. */
+export type StatsVariations = { [K in keyof StatsValues]: number | null }
+
+export interface StatsResume {
+  du: string
+  au: string
+  periode: StatsValues
+  precedenteDu: string
+  precedenteAu: string
+  precedente: StatsValues
+  variation: StatsVariations
+}
+
+export interface SalesDay {
+  /** AAAA-MM-JJ, jour civil de Tunis. */
+  date: string
+  chiffreAffaires: number
+  commandes: number
+}
+
+export interface TopArticle {
+  articleId: number | null
+  nom: string
+  quantite: number
+  chiffreAffaires: number
+}
+
+export interface PeakHour {
+  /** Heure locale de Tunis, 0 à 23. */
+  heure: number
+  commandes: number
+  chiffreAffaires: number
+}
+
+export interface Breakdown {
+  parType: Array<{ type: TypeCommande; commandes: number; chiffreAffaires: number }>
+  parStatut: Array<{ statut: StatutCommande; commandes: number; chiffreAffaires: number }>
+  parCategorie: Array<{
+    categorieId: number | null
+    nom: string
+    quantite: number
+    chiffreAffaires: number
+  }>
+}

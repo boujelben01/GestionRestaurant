@@ -197,3 +197,13 @@ export const UsersIcon = (p: IconProps) => (
     <path d="M3 20c.6-3.4 3-5 6-5s5.4 1.6 6 5M16 5.5a3 3 0 0 1 0 6M18 15.2c1.6.7 2.7 2.2 3 4.8" />
   </Base>
 )
+export const ChartIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+  </Base>
+)
+export const RefreshIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M20 11a8 8 0 0 0-14.5-4M4 13a8 8 0 0 0 14.5 4M5 3v4h4M19 21v-4h-4" />
+  </Base>
+)

@@ -449,7 +449,8 @@
       "users": "Utilisateurs",
       "pendingCount_one": "{{count}} commande en attente",
       "pendingCount_other": "{{count}} commandes en attente",
-      "tables": "Tables"
+      "tables": "Tables",
+      "dashboard": "Tableau de bord"
     },
     "forbidden": {
       "title": "Accès refusé",
@@ -746,6 +747,78 @@
         "released": "Table {{number}} libérée.",
         "changed": "Table {{number}} : {{state}}"
       }
+    },
+    "stats": {
+      "period": "Période",
+      "lastDays": "{{count}} j",
+      "custom": "Personnalisé",
+      "from": "Du",
+      "to": "Au",
+      "apply": "Appliquer",
+      "periodErrors": {
+        "invalid": "Saisissez deux dates valides.",
+        "order": "La date de début doit précéder la date de fin.",
+        "tooLong": "La période ne peut pas dépasser 366 jours."
+      },
+      "invalidUrl": "Période de l’adresse invalide : les 30 derniers jours sont affichés.",
+      "periodLabel_one": "du {{from}} au {{to}} · {{count}} jour",
+      "periodLabel_other": "du {{from}} au {{to}} · {{count}} jours",
+      "comparedTo": "comparée au {{from}} – {{to}}",
+      "updatedAt": "Mis à jour à {{time}}",
+      "refresh": "Actualiser",
+      "emptyTitle": "Pas encore de ventes sur cette période",
+      "emptyText": "Élargissez la période pour voir l’activité du restaurant.",
+      "kpi": {
+        "revenue": "Chiffre d’affaires",
+        "orders": "Commandes",
+        "average": "Panier moyen",
+        "cancelled": "Annulations",
+        "toCollect": "À encaisser",
+        "newCustomers": "Nouveaux clients"
+      },
+      "aria": {
+        "up": "{{label}} : {{value}}, en hausse de {{percent}} par rapport à la période précédente",
+        "down": "{{label}} : {{value}}, en baisse de {{percent}} par rapport à la période précédente",
+        "flat": "{{label}} : {{value}}, stable par rapport à la période précédente",
+        "none": "{{label}} : {{value}}, pas de comparaison avec la période précédente"
+      },
+      "vsPrevious": "vs période précédente",
+      "noComparison": "pas de comparaison",
+      "salesTitle": "Ventes",
+      "bestDay": "Meilleur jour : {{day}}, {{amount}}",
+      "noSales": "Aucune vente sur cette période.",
+      "date": "Date",
+      "revenue": "Chiffre d’affaires",
+      "orders": "Commandes",
+      "chartKeyboard": "{{title}} : parcourez les valeurs avec les flèches",
+      "keyboardHint": "Flèches gauche et droite pour parcourir les valeurs.",
+      "dayReadout_one": "{{day}} : {{revenue}} · {{count}} commande",
+      "dayReadout_other": "{{day}} : {{revenue}} · {{count}} commandes",
+      "hour": "Heure",
+      "hourReadout_one": "{{hour}} : {{count}} commande · {{revenue}}",
+      "hourReadout_other": "{{hour}} : {{count}} commandes · {{revenue}}",
+      "peakAt": "Pointe à {{hour}}",
+      "topTitle": "Articles les plus vendus",
+      "topSummary_one": "Numéro 1 : {{name}}, {{count}} vendu",
+      "topSummary_other": "Numéro 1 : {{name}}, {{count}} vendus",
+      "sold_one": "{{count}} vendu",
+      "sold_other": "{{count}} vendus",
+      "article": "Article",
+      "quantity": "Quantité",
+      "peakTitle": "Heures de pointe",
+      "peakSummary_one": "Pointe à {{hour}} : {{count}} commande",
+      "peakSummary_other": "Pointe à {{hour}} : {{count}} commandes",
+      "typeTitle": "Commandes par type",
+      "typeSummary": "{{type}} : {{percent}} des commandes",
+      "type": "Type",
+      "legend": "Légende",
+      "statusTitle": "Par statut",
+      "statusSummary_one": "Le plus fréquent : {{status}}, {{count}} commande",
+      "statusSummary_other": "Le plus fréquent : {{status}}, {{count}} commandes",
+      "status": "Statut",
+      "categoryTitle": "Par catégorie",
+      "categorySummary": "{{name}} en tête : {{amount}}",
+      "category": "Catégorie"
     }
   }
 }

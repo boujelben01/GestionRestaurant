@@ -6,6 +6,7 @@ import { createServer } from 'node:http'
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { generateHistory, tunisDay } from './statsDemo.mjs'
 
 const PORT = Number(process.env.PORT ?? 5118)
 const ORIGIN = process.env.ALLOWED_ORIGIN ?? 'http://localhost:5173'
@@ -123,6 +124,9 @@ function resetDb() {
     sessions: new Map(), // token -> { userId, expires }
     carts: new Map(), // userId -> Map(articleId -> quantite)
     orders: [],
+    // Historique fictif pour les statistiques UNIQUEMENT (hors db.orders) ; voir statsDemo.mjs.
+    history: [],
+    historyClients: [],
     nextOrderId: 1,
     tables: INITIAL_TABLES.map((t) => ({ ...t })),
     nextTableId: INITIAL_TABLES.length + 1,
@@ -134,6 +138,13 @@ function resetDb() {
       alwaysOpen: process.env.MOCK_ALWAYS_OPEN === '1',
     },
   }
+  const demo = generateHistory({
+    articles,
+    fraisLivraison: restaurant.fraisLivraison,
+    nowMs: Date.now(),
+  })
+  db.history = demo.orders
+  db.historyClients = demo.clients
 }
 resetDb()
 
@@ -883,6 +894,188 @@ function libererTable(t, admin) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Statistiques admin (jours/heures civils Africa/Tunis = UTC+1 fixe ; commandes en direct + historique fictif)
+// ---------------------------------------------------------------------------------------------
+const STATS_DEFAULT_DAYS = 30
+const STATS_MAX_DAYS = 366
+const STATS_MAX_TOP = 20
+const TUNIS_SHIFT_MS = 3_600_000
+const dayNumber = (iso) => Math.floor(Date.parse(`${iso}T00:00:00Z`) / 86_400_000)
+const addDays = (iso, n) => new Date((dayNumber(iso) + n) * 86_400_000).toISOString().slice(0, 10)
+const localDay = (iso) => tunisDay(Date.parse(iso))
+const localHour = (iso) => new Date(Date.parse(iso) + TUNIS_SHIFT_MS).getUTCHours()
+const lineAmount = (l) => round2(l.prixUnitaire * l.quantite)
+const sumMoney = (values) => round2(values.reduce((n, v) => n + v, 0))
+const isSale = (o) => o.statut !== 'Annulee'
+const cmpStr = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
+
+function parseStatsDay(value, field) {
+  if (value == null || !String(value).trim()) return null
+  const text = String(value).trim()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const t = Date.parse(`${text}T00:00:00Z`)
+    if (Number.isFinite(t) && new Date(t).toISOString().slice(0, 10) === text) return text
+  }
+  throw fieldError(field, 'Date invalide : utilisez le format AAAA-MM-JJ.')
+}
+
+/** { du, au, days } : défaut 30 derniers jours (aujourd'hui compris), 366 jours au plus. */
+function statsPeriod(url) {
+  const from = parseStatsDay(url.searchParams.get('du'), 'du')
+  const to = parseStatsDay(url.searchParams.get('au'), 'au')
+  const au = to ?? tunisDay(Date.now())
+  const du = from ?? addDays(au, 1 - STATS_DEFAULT_DAYS)
+  if (du > au) throw fieldError('du', 'La date de début doit précéder la date de fin.')
+  const days = dayNumber(au) - dayNumber(du) + 1
+  if (days > STATS_MAX_DAYS)
+    throw fieldError('au', `La période ne peut pas dépasser ${STATS_MAX_DAYS} jours.`)
+  return { du, au, days }
+}
+
+const inPeriod = (iso, p) => {
+  const d = localDay(iso)
+  return d >= p.du && d <= p.au
+}
+const statsOrders = (p) => [...db.history, ...db.orders].filter((o) => inPeriod(o.dateCommande, p))
+const orderRevenue = (o) => sumMoney(o.lignes.map(lineAmount))
+
+function periodValues(p) {
+  const orders = statsOrders(p)
+  const sales = orders.filter(isSale)
+  const ca = sumMoney(sales.map(orderRevenue))
+  const clients = [...db.users.filter((u) => u.roles.includes('Client')), ...db.historyClients]
+  return {
+    chiffreAffaires: ca,
+    nombreCommandes: sales.length,
+    panierMoyen: sales.length ? round2(ca / sales.length) : 0,
+    nombreAnnulees: orders.length - sales.length,
+    montantAEncaisser: sumMoney(sales.filter((o) => !o.estPayee).map((o) => o.total)),
+    nouveauxClients: clients.filter((u) => u.dateCreation && inPeriod(u.dateCreation, p)).length,
+  }
+}
+
+const variation = (cur, prev) => (prev === 0 ? null : Math.round(((cur - prev) / prev) * 1000) / 10)
+
+function statsResume(p) {
+  const prev = { du: addDays(p.du, -p.days), au: addDays(p.du, -1), days: p.days }
+  const periode = periodValues(p)
+  const precedente = periodValues(prev)
+  return {
+    du: p.du,
+    au: p.au,
+    periode,
+    precedenteDu: prev.du,
+    precedenteAu: prev.au,
+    precedente,
+    variation: Object.fromEntries(
+      Object.keys(periode).map((k) => [k, variation(periode[k], precedente[k])]),
+    ),
+  }
+}
+
+function statsVentesParJour(p) {
+  const rows = new Map(
+    Array.from({ length: p.days }, (_, i) => [addDays(p.du, i), { ca: 0, n: 0 }]),
+  )
+  for (const o of statsOrders(p).filter(isSale)) {
+    const r = rows.get(localDay(o.dateCommande))
+    r.ca += orderRevenue(o)
+    r.n++
+  }
+  return [...rows].map(([date, r]) => ({ date, chiffreAffaires: round2(r.ca), commandes: r.n }))
+}
+
+function statsTopArticles(p, limite, lang) {
+  const groups = new Map()
+  const sales = statsOrders(p).filter(isSale)
+  for (const o of sales.sort((a, b) => cmpStr(a.dateCommande, b.dateCommande))) {
+    for (const l of o.lignes) {
+      const key = l.articleId != null ? `a:${l.articleId}` : `n:${l.nomFr}`
+      const g = groups.get(key) ?? { articleId: l.articleId ?? null, quantite: 0, ca: 0 }
+      g.nom = pick(l.nomFr, l.nomAr, lang) // la ligne la plus récente donne le nom
+      g.quantite += l.quantite
+      g.ca += lineAmount(l)
+      groups.set(key, g)
+    }
+  }
+  const n = Math.min(Math.max(Number.isFinite(limite) ? limite : 10, 1), STATS_MAX_TOP)
+  return [...groups.values()]
+    .map((g) => ({
+      articleId: g.articleId,
+      nom: g.nom,
+      quantite: g.quantite,
+      chiffreAffaires: round2(g.ca),
+    }))
+    .sort(
+      (a, b) =>
+        b.quantite - a.quantite || b.chiffreAffaires - a.chiffreAffaires || cmpStr(a.nom, b.nom),
+    )
+    .slice(0, n)
+}
+
+function statsHeures(p) {
+  const rows = Array.from({ length: 24 }, (_, heure) => ({ heure, commandes: 0, ca: 0 }))
+  for (const o of statsOrders(p).filter(isSale)) {
+    const r = rows[localHour(o.dateCommande)]
+    r.commandes++
+    r.ca += orderRevenue(o)
+  }
+  return rows.map((r) => ({
+    heure: r.heure,
+    commandes: r.commandes,
+    chiffreAffaires: round2(r.ca),
+  }))
+}
+
+function statsRepartition(p, lang) {
+  const orders = statsOrders(p)
+  const sales = orders.filter(isSale)
+  const parType = TYPES.map((t) => {
+    const list = sales.filter((o) => o.typeCommande === t)
+    return { type: t, commandes: list.length, chiffreAffaires: sumMoney(list.map(orderRevenue)) }
+  })
+  const parStatut = STATUTS.map((s) => {
+    const list = orders.filter((o) => o.statut === s)
+    return {
+      statut: s,
+      commandes: list.length,
+      chiffreAffaires: s === 'Annulee' ? 0 : sumMoney(list.map(orderRevenue)),
+    }
+  })
+  const cats = new Map()
+  for (const o of sales) {
+    for (const l of o.lignes) {
+      const a = l.articleId != null ? findArticle(l.articleId) : null
+      const c = a ? findCategorie(a.categorieId) : null
+      const key = c ? c.id : null
+      const g = cats.get(key) ?? {
+        categorieId: key,
+        nom: c ? pick(c.nomFr, c.nomAr, lang) : lang === 'ar' ? 'أخرى' : 'Autres',
+        quantite: 0,
+        ca: 0,
+      }
+      g.quantite += l.quantite
+      g.ca += lineAmount(l)
+      cats.set(key, g)
+    }
+  }
+  const parCategorie = [...cats.values()]
+    .map((g) => ({
+      categorieId: g.categorieId,
+      nom: g.nom,
+      quantite: g.quantite,
+      chiffreAffaires: round2(g.ca),
+    }))
+    .sort(
+      (a, b) =>
+        (a.categorieId === null) - (b.categorieId === null) ||
+        b.chiffreAffaires - a.chiffreAffaires ||
+        cmpStr(a.nom, b.nom),
+    )
+  return { parType, parStatut, parCategorie }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Admin : catégories et articles
 // ---------------------------------------------------------------------------------------------
 const categorieAdmin = (c) => ({
@@ -1250,6 +1443,28 @@ async function route(req, url, user) {
       order.statut = 'Annulee'
       touch(order, u, 'Annulee')
       return { status: 200, body: clientOrder(order) }
+    }
+  }
+
+  // --- Admin : statistiques ---
+  const stats = path.match(/^\/api\/admin\/statistiques\/([a-z-]+)$/)
+  if (stats && method === 'GET') {
+    needAdmin()
+    const p = statsPeriod(url)
+    switch (stats[1]) {
+      case 'resume':
+        return { status: 200, body: statsResume(p) }
+      case 'ventes-par-jour':
+        return { status: 200, body: statsVentesParJour(p) }
+      case 'top-articles':
+        return {
+          status: 200,
+          body: statsTopArticles(p, parseInt(url.searchParams.get('limite') ?? '', 10), lang),
+        }
+      case 'heures-de-pointe':
+        return { status: 200, body: statsHeures(p) }
+      case 'repartition':
+        return { status: 200, body: statsRepartition(p, lang) }
     }
   }
 

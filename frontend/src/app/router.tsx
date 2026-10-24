@@ -4,6 +4,7 @@ import { Layout, PageFallback } from '@/components/layout/Layout'
 import { RequireAuth, RequireRole } from '@/features/auth/guards'
 import ErrorPage from '@/pages/ErrorPage'
 import {
+  AdminDashboard,
   AdminLayout,
   AdminMenu,
   AdminOrders,
@@ -49,7 +50,8 @@ export const routes: RouteObject[] = [
         element: adminShell,
         errorElement: <ErrorPage />,
         children: [
-          { index: true, element: <Navigate to="/admin/commandes" replace /> },
+          { index: true, element: <Navigate to="/admin/tableau-de-bord" replace /> },
+          { path: 'tableau-de-bord', element: <AdminDashboard /> },
           { path: 'commandes', element: <AdminOrders /> },
           { path: 'menu', element: <AdminMenu /> },
           { path: 'restaurant', element: <AdminRestaurant /> },
