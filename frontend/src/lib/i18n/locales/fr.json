@@ -299,7 +299,10 @@
     "notFound": {
       "title": "Cette page n'existe pas",
       "text": "Le lien est peut-être erroné, ou la page a été déplacée. Retrouvons votre chemin vers la table."
-    }
+    },
+    "httpCode": "HTTP {{status}}",
+    "reference": "Réf. {{id}}",
+    "networkCode": "Réseau"
   },
   "table": {
     "banner": "Vous êtes à la table {{number}}",
@@ -534,7 +537,10 @@
         "total": "Total",
         "payment": "Paiement",
         "status": "Statut"
-      }
+      },
+      "markedPaid": "Commande marquée payée.",
+      "markedUnpaid": "Commande marquée non payée.",
+      "paidCancelledHint": "Une commande annulée ne peut pas être encaissée."
     },
     "menu": {
       "articles": "Articles",
@@ -588,7 +594,10 @@
         "moved": "Article {{name}} déplacé en position {{position}}",
         "reorderHint": "Utilisez les flèches pour changer l’ordre des articles de cette catégorie sur le menu.",
         "reorderNeedsCategoryOnly": "Pour réordonner, filtrez sur une catégorie sans autre filtre ni recherche.",
-        "reorderTooMany": "Cette catégorie compte plus de 50 articles : le réordonnancement est désactivé."
+        "reorderTooMany": "Cette catégorie compte plus de 50 articles : le réordonnancement est désactivé.",
+        "categoryCurrent": "Catégorie n° {{id}} (liste indisponible)",
+        "categoriesError": "Impossible de charger les catégories.",
+        "categoryNeeded": "Les catégories doivent être chargées pour choisir une catégorie et enregistrer."
       }
     },
     "restaurant": {

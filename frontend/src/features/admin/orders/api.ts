@@ -176,21 +176,34 @@ export function useChangeOrderStatus() {
 
 export function useSetOrderPaid() {
   const queryClient = useQueryClient()
-  type Snapshot = Array<[readonly unknown[], AdminOrder | undefined]>
+  type Snapshot = Array<[readonly unknown[], unknown]>
+  const patchList = (
+    data: PagedResult<AdminOrderSummary> | undefined,
+    id: number,
+    estPayee: boolean,
+  ) => data && { ...data, items: data.items.map((o) => (o.id === id ? { ...o, estPayee } : o)) }
   return useMutation<AdminOrder, Error, { id: number; estPayee: boolean }, { snapshots: Snapshot }>(
     {
       mutationFn: async ({ id, estPayee }) =>
         (await api.patch<AdminOrder>(`/api/admin/commandes/${id}/paiement`, { estPayee })).data,
       onMutate: async ({ id, estPayee }) => {
-        // Optimiste sur TOUS les détails en cache de cette commande (une entrée par version).
         await queryClient.cancelQueries({ queryKey: [...ROOT, 'detail', id] })
-        const snapshots = queryClient.getQueriesData<AdminOrder>({
+        await queryClient.cancelQueries({ queryKey: [...ROOT, 'list'] })
+        // Optimiste partout où la commande est affichée : tous les détails en cache (une entrée par
+        // version) ET les pages de l'historique.
+        const details = queryClient.getQueriesData<AdminOrder>({
           queryKey: [...ROOT, 'detail', id],
         })
-        snapshots.forEach(
+        const lists = queryClient.getQueriesData<PagedResult<AdminOrderSummary>>({
+          queryKey: [...ROOT, 'list'],
+        })
+        details.forEach(
           ([key, data]) => data && queryClient.setQueryData(key, { ...data, estPayee }),
         )
-        return { snapshots }
+        lists.forEach(
+          ([key, data]) => data && queryClient.setQueryData(key, patchList(data, id, estPayee)),
+        )
+        return { snapshots: [...details, ...lists] as Snapshot }
       },
       onError: (_error, _vars, context) => {
         context?.snapshots.forEach(([key, data]) => queryClient.setQueryData(key, data))
@@ -198,10 +211,12 @@ export function useSetOrderPaid() {
       onSuccess: (detail) => {
         queryClient.setQueryData(orderDetailKey(detail.id, detail.version), detail)
       },
+      // Succès ou échec : le serveur fait foi (carte active, détail, historique, compteurs).
       onSettled: (_data, _error, { id }) => {
         void queryClient.invalidateQueries({ queryKey: [...ROOT, 'detail', id] })
         void queryClient.invalidateQueries({ queryKey: activeOrdersKey })
         void queryClient.invalidateQueries({ queryKey: [...ROOT, 'list'] })
+        void queryClient.invalidateQueries({ queryKey: countersKey })
       },
     },
   )

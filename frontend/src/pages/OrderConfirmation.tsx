@@ -74,7 +74,7 @@ export default function OrderConfirmation() {
         )}
 
         {!notFound && error && !order && (
-          <ErrorState onRetry={() => void refetch()} retrying={isFetching} />
+          <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />
         )}
 
         {order && (

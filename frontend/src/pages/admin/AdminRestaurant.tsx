@@ -365,7 +365,7 @@ function HoursCard({ restaurant }: { restaurant: Restaurant }) {
 
 export default function AdminRestaurant() {
   const { t } = useTranslation()
-  const { data, isPending, isError, refetch, isFetching } = useRestaurant()
+  const { data, isPending, isError, error, refetch, isFetching } = useRestaurant()
   // key = contenu serveur : le formulaire se réinitialise après un enregistrement réussi.
   const settingsKey = data ? JSON.stringify(settingsOf(data)) : 'none'
   const hoursKey = data ? JSON.stringify(toDayForms(data.horaires)) : 'none'
@@ -380,7 +380,9 @@ export default function AdminRestaurant() {
             <Skeleton className="h-64 w-full rounded-lg" />
           </div>
         )}
-        {isError && <ErrorState onRetry={() => void refetch()} retrying={isFetching} />}
+        {isError && (
+          <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />
+        )}
         {data && (
           <>
             <OrdersOpenCard restaurant={data} />

@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { Badge, Button, Dialog, ErrorState, Skeleton } from '@/components/ui'
+import { Badge, Button, Dialog, ErrorState, Skeleton, useToast } from '@/components/ui'
+import { adminErrorMessage } from '../adminErrors'
 import { OrderStatusBadge } from '@/features/orders/OrderStatusBadge'
 import { formatDateTime, formatPrice } from '@/lib/format'
 import { useLang } from '@/lib/useLang'
-import { useAdminOrder } from './api'
+import { useAdminOrder, useSetOrderPaid } from './api'
 
 interface OrderDetailDialogProps {
   /** Commande à afficher ; null = fermé. */
@@ -15,7 +16,9 @@ interface OrderDetailDialogProps {
 export function OrderDetailDialog({ order, onClose }: OrderDetailDialogProps) {
   const { t } = useTranslation()
   const lang = useLang()
-  const { data, isPending, isError, refetch, isFetching } = useAdminOrder(
+  const { toast } = useToast()
+  const setPaid = useSetOrderPaid()
+  const { data, isPending, isError, error, refetch, isFetching } = useAdminOrder(
     order?.id ?? null,
     order?.version,
   )
@@ -39,7 +42,9 @@ export function OrderDetailDialog({ order, onClose }: OrderDetailDialogProps) {
           <Skeleton className="h-32 w-full" />
         </div>
       )}
-      {isError && <ErrorState compact onRetry={() => void refetch()} retrying={isFetching} />}
+      {isError && (
+        <ErrorState error={error} compact onRetry={() => void refetch()} retrying={isFetching} />
+      )}
       {data && (
         <div className="flex flex-col gap-5 text-sm">
           <div className="flex flex-wrap items-center gap-3">
@@ -48,6 +53,43 @@ export function OrderDetailDialog({ order, onClose }: OrderDetailDialogProps) {
               {data.estPayee ? t('admin.orders.paid') : t('admin.orders.unpaid')}
             </Badge>
             <span className="tabular text-ink-500">{formatDateTime(data.dateCommande, lang)}</span>
+          </div>
+
+          <div className="flex flex-col items-start gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              loading={setPaid.isPending}
+              aria-disabled={data.statut === 'Annulee' || undefined}
+              aria-describedby={data.statut === 'Annulee' ? 'paid-cancelled' : undefined}
+              onClick={() => {
+                if (data.statut === 'Annulee') return
+                const estPayee = !data.estPayee
+                setPaid.mutate(
+                  { id: data.id, estPayee },
+                  {
+                    onSuccess: () =>
+                      toast(
+                        estPayee ? t('admin.orders.markedPaid') : t('admin.orders.markedUnpaid'),
+                        {
+                          variant: 'success',
+                        },
+                      ),
+                    onError: (error) =>
+                      toast(adminErrorMessage(error, t, 'admin.orders.errors.conflict'), {
+                        variant: 'error',
+                      }),
+                  },
+                )
+              }}
+            >
+              {data.estPayee ? t('admin.orders.markUnpaid') : t('admin.orders.markPaid')}
+            </Button>
+            {data.statut === 'Annulee' && (
+              <p id="paid-cancelled" className="text-xs text-ink-500">
+                {t('admin.orders.paidCancelledHint')}
+              </p>
+            )}
           </div>
 
           <dl className="grid gap-3 rounded-md bg-sand-100 p-4 sm:grid-cols-2">

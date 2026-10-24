@@ -34,6 +34,7 @@ export default function Orders() {
     data,
     isPending,
     isError,
+    error,
     refetch,
     isFetching,
     hasNextPage,
@@ -51,6 +52,7 @@ export default function Orders() {
         {isPending && <OrdersSkeleton />}
         {isError && (
           <ErrorState
+            error={error}
             message={t('orders.loadError')}
             onRetry={() => void refetch()}
             retrying={isFetching}

@@ -11,7 +11,7 @@ import { OpenStatusBadge } from './OpenStatusBadge'
 export function InfoBand() {
   const { t } = useTranslation()
   const lang = useLang()
-  const { data, isPending, isError, refetch, isFetching } = useRestaurant()
+  const { data, isPending, isError, error, refetch, isFetching } = useRestaurant()
   const today = todayInTunis()
   const hours = describeHours(data?.horaires.find((h) => h.jourSemaine === today))
 
@@ -37,6 +37,7 @@ export function InfoBand() {
 
         {isError && (
           <ErrorState
+            error={error}
             compact
             title={t('errors.loadFailedTitle')}
             message={t('contact.loadError')}

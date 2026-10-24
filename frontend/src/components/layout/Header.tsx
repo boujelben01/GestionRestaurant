@@ -17,7 +17,7 @@ import {
 } from '@/components/ui'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
-import { ACCOUNT_LINKS, ADMIN_LINK, NAV_ITEMS } from './nav'
+import { NAV_ITEMS, accountLinksFor } from './nav'
 
 function displayName(user: User) {
   return user.nom?.trim() || user.userName
@@ -118,18 +118,16 @@ function UserMenu({ user, onLogout }: { user: User; onLogout: () => void }) {
               aria-label={t('nav.account')}
               className="flex flex-col border-t border-sand-200 py-1"
             >
-              {(user.roles.includes('Admin') ? [...ACCOUNT_LINKS, ADMIN_LINK] : ACCOUNT_LINKS).map(
-                (item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setOpen(false)}
-                    className="flex min-h-11 items-center rounded-md px-3 text-sm font-semibold transition-colors hover:bg-sand-100"
-                  >
-                    {t(item.key)}
-                  </Link>
-                ),
-              )}
+              {accountLinksFor(user.roles).map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-11 items-center rounded-md px-3 text-sm font-semibold transition-colors hover:bg-sand-100"
+                >
+                  {t(item.key)}
+                </Link>
+              ))}
             </nav>
             <button
               type="button"

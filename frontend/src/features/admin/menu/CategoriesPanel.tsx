@@ -131,7 +131,7 @@ export function CategoriesPanel() {
   const { t } = useTranslation()
   const lang = useLang()
   const { toast } = useToast()
-  const { data, isPending, isError, refetch, isFetching } = useAdminCategories()
+  const { data, isPending, isError, error, refetch, isFetching } = useAdminCategories()
   const reorder = useReorderCategories()
   const setActive = useSetCategoryActive()
   const [editing, setEditing] = useState<AdminCategory | null | 'new'>(null)
@@ -182,7 +182,7 @@ export function CategoriesPanel() {
           ))}
         </div>
       )}
-      {isError && <ErrorState onRetry={() => void refetch()} retrying={isFetching} />}
+      {isError && <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />}
       {data && sorted.length === 0 && (
         <EmptyState icon={<PlateIcon />} title={t('admin.menu.category.empty')} />
       )}

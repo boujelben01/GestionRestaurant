@@ -101,7 +101,7 @@ export default function Checkout() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { user } = useAuth()
-  const { data: cart, isPending, isError, refetch, isFetching } = usePanier()
+  const { data: cart, isPending, isError, error, refetch, isFetching } = usePanier()
   const { data: restaurant } = useRestaurant()
   const createOrder = useCreateOrder()
   const table = useTableSession()
@@ -203,6 +203,7 @@ export default function Checkout() {
         )}
         {isError && (
           <ErrorState
+            error={error}
             onRetry={() => void refetch()}
             retrying={isFetching}
             message={t('cart.loadError')}

@@ -32,7 +32,7 @@ function FooterSkeleton() {
 
 export function Footer() {
   const { t } = useTranslation()
-  const { data, isPending, isError, refetch, isFetching } = useRestaurant()
+  const { data, isPending, isError, error, refetch, isFetching } = useRestaurant()
   const name = data?.nom ?? t('brand.name')
 
   return (
@@ -72,6 +72,7 @@ export function Footer() {
             {isPending && <FooterSkeleton />}
             {isError && (
               <ErrorState
+                error={error}
                 compact
                 title={t('errors.loadFailedTitle')}
                 message={t('footer.contactUnavailable')}

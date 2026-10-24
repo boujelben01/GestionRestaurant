@@ -66,12 +66,19 @@ export function ArticlesPanel() {
   const pageSize = reorderMode ? REORDER_PAGE_SIZE : PAGE_SIZE
   const effectivePage = reorderMode ? 1 : page
 
-  const { data, isPending, isError, refetch, isFetching } = useAdminArticles(
+  const { data, isPending, isError, error, refetch, isFetching } = useAdminArticles(
     effective,
     effectivePage,
     pageSize,
   )
-  const { data: categories } = useAdminCategories()
+  const {
+    data: categories,
+    isPending: categoriesPending,
+    isError: categoriesError,
+    error: categoriesErrorValue,
+    refetch: refetchCategories,
+    isFetching: categoriesFetching,
+  } = useAdminCategories()
   const setAvailable = useSetArticleAvailable()
   const setActive = useSetArticleActive()
   const reorder = useReorderArticles()
@@ -212,7 +219,7 @@ export function ArticlesPanel() {
           ))}
         </div>
       )}
-      {isError && <ErrorState onRetry={() => void refetch()} retrying={isFetching} />}
+      {isError && <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />}
       {data && data.items.length === 0 && (
         <EmptyState
           icon={<PlateIcon />}
@@ -322,11 +329,18 @@ export function ArticlesPanel() {
         />
       )}
 
-      {editing !== null && categories && (
+      {editing !== null && (
         <ArticleFormDialog
           key={editing === 'new' ? 'new' : editing.id}
           article={editing === 'new' ? null : editing}
           categories={categories}
+          categoriesStatus={{
+            isPending: categoriesPending,
+            isError: categoriesError,
+            error: categoriesErrorValue,
+            onRetry: () => void refetchCategories(),
+            retrying: categoriesFetching,
+          }}
           defaultCategory={filters.categorieId}
           onClose={() => setEditing(null)}
         />

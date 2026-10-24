@@ -145,6 +145,7 @@ export default function OrderDetail() {
         {isPending && <DetailSkeleton />}
         {error && !order && (
           <ErrorState
+            error={error}
             message={t('orderDetail.loadError')}
             onRetry={() => void refetch()}
             retrying={isFetching}

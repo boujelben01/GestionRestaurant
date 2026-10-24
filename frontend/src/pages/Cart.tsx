@@ -39,7 +39,7 @@ export default function Cart() {
   const { t } = useTranslation()
   const lang = useLang()
   const { toast } = useToast()
-  const { data: cart, isPending, isError, refetch, isFetching } = usePanier()
+  const { data: cart, isPending, isError, error, refetch, isFetching } = usePanier()
   const { data: restaurant } = useRestaurant()
   const setQuantity = useSetQuantity()
   const removeItem = useRemoveItem()
@@ -111,6 +111,7 @@ export default function Cart() {
         {isPending && <CartSkeleton />}
         {isError && (
           <ErrorState
+            error={error}
             onRetry={() => void refetch()}
             retrying={isFetching}
             message={t('cart.loadError')}

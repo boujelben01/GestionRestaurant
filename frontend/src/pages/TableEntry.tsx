@@ -50,7 +50,9 @@ export default function TableEntry() {
             </div>
           </>
         )}
-        {failed && <ErrorState onRetry={() => void refetch()} retrying={isFetching} />}
+        {failed && (
+          <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />
+        )}
         {valid && isPending && !failed && (
           <div
             role="status"

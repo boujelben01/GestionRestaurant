@@ -12,3 +12,11 @@ export const ACCOUNT_LINKS = [
 
 /** Lien d'administration : affiché seulement aux comptes ayant le rôle Admin. */
 export const ADMIN_LINK = { to: '/admin', key: 'nav.admin' } as const
+
+/**
+ * Liens du menu de compte selon les rôles : un administrateur ne voit que « Administration »
+ * (ses commandes et son profil client ne le concernent pas) ; un client voit commandes et profil.
+ */
+export function accountLinksFor(roles: readonly string[]) {
+  return roles.includes('Admin') ? [ADMIN_LINK] : [...ACCOUNT_LINKS]
+}

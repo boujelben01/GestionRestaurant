@@ -84,7 +84,7 @@ function Hero() {
 
 function PopularSection() {
   const { t } = useTranslation()
-  const { data, isPending, isError, refetch, isFetching } = useMenu()
+  const { data, isPending, isError, error, refetch, isFetching } = useMenu()
   const popular = (data ?? [])
     .flatMap((category) => category.articles)
     .filter((article) => article.estPopulaire)
@@ -108,6 +108,7 @@ function PopularSection() {
         {isPending && <ArticleGridSkeleton count={3} />}
         {isError && (
           <ErrorState
+            error={error}
             message={t('menu.loadError')}
             onRetry={() => void refetch()}
             retrying={isFetching}

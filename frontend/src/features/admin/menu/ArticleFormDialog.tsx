@@ -1,6 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertIcon, Button, Dialog, Field, Input, SelectField, useToast } from '@/components/ui'
+import {
+  AlertIcon,
+  Button,
+  Dialog,
+  ErrorState,
+  Field,
+  Input,
+  SelectField,
+  Skeleton,
+  useToast,
+} from '@/components/ui'
 import { FALLBACK_IMAGE, resolveImage } from '@/features/menu/images'
 import { cn } from '@/lib/cn'
 import { toAppError } from '@/lib/errors'
@@ -43,9 +53,19 @@ function previewSrc(url: string): string {
   return value.startsWith('/') ? resolveImage(value) : value
 }
 
+export interface CategoriesStatus {
+  isPending: boolean
+  isError: boolean
+  error?: unknown
+  onRetry: () => void
+  retrying: boolean
+}
+
 interface ArticleFormDialogProps {
   article: AdminArticle | null
-  categories: AdminCategory[]
+  /** Absent tant que les catégories chargent ou en cas d'erreur : le formulaire reste utilisable. */
+  categories?: AdminCategory[]
+  categoriesStatus: CategoriesStatus
   defaultCategory: number | null
   onClose: () => void
 }
@@ -53,6 +73,7 @@ interface ArticleFormDialogProps {
 export function ArticleFormDialog({
   article,
   categories,
+  categoriesStatus,
   defaultCategory,
   onClose,
 }: ArticleFormDialogProps) {
@@ -63,6 +84,8 @@ export function ArticleFormDialog({
   const [errors, setErrors] = useState<Partial<Record<ArticleField, string>>>({})
   const [general, setGeneral] = useState<string>()
   const [imageBroken, setImageBroken] = useState(false)
+
+  const blocked = !categories && values.categorieId === null
 
   const set = <K extends keyof ArticleFormValues>(key: K, value: ArticleFormValues[K]) => {
     setValues((v) => ({ ...v, [key]: value }))
@@ -76,6 +99,7 @@ export function ArticleFormDialog({
     event.preventDefault()
     const form = event.currentTarget
     setGeneral(undefined)
+    if (blocked) return
     const codes = validateArticle(values)
     const mapped: Partial<Record<ArticleField, string>> = {}
     for (const [key, code] of Object.entries(codes)) mapped[key as ArticleField] = codeMessage(code)
@@ -124,7 +148,13 @@ export function ArticleFormDialog({
           <Button variant="outline" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" form="article-form" loading={save.isPending}>
+          <Button
+            type="submit"
+            form="article-form"
+            loading={save.isPending}
+            aria-disabled={blocked || undefined}
+            aria-describedby={blocked ? 'category-needed' : undefined}
+          >
             {t('admin.common.save')}
           </Button>
         </>
@@ -142,24 +172,55 @@ export function ArticleFormDialog({
             {general}
           </p>
         )}
-        <SelectField
-          name="categorieId"
-          label={t('admin.menu.article.category')}
-          value={values.categorieId ?? ''}
-          onChange={(event) =>
-            set('categorieId', event.target.value === '' ? null : Number(event.target.value))
-          }
-          error={errors.categorieId}
-          required
-        >
-          <option value="">{t('admin.menu.article.chooseCategory')}</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nomFr}
-              {c.estActive ? '' : ` (${t('admin.common.inactive')})`}
-            </option>
-          ))}
-        </SelectField>
+        {categories ? (
+          <SelectField
+            name="categorieId"
+            label={t('admin.menu.article.category')}
+            value={values.categorieId ?? ''}
+            onChange={(event) =>
+              set('categorieId', event.target.value === '' ? null : Number(event.target.value))
+            }
+            error={errors.categorieId}
+            required
+          >
+            <option value="">{t('admin.menu.article.chooseCategory')}</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nomFr}
+                {c.estActive ? '' : ` (${t('admin.common.inactive')})`}
+              </option>
+            ))}
+          </SelectField>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-semibold text-ink-800">
+              {t('admin.menu.article.category')}
+            </span>
+            {categoriesStatus.isPending && (
+              <div role="status" aria-label={t('common.loading')}>
+                <Skeleton className="h-12 w-full rounded-md" />
+              </div>
+            )}
+            {!categoriesStatus.isPending && values.categorieId !== null && (
+              <input
+                type="text"
+                disabled
+                aria-label={t('admin.menu.article.category')}
+                value={t('admin.menu.article.categoryCurrent', { id: values.categorieId })}
+                className="block min-h-12 w-full rounded-md border-[1.5px] border-sand-300 bg-sand-100 px-4 text-ink-700"
+              />
+            )}
+            {categoriesStatus.isError && (
+              <ErrorState
+                compact
+                error={categoriesStatus.error}
+                message={t('admin.menu.article.categoriesError')}
+                onRetry={categoriesStatus.onRetry}
+                retrying={categoriesStatus.retrying}
+              />
+            )}
+          </div>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             name="nomFr"
@@ -254,6 +315,11 @@ export function ArticleFormDialog({
             />
           </div>
         </div>
+        {blocked && (
+          <p id="category-needed" className="text-sm font-medium text-danger-800">
+            {t('admin.menu.article.categoryNeeded')}
+          </p>
+        )}
         <div className="flex flex-wrap gap-x-6 gap-y-2">
           <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold">
             <input

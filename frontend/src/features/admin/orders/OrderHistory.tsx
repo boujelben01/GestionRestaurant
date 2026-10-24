@@ -34,7 +34,7 @@ export function OrderHistory() {
 
   const debouncedSearch = useDebouncedValue(searchText, 300)
   const effective = { ...filters, recherche: debouncedSearch }
-  const { data, isPending, isError, refetch, isFetching } = useAdminOrders(
+  const { data, isPending, isError, error, refetch, isFetching } = useAdminOrders(
     effective,
     page,
     PAGE_SIZE,
@@ -169,7 +169,7 @@ export function OrderHistory() {
           ))}
         </div>
       )}
-      {isError && <ErrorState onRetry={() => void refetch()} retrying={isFetching} />}
+      {isError && <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />}
       {data && data.items.length === 0 && (
         <EmptyState
           icon={<BagIcon />}

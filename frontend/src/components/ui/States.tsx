@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
+import { toAppError } from '@/lib/errors'
 import { Button } from './Button'
 import { AlertIcon } from './icons'
 import { ZelligePattern } from './Zellige'
@@ -9,6 +10,8 @@ interface StateShellProps {
   icon: ReactNode
   title: string
   description?: string
+  /** Détail technique discret sous la description (code HTTP, référence). */
+  detail?: ReactNode
   action?: ReactNode
   compact?: boolean
   className?: string
@@ -19,6 +22,7 @@ function StateShell({
   icon,
   title,
   description,
+  detail,
   action,
   compact,
   className,
@@ -44,6 +48,7 @@ function StateShell({
       </div>
       <h2 className={cn('font-semibold', compact ? 'text-lg' : 'text-2xl')}>{title}</h2>
       {description && <p className="max-w-md text-ink-700">{description}</p>}
+      {detail}
       {action && <div className="mt-2">{action}</div>}
     </div>
   )
@@ -55,6 +60,8 @@ interface ErrorStateProps {
   onRetry?: () => void
   /** Désactive le bouton pendant une nouvelle tentative. */
   retrying?: boolean
+  /** Erreur de la requête : affiche discrètement le code HTTP et la référence de corrélation. */
+  error?: unknown
   compact?: boolean
   className?: string
 }
@@ -65,10 +72,22 @@ export function ErrorState({
   message,
   onRetry,
   retrying,
+  error,
   compact,
   className,
 }: ErrorStateProps) {
   const { t } = useTranslation()
+  const technical = error ? toAppError(error) : null
+  const code = technical
+    ? technical.isNetwork
+      ? t('errors.networkCode')
+      : technical.status !== null
+        ? t('errors.httpCode', { status: technical.status })
+        : null
+    : null
+  const reference = technical?.correlationId
+    ? t('errors.reference', { id: technical.correlationId })
+    : null
   return (
     <div role="alert">
       <StateShell
@@ -76,6 +95,13 @@ export function ErrorState({
         icon={<AlertIcon />}
         title={title ?? t('errors.loadFailedTitle')}
         description={message ?? t('errors.loadFailed')}
+        detail={
+          (code || reference) && (
+            <p dir="ltr" className="text-xs break-all text-ink-500 select-text">
+              {[code, reference].filter(Boolean).join(' · ')}
+            </p>
+          )
+        }
         compact={compact}
         className={className}
         action={

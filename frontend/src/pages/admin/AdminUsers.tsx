@@ -34,7 +34,11 @@ export default function AdminUsers() {
   const [confirmOff, setConfirmOff] = useState<AdminUser | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const search = useDebouncedValue(searchText, 300)
-  const { data, isPending, isError, refetch, isFetching } = useAdminUsers(search, page, PAGE_SIZE)
+  const { data, isPending, isError, error, refetch, isFetching } = useAdminUsers(
+    search,
+    page,
+    PAGE_SIZE,
+  )
   const setActive = useSetUserActive()
 
   const apply = (target: AdminUser, estActif: boolean) => {
@@ -114,7 +118,9 @@ export default function AdminUsers() {
             ))}
           </div>
         )}
-        {isError && <ErrorState onRetry={() => void refetch()} retrying={isFetching} />}
+        {isError && (
+          <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />
+        )}
         {data && data.items.length === 0 && (
           <EmptyState icon={<UsersIcon />} title={t('admin.users.empty')} />
         )}

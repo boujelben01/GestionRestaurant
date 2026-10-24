@@ -65,7 +65,7 @@ function ContactFormPreview() {
 
 export default function Contact() {
   const { t } = useTranslation()
-  const { data, isPending, isError, refetch, isFetching } = useRestaurant()
+  const { data, isPending, isError, error, refetch, isFetching } = useRestaurant()
 
   return (
     <>
@@ -87,6 +87,7 @@ export default function Contact() {
               )}
               {isError && (
                 <ErrorState
+                  error={error}
                   compact
                   title={t('errors.loadFailedTitle')}
                   message={t('contact.loadError')}

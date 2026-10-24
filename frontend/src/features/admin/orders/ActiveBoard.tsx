@@ -34,7 +34,7 @@ const columnTone: Record<BoardStatus, string> = {
 export function ActiveBoard() {
   const { t } = useTranslation()
   const { toast } = useToast()
-  const { data: orders, isPending, isError, refetch, isFetching } = useActiveOrders()
+  const { data: orders, isPending, isError, error, refetch, isFetching } = useActiveOrders()
   const { data: counters } = useOrderCounters()
   const changeStatus = useChangeOrderStatus()
   const setPaid = useSetOrderPaid()
@@ -194,7 +194,9 @@ export function ActiveBoard() {
           ))}
         </div>
       )}
-      {isError && !orders && <ErrorState onRetry={() => void refetch()} retrying={isFetching} />}
+      {isError && !orders && (
+        <ErrorState error={error} onRetry={() => void refetch()} retrying={isFetching} />
+      )}
 
       {orders && (
         <>

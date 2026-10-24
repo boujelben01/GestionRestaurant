@@ -28,7 +28,7 @@ const SEARCH_DELAY_MS = 250
 
 export default function Menu() {
   const { t } = useTranslation()
-  const { data, isPending, isError, refetch, isFetching } = useMenu()
+  const { data, isPending, isError, error, refetch, isFetching } = useMenu()
 
   const [query, setQuery] = useState('')
   const [popularOnly, setPopularOnly] = useState(false)
@@ -121,6 +121,7 @@ export default function Menu() {
         {isError && (
           <div className="pt-10">
             <ErrorState
+              error={error}
               message={t('menu.loadError')}
               onRetry={() => void refetch()}
               retrying={isFetching}
