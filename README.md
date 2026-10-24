@@ -203,6 +203,32 @@ Rôle Admin uniquement. L'état d'une table n'est **jamais stocké** : il est d�
 - **Libérer** : exige que plus rien ne soit en attente ou en préparation et que tout soit payé (le message de 409 nomme chaque raison et propose d'encaisser ou de terminer d'abord). Les commandes encore `Prete` passent alors en `Terminee` (historique + auteur, via `StatutTransitions`). Sur une table déjà libre : 200 sans effet.
 - **Implémentation** : deux requêtes pour toute la salle (les tables, puis les commandes suivies en colonnes simples), agrégées en mémoire : pas de N+1. **Limite** : `xmin` protège les commandes déjà lues ; une commande créée sur la table entre la lecture et l'écriture de « Libérer » n'est pas détectée (la table restera simplement « Occupée » au relevé suivant).
 
+## Statistiques
+
+Rôle Admin uniquement. Toutes les routes acceptent `du` et `au` (`AAAA-MM-JJ`) : **jours civils Africa/Tunis, bornes incluses**. Sans paramètre : les 30 derniers jours, aujourd'hui compris (seul `du` : jusqu'à aujourd'hui ; seul `au` : les 30 jours qui précèdent). Format invalide, `du` après `au` ou plus de **366 jours** : 400.
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET | `/api/admin/statistiques/resume` | Indicateurs de la période, de la période **précédente de même durée** (jours immédiatement avant `du`) et variation en % |
+| GET | `/api/admin/statistiques/ventes-par-jour` | Une entrée par jour de la période (jours sans vente à 0) : `date`, `chiffreAffaires`, `commandes` |
+| GET | `/api/admin/statistiques/top-articles?limite=10&lang=fr` | Articles les plus vendus : `articleId?`, `nom` (`fr` ou `ar`), `quantite`, `chiffreAffaires` ; `limite` ramenée entre 1 et 20 |
+| GET | `/api/admin/statistiques/heures-de-pointe` | 24 entrées (heure locale de Tunis, 0 à 23) : `commandes`, `chiffreAffaires` |
+| GET | `/api/admin/statistiques/repartition?lang=fr` | `parType`, `parStatut`, `parCategorie` |
+
+**Définitions.**
+
+- `chiffreAffaires` = somme des lignes `PrixUnitaire × Quantite` (arrondie à 2 décimales par ligne) des commandes **non annulées**, **hors frais de livraison**. Les commandes annulées sont exclues partout, sauf des compteurs `nombreAnnulees` et `parStatut`.
+- `nombreCommandes` = commandes non annulées ; `panierMoyen` = `chiffreAffaires / nombreCommandes` (0 sans commande).
+- `montantAEncaisser` = `Total` (**frais de livraison inclus**, ce que le client doit) des commandes non annulées et non payées de la période.
+- `nouveauxClients` = comptes de rôle Client créés pendant la période (jamais les admins).
+- Variation : `(courant − précédent) / précédent × 100`, arrondie à 1 décimale ; **`null` si la valeur précédente est 0**.
+- `parCategorie` : via l'article de la ligne ; les lignes dont l'article a été supprimé forment « Autres » (`categorieId` null, toujours en dernier). `parStatut` : le chiffre d'affaires d'une commande annulée est 0.
+- Les noms du top viennent des lignes de commande (copiés à la commande) : un article renommé ou supprimé garde son ancien nom ; les lignes sans article sont regroupées par nom copié.
+
+**Fuseau.** Tunis est en UTC+1 toute l'année (pas d'heure d'été). Un instant UTC est converti avant d'être rangé dans un jour ou une heure : une commande à 23:30 UTC compte pour le **jour suivant**. Les bornes de période sont les minuits de Tunis (début inclus, fin = minuit du lendemain du dernier jour, exclue).
+
+**Implémentation.** Chaque route lit seulement les colonnes nécessaires sur la période bornée (366 jours au plus), puis agrège en mémoire : le regroupement par jour ou par heure de Tunis n'est pas traduisible en SQL de façon portable. Les requêtes sont de simples sélections filtrées, vérifiées par `SqlTranslationTests`.
+
 ## Tests
 
 ```powershell

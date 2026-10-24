@@ -303,6 +303,26 @@ Content-Type: application/json
 POST {{host}}/api/admin/tables/1/regenerer-code
 Authorization: Bearer {{token}}
 
+### Statistiques : résumé (défaut : 30 derniers jours ; du/au = jours civils Africa/Tunis, bornes incluses, 366 jours max)
+GET {{host}}/api/admin/statistiques/resume?du=2024-06-01&au=2024-06-30
+Authorization: Bearer {{token}}
+
+### Statistiques : ventes par jour (une entrée par jour, jours sans vente à 0)
+GET {{host}}/api/admin/statistiques/ventes-par-jour?du=2024-06-01&au=2024-06-30
+Authorization: Bearer {{token}}
+
+### Statistiques : top articles (limite 1 à 20 ; lang=fr|ar)
+GET {{host}}/api/admin/statistiques/top-articles?du=2024-06-01&au=2024-06-30&limite=10&lang=ar
+Authorization: Bearer {{token}}
+
+### Statistiques : heures de pointe (24 entrées, heure de Tunis)
+GET {{host}}/api/admin/statistiques/heures-de-pointe?du=2024-06-01&au=2024-06-30
+Authorization: Bearer {{token}}
+
+### Statistiques : répartition par type, statut et catégorie
+GET {{host}}/api/admin/statistiques/repartition?du=2024-06-01&au=2024-06-30&lang=fr
+Authorization: Bearer {{token}}
+
 ### Plan de salle : état de chaque table, encaisser, libérer
 GET {{host}}/api/admin/tables/salle
 Authorization: Bearer {{token}}

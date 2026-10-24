@@ -17,6 +17,10 @@ public static class TunisDay
         return (date, MidnightUtc(date, zone), MidnightUtc(date.AddDays(1), zone));
     }
 
+    /// <summary>Minuit local (début de la journée civile) de <paramref name="date"/>, exprimé en UTC.</summary>
+    public static DateTime StartOfDayUtc(DateOnly date, TimeZoneInfo? zone = null) =>
+        MidnightUtc(date, zone ?? OpeningHours.TunisZone);
+
     private static DateTime MidnightUtc(DateOnly date, TimeZoneInfo zone)
     {
         var midnight = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);

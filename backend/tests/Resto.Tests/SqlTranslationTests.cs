@@ -3,6 +3,7 @@ using Resto.Api.Data;
 using Resto.Api.Domain;
 using Resto.Api.Features.Commandes.Admin;
 using Resto.Api.Features.Menu.Admin;
+using Resto.Api.Features.Statistiques;
 using Resto.Api.Features.Tables;
 
 namespace Resto.Tests;
@@ -170,5 +171,21 @@ public class SqlTranslationTests
         HasSql(all, "ORDER BY");
         HasSql(all, "WHERE");
         HasSql(one, "WHERE");
+    }
+
+    // ---------- Statistiques (Bloc 6c) ----------
+
+    [Fact]
+    public void The_statistics_queries_translate_to_sql()
+    {
+        using var db = NpgsqlContext();
+        var start = new DateTime(2024, 5, 31, 23, 0, 0, DateTimeKind.Utc);
+        var end = start.AddDays(30);
+
+        HasSql(Sql(StatistiquesService.OrdersQuery(db, start, end)), "WHERE");
+        HasSql(Sql(StatistiquesService.ItemsQuery(db, start, end)), "WHERE");
+        HasSql(Sql(StatistiquesService.ArticleCategoriesQuery(db)), "FROM");
+        HasSql(Sql(StatistiquesService.CategoriesQuery(db)), "FROM");
+        HasSql(Sql(StatistiquesService.NewClientsQuery(db, start, end)), "WHERE");
     }
 }
