@@ -3,6 +3,7 @@ using Resto.Api.Data;
 using Resto.Api.Domain;
 using Resto.Api.Features.Commandes.Admin;
 using Resto.Api.Features.Menu.Admin;
+using Resto.Api.Features.Tables;
 
 namespace Resto.Tests;
 
@@ -146,5 +147,15 @@ public class SqlTranslationTests
         var sql = Sql(CommandeAdminService.CountersQuery(db, start, start.AddDays(1)));
 
         HasSql(sql, "GROUP BY");
+    }
+
+    // ---------- Tables ----------
+
+    [Fact]
+    public void The_admin_table_list_translates_with_its_order()
+    {
+        using var db = NpgsqlContext();
+
+        HasSql(Sql(TableAdminService.ListQuery(db)), "ORDER BY");
     }
 }

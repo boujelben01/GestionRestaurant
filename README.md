@@ -169,6 +169,24 @@ stateDiagram-v2
 
 Cas particulier : si le statut demandé est déjà le statut courant, la réponse est 200 même avec une `version` périmée (l'objectif est atteint, rien à écrire). Ces mécanismes n'ont été exercés que de façon partielle : voir la limite des tests ci-dessous.
 
+## Administration des tables
+
+Rôle Admin uniquement (401 sans jeton, 403 pour un Client). Aucune route DELETE : « supprimer » = désactiver. Le schéma n'a pas changé (`Numero` unique, `Code` GUID unique, `Capacite`, `EstActive`).
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET | `/api/admin/tables` | Toutes les tables, inactives incluses, triées par numéro : `id`, `numero`, `code`, `capacite`, `estActive` |
+| GET | `/api/admin/tables/{id}` | Une table |
+| POST | `/api/admin/tables` | `{ "numero"?: 5, "capacite": 4 }` : crée une table (201) avec un nouveau `code` ; sans `numero`, le plus grand numéro + 1 |
+| PUT | `/api/admin/tables/{id}` | `{ "numero": 5, "capacite": 4 }` : modifie numéro et capacité |
+| PATCH | `/api/admin/tables/{id}/active` | `{ "estActive": false }` : active ou désactive (idempotent) |
+| POST | `/api/admin/tables/{id}/regenerer-code` | Nouveau GUID ; renvoie la table |
+
+- **Règles :** `numero` de 1 à 9999, `capacite` de 1 à 50 (400 sinon). Un numéro déjà pris donne un **409** (contrôle applicatif ; une création simultanée est arrêtée par l'index unique, également traduite en 409).
+- **QR codes :** le QR d'une table encode `<adresse du site>/table/<code>`. `GET /api/tables/{code}` (public) ne répond que pour les tables **actives**. **Régénérer le code invalide immédiatement les QR déjà imprimés** (404) : à ne faire que si un QR a fuité ou doit être remplacé. Imprimer les QR après avoir fixé l'adresse définitive du site.
+- **Désactiver** une table refuse les nouvelles commandes sur place (400 sur `tableCode`) et rend son QR muet ; les commandes passées ne changent pas (lien par identifiant interne).
+- **Effet de bord à connaître :** le numéro affiché sur une commande est lu sur la table (jointure), il n'est pas copié sur la commande. **Modifier le numéro d'une table change donc aussi le numéro montré sur ses commandes passées.** Désactiver ou régénérer le code n'a pas cet effet.
+
 ## Tests
 
 ```powershell

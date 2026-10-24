@@ -273,3 +273,33 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 { "estPayee": true }
+
+### Admin tables : liste (inactives incluses, triées par numéro)
+GET {{host}}/api/admin/tables
+Authorization: Bearer {{token}}
+
+### Admin tables : créer (numero facultatif = max + 1 ; capacite 1..50 ; 409 si le numéro existe)
+POST {{host}}/api/admin/tables
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "numero": 12, "capacite": 4 }
+
+### Admin tables : modifier numéro et capacité (409 si le numéro est pris)
+PUT {{host}}/api/admin/tables/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "numero": 12, "capacite": 6 }
+
+### Admin tables : désactiver / activer (une table inactive refuse les commandes sur place et son QR cesse de répondre)
+PATCH {{host}}/api/admin/tables/1/active
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "estActive": false }
+
+### Admin tables : régénérer le code (les anciens QR imprimés ne fonctionnent plus)
+POST {{host}}/api/admin/tables/1/regenerer-code
+Authorization: Bearer {{token}}
+

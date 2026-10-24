@@ -12,6 +12,7 @@ using Resto.Api.Features.Menu;
 using Resto.Api.Features.Menu.Admin;
 using Resto.Api.Features.Panier;
 using Resto.Api.Features.Restaurant;
+using Resto.Api.Features.Tables;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,7 @@ builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<PanierService>();
 builder.Services.AddScoped<CommandeService>();
 builder.Services.AddScoped<CommandeAdminService>();
+builder.Services.AddScoped<TableAdminService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:5173"];
