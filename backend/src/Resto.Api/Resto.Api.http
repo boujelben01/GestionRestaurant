@@ -335,3 +335,45 @@ Authorization: Bearer {{token}}
 POST {{host}}/api/admin/tables/1/liberer
 Authorization: Bearer {{token}}
 
+### Favoris : liste (lang=fr|ar), ids, ajout, retrait
+GET {{host}}/api/favoris?lang=fr
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/favoris/ids
+Authorization: Bearer {{token}}
+
+###
+PUT {{host}}/api/favoris/1
+Authorization: Bearer {{token}}
+
+###
+DELETE {{host}}/api/favoris/1
+Authorization: Bearer {{token}}
+
+### Adresses : liste (la défaut d'abord), création (10 max, 409 au-delà), modification, défaut, suppression
+GET {{host}}/api/adresses
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/adresses
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "libelle": "Maison", "ligne": "12 rue de la Liberté", "ville": "Tunis", "details": "2e étage", "telephone": "+21620123456", "estParDefaut": true }
+
+###
+PUT {{host}}/api/adresses/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "libelle": "Bureau", "ligne": "5 avenue Habib Bourguiba", "ville": "Tunis", "telephone": "+21620123456", "estParDefaut": false }
+
+###
+PATCH {{host}}/api/adresses/1/defaut
+Authorization: Bearer {{token}}
+
+###
+DELETE {{host}}/api/adresses/1
+Authorization: Bearer {{token}}
+

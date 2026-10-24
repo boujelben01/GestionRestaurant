@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Resto.Api.Data;
 using Resto.Api.Domain;
 using Resto.Api.Features.Commandes.Admin;
+using Resto.Api.Features.Adresses;
+using Resto.Api.Features.Favoris;
 using Resto.Api.Features.Menu.Admin;
 using Resto.Api.Features.Statistiques;
 using Resto.Api.Features.Tables;
@@ -187,5 +189,29 @@ public class SqlTranslationTests
         HasSql(Sql(StatistiquesService.ArticleCategoriesQuery(db)), "FROM");
         HasSql(Sql(StatistiquesService.CategoriesQuery(db)), "FROM");
         HasSql(Sql(StatistiquesService.NewClientsQuery(db, start, end)), "WHERE");
+    }
+
+    // ---------- Favoris et adresses (Bloc 6d) ----------
+
+    [Fact]
+    public void The_favourites_queries_translate_with_the_article_join_and_the_order()
+    {
+        using var db = NpgsqlContext();
+
+        var list = Sql(FavoriService.ListQuery(db, "user-1"));
+        HasSql(list, "WHERE");
+        HasSql(list, "ORDER BY");
+        HasSql(Sql(FavoriService.IdsQuery(db, "user-1")), "ORDER BY");
+    }
+
+    [Fact]
+    public void The_address_list_translates_with_the_default_first()
+    {
+        using var db = NpgsqlContext();
+
+        var sql = Sql(AdresseService.ListQuery(db, "user-1"));
+
+        HasSql(sql, "WHERE");
+        HasSql(sql, "ORDER BY");
     }
 }

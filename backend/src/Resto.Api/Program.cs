@@ -6,8 +6,10 @@ using Resto.Api.Common;
 using Resto.Api.Data;
 using Resto.Api.Domain;
 using Resto.Api.Features.Auth;
+using Resto.Api.Features.Adresses;
 using Resto.Api.Features.Commandes;
 using Resto.Api.Features.Commandes.Admin;
+using Resto.Api.Features.Favoris;
 using Resto.Api.Features.Menu;
 using Resto.Api.Features.Menu.Admin;
 using Resto.Api.Features.Panier;
@@ -47,6 +49,8 @@ builder.Services.AddScoped<CommandeAdminService>();
 builder.Services.AddScoped<TableAdminService>();
 builder.Services.AddScoped<SalleService>();
 builder.Services.AddScoped<StatistiquesService>();
+builder.Services.AddScoped<FavoriService>();
+builder.Services.AddScoped<AdresseService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:5173"];

@@ -229,6 +229,27 @@ Rôle Admin uniquement. Toutes les routes acceptent `du` et `au` (`AAAA-MM-JJ`) 
 
 **Implémentation.** Chaque route lit seulement les colonnes nécessaires sur la période bornée (366 jours au plus), puis agrège en mémoire : le regroupement par jour ou par heure de Tunis n'est pas traduisible en SQL de façon portable. Les requêtes sont de simples sélections filtrées, vérifiées par `SqlTranslationTests`.
 
+## Favoris et adresses
+
+Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est toujours lue dans le jeton** ; rien n'est lu dans l'URL ni le corps.
+
+| Méthode | Route | Rôle |
+| --- | --- | --- |
+| GET | `/api/favoris?lang=fr\|ar` | Articles favoris : `id`, `categorieId`, `nom`, `description`, `prix`, `imageUrl`, `estPopulaire`, `disponible`, `actif` |
+| GET | `/api/favoris/ids` | Identifiants favoris seulement (pour afficher les cœurs) |
+| PUT | `/api/favoris/{articleId}` | Ajoute (204, idempotent) ; 404 si l'article n'existe pas ou est inactif |
+| DELETE | `/api/favoris/{articleId}` | Retire (204, idempotent) |
+| GET | `/api/adresses` | Adresses, la défaut d'abord puis par ancienneté |
+| POST | `/api/adresses` | `{ libelle, ligne, ville, details?, telephone, estParDefaut }` (201) |
+| PUT | `/api/adresses/{id}` | Modifie (mêmes champs) |
+| PATCH | `/api/adresses/{id}/defaut` | Désigne la défaut (idempotent) |
+| DELETE | `/api/adresses/{id}` | Supprime pour de bon (204) : c'est une donnée personnelle |
+
+- **Favoris, tri :** le modèle `Favori` n'a pas de date d'ajout et aucune colonne n'a été ajoutée (pas de migration) : la liste est triée par identifiant d'article **décroissant** (plat le plus récemment créé en premier), pas par date d'ajout. Un article désactivé reste listé avec `actif: false` (`actif` = article actif **et** catégorie active) ; un article indisponible (épuisé) peut être mis en favori. On ne peut pas ajouter un article inactif (404).
+- **Adresses, règles :** 10 au plus par utilisateur (409 au-delà) ; longueurs alignées sur la base (libellé 50, ligne 200, ville 100, détails 300, téléphone 20, `[Phone]`) ; valeurs rognées, détails vides = `null`. **Une seule adresse par défaut** : la première créée l'est automatiquement ; en désigner une autre (création, modification ou PATCH) retire l'ancienne ; on ne peut pas retirer la défaut en modifiant (`estParDefaut: false` sur la défaut est ignoré : il faut en désigner une autre) ; si on supprime la défaut, **la plus ancienne** adresse restante le devient.
+- **Isolation :** l'adresse d'un autre utilisateur donne **404** (jamais 403).
+- **Limite connue :** sans contrainte SQL (pas de migration), deux requêtes simultanées du même utilisateur pourraient dépasser 10 adresses ou créer deux défauts ; ajouter un index unique partiel (`UserId` où `EstParDefaut`) demanderait une migration.
+
 ## Tests
 
 ```powershell
