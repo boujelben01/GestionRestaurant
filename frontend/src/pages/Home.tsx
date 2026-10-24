@@ -7,7 +7,6 @@ import {
   ErrorState,
   PlateIcon,
   Reveal,
-  Tooltip,
   ZelligeDivider,
   ZelligePattern,
 } from '@/components/ui'
@@ -37,19 +36,14 @@ function Hero() {
             <p className="mt-5 text-lg text-ink-700 sm:text-xl">{t('home.subtitle')}</p>
           </Reveal>
           <Reveal delay={0.24} className="mt-8 flex flex-wrap gap-3">
-            <Button to="/menu" size="lg" icon={<ArrowIcon />}>
+            <Button
+              to="/menu"
+              size="lg"
+              icon={<ArrowIcon />}
+              className="w-full sm:w-auto sm:min-w-56"
+            >
               {t('common.seeMenu')}
             </Button>
-            <Tooltip content={t('home.reserveSoon')} placement="top" align="start">
-              <Button
-                variant="outline"
-                size="lg"
-                aria-disabled="true"
-                className="pointer-events-auto! cursor-not-allowed"
-              >
-                {t('home.reserve')}
-              </Button>
-            </Tooltip>
           </Reveal>
         </div>
 

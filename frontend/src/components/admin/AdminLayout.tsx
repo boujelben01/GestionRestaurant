@@ -14,6 +14,7 @@ import {
   MenuIcon,
   PlateIcon,
   SettingsIcon,
+  TableIcon,
   Toaster,
   UsersIcon,
   useFocusTrap,
@@ -32,6 +33,7 @@ const ITEMS: Array<{ to: string; key: string; icon: ReactNode }> = [
     key: 'admin.nav.restaurant',
     icon: <SettingsIcon className="size-5" />,
   },
+  { to: '/admin/tables', key: 'admin.nav.tables', icon: <TableIcon className="size-5" /> },
   { to: '/admin/utilisateurs', key: 'admin.nav.users', icon: <UsersIcon className="size-5" /> },
 ]
 
@@ -122,6 +124,7 @@ const TITLES: Record<string, string> = {
   commandes: 'admin.nav.orders',
   menu: 'admin.nav.menu',
   restaurant: 'admin.nav.restaurant',
+  tables: 'admin.nav.tables',
   utilisateurs: 'admin.nav.users',
 }
 

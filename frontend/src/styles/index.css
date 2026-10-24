@@ -265,3 +265,51 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ---------------------------------------------------------------------------
+   Impression des QR codes de tables (/admin/tables) : seule la feuille [data-print-sheet]
+   (enfant direct de <body>) est imprimée ; tout le reste de la page est masqué.
+   --------------------------------------------------------------------------- */
+@page {
+  margin: 12mm;
+}
+
+@media print {
+  body:has(> [data-print-sheet]) > *:not([data-print-sheet]) {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000;
+    overflow: visible !important;
+    min-height: 0 !important;
+  }
+
+  [data-print-sheet],
+  [data-print-sheet] * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  [data-print-sheet] .print-fiche {
+    min-height: 235mm;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+  }
+  [data-print-sheet] .print-fiche:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /* QR : au moins 10 cm de côté, noir sur blanc, jamais déformé. */
+  [data-print-sheet] .print-qr {
+    width: 11cm;
+    height: 11cm;
+    max-width: none;
+    image-rendering: crisp-edges;
+    background: #fff;
+  }
+}

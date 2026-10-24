@@ -16,11 +16,15 @@ const TOKEN_TTL_MS = Number(process.env.TOKEN_TTL_MS ?? 3_600_000)
 const MAX_QTY = 20
 const MAX_PAGE_SIZE = 50
 const MAX_ACTIVES = 200
-// Codes de table valides (le QR encode /table/<code>).
-const TABLES = {
-  '11111111-1111-4111-8111-111111111111': 1,
-  '55555555-5555-4555-8555-555555555555': 5,
-}
+const NUMERO_MAX = 9999
+const CAPACITE_MAX = 50
+// Tables initiales (le QR encode /table/<code>) ; copiées dans db.tables à chaque reset.
+const INITIAL_TABLES = [
+  { id: 1, numero: 1, code: '11111111-1111-4111-8111-111111111111', capacite: 4, estActive: true },
+  { id: 2, numero: 5, code: '55555555-5555-4555-8555-555555555555', capacite: 6, estActive: true },
+  { id: 3, numero: 2, code: '22222222-2222-4222-8222-222222222222', capacite: 2, estActive: true },
+  { id: 4, numero: 3, code: '33333333-3333-4333-8333-333333333333', capacite: 4, estActive: false },
+]
 // Ordre de l'énumération StatutCommande du vrai back-end (cycle de vie, Annulee en dernier).
 const STATUTS = ['EnAttente', 'EnPreparation', 'Prete', 'Terminee', 'Annulee']
 const STATUS_FLOW = ['EnAttente', 'EnPreparation', 'Prete', 'Terminee']
@@ -120,6 +124,8 @@ function resetDb() {
     carts: new Map(), // userId -> Map(articleId -> quantite)
     orders: [],
     nextOrderId: 1,
+    tables: INITIAL_TABLES.map((t) => ({ ...t })),
+    nextTableId: INITIAL_TABLES.length + 1,
     settings: {
       // Source de vérité de commandesOuvertes (GET /api/restaurant et PATCH admin).
       commandesOuvertes,
@@ -446,6 +452,7 @@ function buildOrder({
   telephone,
   type,
   tableNumero,
+  tableId,
   adresse,
   note,
   cart,
@@ -482,6 +489,8 @@ function buildOrder({
     note: note?.trim() || null,
     adresseLivraison: adresse,
     tableNumero,
+    // Lien vers la table (plan de salle) ; le numéro ci-dessus reste une copie figée.
+    tableId: tableId ?? db.tables.find((t) => t.numero === tableNumero)?.id ?? null,
     dateCommande: now,
     dateMiseAJour: now,
     version: 1,
@@ -528,8 +537,11 @@ async function createOrder(u, b) {
   if (!openNow()) throw problem(409, 'Le restaurant est actuellement fermé.')
 
   let tableNumero = null
+  let tableId = null
   if (type === 'SurPlace') {
-    tableNumero = TABLES[String(b.tableCode).toLowerCase()] ?? null
+    const found = findActiveTableByCode(b.tableCode)
+    tableNumero = found?.numero ?? null
+    tableId = found?.id ?? null
     if (!tableNumero) throw fieldError('TableCode', 'Table inconnue ou inactive.')
   }
 
@@ -557,6 +569,7 @@ async function createOrder(u, b) {
     telephone: b.telephone,
     type,
     tableNumero,
+    tableId,
     adresse,
     note: b.note,
     cart: [...cart.entries()],
@@ -748,6 +761,127 @@ function seedOrders(count) {
   return ids
 }
 
+/** POST /__mock/salle/seed : commandes SurPlace de démo (appels répétés = doublons, non idempotent). */
+function seedSalle() {
+  const client = db.users.find((u) => u.id === 'u-client')
+  const admin = db.users.find((u) => u.id === 'u-admin')
+  const now = Date.now()
+  // [numéro de table, statut, estPayee, âge en minutes, index client]
+  const plan = [
+    [1, 'EnPreparation', false, 40, 0],
+    [1, 'Prete', true, 75, 1],
+    [5, 'Terminee', false, 60, 2],
+    [5, 'Terminee', false, 25, 3],
+    [3, 'EnAttente', false, 8, 4],
+  ]
+  const ids = []
+  plan.forEach(([numero, statut, estPayee, ageMin, c], i) => {
+    const t = db.tables.find((x) => x.numero === numero)
+    if (!t) return
+    const [nomClient, telephone] = SEED_CLIENTS[c]
+    const order = buildOrder({
+      user: client,
+      nomClient,
+      telephone,
+      type: 'SurPlace',
+      tableNumero: t.numero,
+      tableId: t.id,
+      adresse: null,
+      note: null,
+      cart: sampleCart(i + db.orders.length),
+      dateMs: now - ageMin * 60_000,
+    })
+    for (let s = 1; s <= STATUS_FLOW.indexOf(statut); s++) {
+      const at = toIso(Date.parse(order.dateCommande) + s * 3 * 60_000)
+      order.statut = STATUS_FLOW[s]
+      order.historique.push({
+        statut: order.statut,
+        date: at,
+        parUserId: admin.id,
+        parNom: nomOf(admin),
+      })
+      order.version += 1
+      order.dateMiseAJour = at
+    }
+    order.estPayee = estPayee
+    ids.push(order.id)
+  })
+  return ids
+}
+
+// ---------------------------------------------------------------------------------------------
+// Admin : plan de salle (état déduit des commandes SurPlace, jamais stocké)
+// ---------------------------------------------------------------------------------------------
+const isTracked = (o) => o.statut !== 'Annulee' && !(o.statut === 'Terminee' && o.estPayee)
+const isInProgress = (o) => ACTIVE_STATUTS.includes(o.statut)
+const tableOrders = (t) =>
+  db.orders
+    .filter((o) => o.typeCommande === 'SurPlace' && o.tableId === t.id && isTracked(o))
+    .sort((a, b) => Date.parse(a.dateCommande) - Date.parse(b.dateCommande) || a.id - b.id)
+
+function salleEntry(t) {
+  const list = tableOrders(t)
+  const unpaid = list.filter((o) => !o.estPayee)
+  const etat = !t.estActive
+    ? 'Inactive'
+    : list.some(isInProgress)
+      ? 'Occupee'
+      : unpaid.length
+        ? 'AEncaisser'
+        : 'Libre'
+  return {
+    id: t.id,
+    numero: t.numero,
+    capacite: t.capacite,
+    estActive: t.estActive,
+    etat,
+    totalAEncaisser: round2(unpaid.reduce((n, o) => n + o.total, 0)),
+    nombreCommandes: list.length,
+    premiereCommandeUtc: list[0]?.dateCommande ?? null,
+    commandes: list.map((o) => ({
+      id: o.id,
+      numero: o.numero,
+      statut: o.statut,
+      total: o.total,
+      estPayee: o.estPayee,
+      dateCommande: o.dateCommande,
+    })),
+  }
+}
+
+function encaisserTable(t) {
+  const unpaid = db.orders.filter(
+    (o) =>
+      o.typeCommande === 'SurPlace' && o.tableId === t.id && o.statut !== 'Annulee' && !o.estPayee,
+  )
+  if (!unpaid.length) throw problem(409, `La table n° ${t.numero} n'a rien à encaisser.`)
+  for (const o of unpaid) {
+    o.estPayee = true
+    touch(o, null, null)
+  }
+}
+
+function libererTable(t, admin) {
+  const list = tableOrders(t)
+  const enCours = list.filter(
+    (o) => o.statut === 'EnAttente' || o.statut === 'EnPreparation',
+  ).length
+  const nonPayees = list.filter((o) => !o.estPayee).length
+  if (enCours || nonPayees) {
+    const reasons = []
+    if (enCours)
+      reasons.push(
+        `${enCours} commande(s) en attente ou en préparation (terminez-les ou annulez-les d'abord)`,
+      )
+    if (nonPayees) reasons.push(`${nonPayees} commande(s) non encaissée(s) (encaissez d'abord)`)
+    throw problem(409, `Impossible de libérer la table n° ${t.numero} : ${reasons.join(' ; ')}.`)
+  }
+  for (const o of list.filter((x) => x.statut === 'Prete')) {
+    o.statut = 'Terminee'
+    touch(o, admin, 'Terminee')
+  }
+}
+
 // ---------------------------------------------------------------------------------------------
 // Admin : catégories et articles
 // ---------------------------------------------------------------------------------------------
@@ -936,6 +1070,32 @@ function updateHoraires(b) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Admin : tables
+// ---------------------------------------------------------------------------------------------
+const tableAdmin = (t) => ({
+  id: t.id,
+  numero: t.numero,
+  code: t.code,
+  capacite: t.capacite,
+  estActive: t.estActive,
+})
+const byNumero = (a, b) => a.numero - b.numero || a.id - b.id
+const findActiveTableByCode = (code) =>
+  db.tables.find((t) => t.estActive && t.code.toLowerCase() === String(code).toLowerCase())
+
+function validateTable(numero, capacite) {
+  if (!Number.isInteger(numero) || numero < 1 || numero > NUMERO_MAX)
+    throw fieldError('Numero', `Le numéro de table doit être compris entre 1 et ${NUMERO_MAX}.`)
+  if (!Number.isInteger(capacite) || capacite < 1 || capacite > CAPACITE_MAX)
+    throw fieldError('Capacite', `La capacité doit être comprise entre 1 et ${CAPACITE_MAX}.`)
+}
+
+function ensureNumeroFree(numero, exceptId) {
+  if (db.tables.some((t) => t.numero === numero && t.id !== exceptId))
+    throw problem(409, `La table n° ${numero} existe déjà.`)
+}
+
+// ---------------------------------------------------------------------------------------------
 // Routage
 // ---------------------------------------------------------------------------------------------
 
@@ -966,9 +1126,9 @@ async function route(req, url, user) {
     return { status: 200, body: restaurantResponse() }
   const table = path.match(/^\/api\/tables\/([^/]+)$/)
   if (method === 'GET' && table) {
-    const numero = TABLES[table[1].toLowerCase()]
-    if (!numero) throw problem(404, 'Table introuvable.')
-    return { status: 200, body: { numero } }
+    const found = findActiveTableByCode(table[1])
+    if (!found) throw problem(404, 'Table introuvable.')
+    return { status: 200, body: { numero: found.numero } }
   }
 
   // --- Auth ---
@@ -1303,6 +1463,68 @@ async function route(req, url, user) {
     return { status: 200, body: restaurantResponse() }
   }
 
+  // --- Admin : tables ---
+  if (path === '/api/admin/tables' && method === 'GET') {
+    needAdmin()
+    return { status: 200, body: [...db.tables].sort(byNumero).map(tableAdmin) }
+  }
+  if (path === '/api/admin/tables' && method === 'POST') {
+    needAdmin()
+    const b = await readJson(req)
+    const numero = b.numero == null ? Math.max(0, ...db.tables.map((t) => t.numero)) + 1 : b.numero
+    if (b.numero == null && numero > NUMERO_MAX)
+      throw fieldError('Numero', `Le numéro de table ne peut pas dépasser ${NUMERO_MAX}.`)
+    validateTable(numero, b.capacite)
+    ensureNumeroFree(numero, null)
+    const t = {
+      id: db.nextTableId++,
+      numero,
+      code: randomUUID(),
+      capacite: b.capacite,
+      estActive: true,
+    }
+    db.tables.push(t)
+    return { status: 201, body: tableAdmin(t) }
+  }
+  if (path === '/api/admin/tables/salle' && method === 'GET') {
+    needAdmin()
+    return { status: 200, body: [...db.tables].sort(byNumero).map(salleEntry) }
+  }
+  const salleAction = path.match(/^\/api\/admin\/tables\/(\d+)\/(encaisser|liberer)$/)
+  if (salleAction && method === 'POST') {
+    const admin = needAdmin()
+    const t = db.tables.find((x) => x.id === Number(salleAction[1]))
+    if (!t) throw problem(404, 'Table introuvable.')
+    if (salleAction[2] === 'encaisser') encaisserTable(t)
+    else libererTable(t, admin)
+    return { status: 200, body: salleEntry(t) }
+  }
+  const tableId = path.match(/^\/api\/admin\/tables\/(\d+)(\/active|\/regenerer-code)?$/)
+  if (tableId) {
+    const sub = tableId[2]
+    if (
+      (!sub && (method === 'GET' || method === 'PUT')) ||
+      (sub === '/active' && method === 'PATCH') ||
+      (sub === '/regenerer-code' && method === 'POST')
+    ) {
+      needAdmin()
+      const t = db.tables.find((x) => x.id === Number(tableId[1]))
+      if (!t) throw problem(404, 'Table introuvable.')
+      if (method === 'PUT') {
+        const b = await readJson(req)
+        validateTable(b.numero, b.capacite)
+        ensureNumeroFree(b.numero, t.id)
+        t.numero = b.numero
+        t.capacite = b.capacite
+      } else if (method === 'PATCH') {
+        t.estActive = requireBool(await readJson(req), 'estActive', 'EstActive')
+      } else if (method === 'POST') {
+        t.code = randomUUID()
+      }
+      return { status: 200, body: tableAdmin(t) }
+    }
+  }
+
   // --- Admin : utilisateurs ---
   const adminUser = (u) => ({
     id: u.id,
@@ -1353,6 +1575,9 @@ async function route(req, url, user) {
     const b = await readJson(req)
     const count = Math.min(Math.max(Number.isInteger(b.count) ? b.count : 4, 1), 50)
     return { status: 201, body: { ids: seedOrders(count) } }
+  }
+  if (method === 'POST' && path === '/__mock/salle/seed') {
+    return { status: 201, body: { ids: seedSalle() } }
   }
   if (method === 'POST' && path === '/__mock/commandes/new') {
     // Commande « entrante » EnAttente, créée maintenant, pendant que l'écran admin tourne.

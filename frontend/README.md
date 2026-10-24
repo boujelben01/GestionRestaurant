@@ -22,6 +22,8 @@ npm install
 npm run dev              # http://localhost:5173
 ```
 
+`VITE_PUBLIC_URL` (voir « Salle et QR codes ») est l'adresse encodée dans les QR des tables.
+
 Aucun secret n'est stocké côté front : tout ce qui est dans `VITE_*` est public dans le bundle.
 
 ## Scripts
@@ -127,6 +129,17 @@ Protégée par `<RequireRole role="Admin" forbidden={<Forbidden/>}>` : un invit�
 
 Les écrans admin n'ont jamais été testés contre la vraie API, seulement contre le mock (`dev-mocks/`) et des tests automatisés.
 
+## Salle et QR codes (`/admin/tables`)
+
+Deux onglets, mémorisés dans l'URL (`?vue=salle` par défaut, `?vue=gestion`).
+
+- **Salle** : une carte par table avec un badge d'état (**Libre**, **Occupée**, **À encaisser**, **Inactive**, toujours avec un libellé texte en plus de la couleur), le total à encaisser, la durée d'occupation et les commandes sur place à suivre. L'état est **calculé par le serveur** à partir des commandes (`GET /api/admin/tables/salle`, relevé toutes les 10 s, suspendu onglet masqué) ; le front ne fait qu'un aperçu optimiste. « Encaisser » demande confirmation en affichant le montant, « Libérer » explique ce qui bloque (commandes en cours, commandes non encaissées) et laisse toujours le serveur trancher : un 409 est affiché tel quel dans le dialogue, jamais d'échec silencieux.
+- **Gestion** : ajout (numéro facultatif = automatique), modification, activation / désactivation (confirmation), régénération du code (avertissement), QR par table, « Copier le lien », impression.
+- **QR codes** : générés dans le navigateur (paquet `qrcode`, aucun service externe), en SVG noir sur blanc. Un QR encode `${VITE_PUBLIC_URL}/table/<code>` (slash final toléré) ; l'URL complète est affichée sous chaque QR. Si l'adresse contient « localhost » (ou une adresse de boucle locale), un avertissement visible demande de la remplacer avant impression.
+- **Impression** : « Imprimer toutes les tables » imprime une fiche par table **active** (nom du restaurant, « Table N », QR grand, « Scannez pour commander » en français et en arabe) ; « Imprimer » d'une carte n'imprime que cette table (impossible pour une table inactive). La feuille est un bloc `data-print-sheet` rendu dans `<body>`, visible uniquement en `@media print` ; tout le reste de la page est masqué à l'impression. L'aperçu est la boîte de dialogue d'impression du navigateur.
+
+**Imprimer APRÈS le déploiement.** Le QR contient l'adresse du site telle que configurée au moment de l'affichage : fixer `VITE_PUBLIC_URL` sur l'adresse définitive, reconstruire le front, puis seulement imprimer. Un QR imprimé avec `localhost` ne marchera pour personne. **Régénérer le code d'une table invalide immédiatement ses QR déjà imprimés** (le back-end répond 404) : à n'utiliser que pour remplacer un QR compromis.
+
 ## Authentification : choix et limite
 
 Le jeton JWT et son expiration sont conservés dans **localStorage** (`resto.token`), afin de
@@ -186,7 +199,7 @@ nom de la liste `HEAVY_IMAGES`.
 
 ## Tests
 
-`npm test` couvre : administration (garde de rôle, transitions, nouvelles commandes, son, optimiste + 409, validation du formulaire d'article, auto-désactivation), parcours complets (invité → connexion → retour, formulaire de commande par type, annulation, 409, « Commander à nouveau », profil), AuthContext (login, 401, expiration, rechargement du profil), erreurs
+`npm test` couvre : tables et QR (URL du QR, avertissement localhost, ajout, doublon, désactivation et régénération avec confirmation, impression des seules tables actives), plan de salle (états, encaisser, libérer, 409), administration (garde de rôle, transitions, nouvelles commandes, son, optimiste + 409, validation du formulaire d'article, auto-désactivation), parcours complets (invité → connexion → retour, formulaire de commande par type, annulation, 409, « Commander à nouveau », profil), AuthContext (login, 401, expiration, rechargement du profil), erreurs
 ProblemDetails, formatage des prix et horaires, bascule de langue et `dir`, carte d'article
 (indisponible, populaire, repli d'image), filtre du menu. Les appels HTTP sont simulés par un
 adaptateur axios en mémoire (`src/test/mockApi.ts`), jamais par le vrai backend.

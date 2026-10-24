@@ -42,3 +42,6 @@ window.scrollTo = (() => {}) as typeof window.scrollTo
 Element.prototype.scrollBy ??= (() => {}) as typeof Element.prototype.scrollBy
 Element.prototype.scrollTo ??= (() => {}) as typeof Element.prototype.scrollTo
 Element.prototype.scrollIntoView ??= (() => {}) as typeof Element.prototype.scrollIntoView
+
+// jsdom n'implémente pas HTMLImageElement.decode (attente des QR avant impression).
+HTMLImageElement.prototype.decode ??= () => Promise.resolve()

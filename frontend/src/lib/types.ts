@@ -278,3 +278,39 @@ export interface AdminUser {
   estActif: boolean
   dateCreation: string
 }
+
+export interface AdminTable {
+  id: number
+  numero: number
+  /** GUID encodé dans le QR code (/table/{code}). */
+  code: string
+  capacite: number
+  estActive: boolean
+}
+
+// --- Plan de salle (Features/Tables/Salle*) ---
+
+export type EtatTable = 'Libre' | 'Occupee' | 'AEncaisser' | 'Inactive'
+
+export interface SalleOrder {
+  id: number
+  numero: string
+  statut: StatutCommande
+  total: number
+  estPayee: boolean
+  dateCommande: string
+}
+
+export interface SalleTable {
+  id: number
+  numero: number
+  capacite: number
+  estActive: boolean
+  etat: EtatTable
+  /** Somme des commandes non payées et non annulées de la table. */
+  totalAEncaisser: number
+  nombreCommandes: number
+  /** Plus ancienne commande à suivre (début de l'occupation), null si aucune. */
+  premiereCommandeUtc: string | null
+  commandes: SalleOrder[]
+}
