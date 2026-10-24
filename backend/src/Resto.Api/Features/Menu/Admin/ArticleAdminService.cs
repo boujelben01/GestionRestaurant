@@ -15,34 +15,48 @@ public class ArticleAdminService(AppDbContext db, TimeProvider time)
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, MaxPageSize);
 
+        var query = FilteredQuery(db, categorieId, actif, disponible, recherche);
+        var total = await query.CountAsync(ct);
+        var items = await PageQuery(query, page, pageSize).ToListAsync(ct);
+
+        return new PagedResult<ArticleAdminResponse>(items.Select(ToResponse).ToList(), page, pageSize, total);
+    }
+
+    // Requêtes de liste isolées pour que SqlTranslationTests vérifie leur traduction avec le fournisseur Npgsql
+    // (EF InMemory ne détecte pas les expressions intraduisibles en SQL).
+    internal static IQueryable<Article> FilteredQuery(
+        AppDbContext db, int? categorieId, bool? actif, bool? disponible, string? recherche)
+    {
         var query = db.Articles.AsNoTracking().AsQueryable();
         if (categorieId is not null)
         {
             query = query.Where(a => a.CategorieId == categorieId);
         }
+
         if (actif is not null)
         {
             query = query.Where(a => a.EstActif == actif);
         }
+
         if (disponible is not null)
         {
             query = query.Where(a => a.EstDisponible == disponible);
         }
+
         if (!string.IsNullOrWhiteSpace(recherche))
         {
             var term = recherche.Trim().ToLower();
             query = query.Where(a => a.NomFr.ToLower().Contains(term) || a.NomAr.ToLower().Contains(term));
         }
 
-        var total = await query.CountAsync(ct);
-        var items = await query
+        return query;
+    }
+
+    internal static IQueryable<Article> PageQuery(IQueryable<Article> filtered, int page, int pageSize) =>
+        filtered
             .OrderBy(a => a.Categorie.Ordre).ThenBy(a => a.Ordre).ThenBy(a => a.Id)
             .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(ct);
-
-        return new PagedResult<ArticleAdminResponse>(items.Select(ToResponse).ToList(), page, pageSize, total);
-    }
+            .Take(pageSize);
 
     public async Task<ArticleAdminResponse> GetAsync(int id, CancellationToken ct) =>
         ToResponse(await db.Articles.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id, ct)

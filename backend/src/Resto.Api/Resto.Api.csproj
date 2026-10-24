@@ -19,4 +19,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Les tests de traduction SQL (SqlTranslationTests) appellent les requêtes internal des services. -->
+    <InternalsVisibleTo Include="Resto.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -177,3 +177,5 @@ dotnet test
 ```
 
 Les tests d'intégration utilisent un fournisseur EF InMemory : il ne reproduit pas les contraintes PostgreSQL (CHECK, index uniques, clés étrangères) ni `xmin` (la colonne `Version` reste à 0 et n'est jamais incrémentée) ni de vraies transactions. Ils vérifient l'autorisation, les flux métier et la comparaison explicite de `version` ; la détection de concurrence par `xmin` et l'anti-doublon à la création ne sont pas exercés.
+
+`SqlTranslationTests` compense une autre limite d'InMemory : il évalue le LINQ en mémoire et accepte des requêtes que PostgreSQL ne sait pas traduire (elles donnent un 500 en production, par exemple un `OrderBy` placé après un `Select` qui contient un `Count`). Ce test construit les requêtes des routes admin critiques (catégories, articles, commandes) avec le fournisseur Npgsql et une chaîne factice, puis appelle `ToQueryString()` : la requête est compilée en SQL sans connexion. Il prouve que la requête est traduisible, pas qu'elle s'exécute correctement sur une vraie base. Règle : filtrer et trier avant de projeter.

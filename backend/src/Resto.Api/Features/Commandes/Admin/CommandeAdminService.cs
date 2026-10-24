@@ -29,8 +29,6 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, MaxPageSize);
 
-        var statuts = ParseStatuts(statut);
-        var type = string.IsNullOrWhiteSpace(typeCommande) ? (TypeCommande?)null : ParseEnum<TypeCommande>(typeCommande, "typeCommande");
         var from = ParseBound(du, "du");
         var to = ParseBound(au, "au");
         if (from is not null && to is not null && from.Value.Utc > to.Value.Utc)
@@ -38,65 +36,29 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
             throw AppException.Invalid("du", "La date de début doit précéder la date de fin.");
         }
 
-        var query = db.Commandes.AsNoTracking();
-        if (statuts.Count > 0)
-        {
-            query = query.Where(c => statuts.Contains(c.Statut));
-        }
-
-        if (type is { } t)
-        {
-            query = query.Where(c => c.TypeCommande == t);
-        }
-
-        if (estPayee is { } paid)
-        {
-            query = query.Where(c => c.EstPayee == paid);
-        }
-
-        if (from is { } start)
-        {
-            var startUtc = start.Utc;
-            query = query.Where(c => c.DateCommande >= startUtc);
-        }
-
-        if (to is { } end)
-        {
-            var endUtc = end.Utc;
-            // Date seule (« 2024-06-30 ») : tout le jour inclus, donc borne exclusive au lendemain 00:00 UTC.
-            query = end.IsDateOnly
-                ? query.Where(c => c.DateCommande < endUtc.AddDays(1))
-                : query.Where(c => c.DateCommande <= endUtc);
-        }
-
+        string? term = null;
         if (!string.IsNullOrWhiteSpace(recherche))
         {
-            var term = recherche.Trim();
+            term = recherche.Trim();
             if (term.Length > MaxSearchLength)
             {
                 throw AppException.Invalid("recherche", $"La recherche ne peut pas dépasser {MaxSearchLength} caractères.");
             }
 
             term = term.ToLowerInvariant();
-            query = query.Where(c =>
-                c.Numero.ToLower().Contains(term) ||
-                c.NomClient.ToLower().Contains(term) ||
-                c.Telephone.ToLower().Contains(term));
         }
 
+        var filters = new ListFilters(
+            ParseStatuts(statut),
+            string.IsNullOrWhiteSpace(typeCommande) ? null : ParseEnum<TypeCommande>(typeCommande, "typeCommande"),
+            estPayee,
+            from,
+            to,
+            term);
+
+        var query = ApplyFilters(db.Commandes.AsNoTracking(), filters);
         var total = await query.CountAsync(ct);
-        var rows = await query
-            .OrderByDescending(c => c.DateCommande).ThenByDescending(c => c.Id)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(c => new
-            {
-                c.Id, c.Numero, c.Statut, c.TypeCommande, c.NomClient, c.Telephone,
-                TableNumero = c.Table != null ? (int?)c.Table.Numero : null,
-                c.Total, c.EstPayee, c.DateCommande, c.DateMiseAJour,
-                NombreArticles = c.Items.Sum(i => i.Quantite)
-            })
-            .ToListAsync(ct);
+        var rows = await SummaryQuery(query, page, pageSize).ToListAsync(ct);
 
         var items = rows.Select(c => new CommandeAdminResumeResponse(
             c.Id, c.Numero, c.Statut, c.TypeCommande, c.NomClient, c.Telephone, c.TableNumero,
@@ -106,35 +68,10 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
 
     public async Task<CommandeAdminResponse> GetAsync(int id, CancellationToken ct)
     {
-        var c = await db.Commandes.AsNoTracking()
-            .Where(x => x.Id == id)
-            .Select(x => new
-            {
-                x.Id, x.Numero, x.Statut, x.TypeCommande, x.ModePaiement, x.EstPayee,
-                x.SousTotal, x.FraisLivraison, x.Total, x.Note, x.AdresseLivraison,
-                TableNumero = x.Table != null ? (int?)x.Table.Numero : null,
-                x.UserId, x.NomClient, x.Telephone, x.DateCommande, x.DateMiseAJour, x.Version
-            })
-            .FirstOrDefaultAsync(ct)
+        var c = await DetailQuery(db, id).FirstOrDefaultAsync(ct)
             ?? throw AppException.NotFound("Commande introuvable.");
-
-        var lignes = await db.CommandeItems.AsNoTracking()
-            .Where(i => i.CommandeId == id)
-            .OrderBy(i => i.Id)
-            .Select(i => new { i.ArticleId, i.NomFr, i.NomAr, i.PrixUnitaire, i.Quantite })
-            .ToListAsync(ct);
-
-        // Projection ciblée : seuls l'identifiant et le nom d'affichage de l'auteur sortent de la base
-        // (jamais l'entité utilisateur, donc ni hash de mot de passe ni security stamp).
-        var historique = await db.HistoriqueStatuts.AsNoTracking()
-            .Where(h => h.CommandeId == id)
-            .OrderBy(h => h.Date).ThenBy(h => h.Id)
-            .Select(h => new
-            {
-                h.Statut, h.Date, h.ParUserId,
-                ParNom = h.ParUser != null ? (h.ParUser.Nom ?? h.ParUser.UserName) : null
-            })
-            .ToListAsync(ct);
+        var lignes = await LignesQuery(db, id).ToListAsync(ct);
+        var historique = await HistoriqueQuery(db, id).ToListAsync(ct);
 
         return new CommandeAdminResponse(
             c.Id, c.Numero, c.Statut, StatutTransitions.NextOf(c.Statut), c.TypeCommande, c.ModePaiement, c.EstPayee,
@@ -149,18 +86,7 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
 
     public async Task<IReadOnlyList<CommandeActiveResponse>> ActivesAsync(CancellationToken ct)
     {
-        var rows = await db.Commandes.AsNoTracking()
-            .Where(c => ActiveStatuts.Contains(c.Statut))
-            .OrderBy(c => c.DateCommande).ThenBy(c => c.Id)
-            .Take(MaxActives)
-            .Select(c => new
-            {
-                c.Id, c.Numero, c.Statut, c.TypeCommande, c.NomClient,
-                TableNumero = c.Table != null ? (int?)c.Table.Numero : null,
-                c.Note, c.DateCommande, c.DateMiseAJour, c.Version,
-                Lignes = c.Items.OrderBy(i => i.Id).Select(i => new { i.NomFr, i.NomAr, i.Quantite }).ToList()
-            })
-            .ToListAsync(ct);
+        var rows = await ActivesQuery(db).ToListAsync(ct);
 
         return rows.Select(c => new CommandeActiveResponse(
             c.Id, c.Numero, c.Statut, c.TypeCommande, c.NomClient, c.TableNumero, c.Note,
@@ -173,11 +99,7 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
     {
         var (date, startUtc, endUtc) = TunisDay.Bounds(time.GetUtcNow());
 
-        var counts = await db.Commandes.AsNoTracking()
-            .Where(c => c.DateCommande >= startUtc && c.DateCommande < endUtc)
-            .GroupBy(c => c.Statut)
-            .Select(g => new { Statut = g.Key, Nombre = g.Count() })
-            .ToListAsync(ct);
+        var counts = await CountersQuery(db, startUtc, endUtc).ToListAsync(ct);
         var enAttente = await db.Commandes.AsNoTracking().CountAsync(c => c.Statut == StatutCommande.EnAttente, ct);
 
         // Un compteur par statut, y compris à 0, dans l'ordre du cycle de vie (ordre de l'énumération).
@@ -243,6 +165,246 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
         return await GetAsync(id, ct);
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Requêtes (internal static) : isolées pour que SqlTranslationTests vérifie, avec le fournisseur
+    // Npgsql et sans connexion, qu'elles se traduisent en SQL PostgreSQL. EF InMemory (utilisé par les
+    // tests d'intégration) accepte des expressions que Npgsql refuse : un 500 n'apparaîtrait alors qu'en
+    // production. Règle : filtrer et trier AVANT de projeter.
+    // ---------------------------------------------------------------------------------------------
+
+    internal sealed record ListFilters(
+        IReadOnlyList<StatutCommande> Statuts, TypeCommande? Type, bool? EstPayee, Bound? From, Bound? To, string? Term);
+
+    internal readonly record struct Bound(DateTime Utc, bool IsDateOnly);
+
+    internal sealed record SummaryRow
+    {
+        public int Id { get; init; }
+        public string Numero { get; init; } = string.Empty;
+        public StatutCommande Statut { get; init; }
+        public TypeCommande TypeCommande { get; init; }
+        public string NomClient { get; init; } = string.Empty;
+        public string Telephone { get; init; } = string.Empty;
+        public int? TableNumero { get; init; }
+        public decimal Total { get; init; }
+        public bool EstPayee { get; init; }
+        public int NombreArticles { get; init; }
+        public DateTime DateCommande { get; init; }
+        public DateTime DateMiseAJour { get; init; }
+    }
+
+    internal sealed record DetailRow
+    {
+        public int Id { get; init; }
+        public string Numero { get; init; } = string.Empty;
+        public StatutCommande Statut { get; init; }
+        public TypeCommande TypeCommande { get; init; }
+        public ModePaiement ModePaiement { get; init; }
+        public bool EstPayee { get; init; }
+        public decimal SousTotal { get; init; }
+        public decimal FraisLivraison { get; init; }
+        public decimal Total { get; init; }
+        public string? Note { get; init; }
+        public string? AdresseLivraison { get; init; }
+        public int? TableNumero { get; init; }
+        public string? UserId { get; init; }
+        public string NomClient { get; init; } = string.Empty;
+        public string Telephone { get; init; } = string.Empty;
+        public DateTime DateCommande { get; init; }
+        public DateTime DateMiseAJour { get; init; }
+        public uint Version { get; init; }
+    }
+
+    internal sealed record LigneRow
+    {
+        public int? ArticleId { get; init; }
+        public string NomFr { get; init; } = string.Empty;
+        public string NomAr { get; init; } = string.Empty;
+        public decimal PrixUnitaire { get; init; }
+        public int Quantite { get; init; }
+    }
+
+    internal sealed record HistoriqueRow
+    {
+        public StatutCommande Statut { get; init; }
+        public DateTime Date { get; init; }
+        public string? ParUserId { get; init; }
+        public string? ParNom { get; init; }
+    }
+
+    internal sealed record ActiveLigneRow
+    {
+        public string NomFr { get; init; } = string.Empty;
+        public string NomAr { get; init; } = string.Empty;
+        public int Quantite { get; init; }
+    }
+
+    internal sealed record ActiveRow
+    {
+        public int Id { get; init; }
+        public string Numero { get; init; } = string.Empty;
+        public StatutCommande Statut { get; init; }
+        public TypeCommande TypeCommande { get; init; }
+        public string NomClient { get; init; } = string.Empty;
+        public int? TableNumero { get; init; }
+        public string? Note { get; init; }
+        public DateTime DateCommande { get; init; }
+        public DateTime DateMiseAJour { get; init; }
+        public uint Version { get; init; }
+        public List<ActiveLigneRow> Lignes { get; init; } = [];
+    }
+
+    internal sealed record CounterRow
+    {
+        public StatutCommande Statut { get; init; }
+        public int Nombre { get; init; }
+    }
+
+    internal static IQueryable<Commande> ApplyFilters(IQueryable<Commande> query, ListFilters f)
+    {
+        if (f.Statuts.Count > 0)
+        {
+            var statuts = f.Statuts;
+            query = query.Where(c => statuts.Contains(c.Statut));
+        }
+
+        if (f.Type is { } type)
+        {
+            query = query.Where(c => c.TypeCommande == type);
+        }
+
+        if (f.EstPayee is { } paid)
+        {
+            query = query.Where(c => c.EstPayee == paid);
+        }
+
+        if (f.From is { } start)
+        {
+            var startUtc = start.Utc;
+            query = query.Where(c => c.DateCommande >= startUtc);
+        }
+
+        if (f.To is { } end)
+        {
+            var endUtc = end.Utc;
+            // Date seule (« 2024-06-30 ») : tout le jour inclus, donc borne exclusive au lendemain 00:00 UTC.
+            query = end.IsDateOnly
+                ? query.Where(c => c.DateCommande < endUtc.AddDays(1))
+                : query.Where(c => c.DateCommande <= endUtc);
+        }
+
+        if (f.Term is { } term)
+        {
+            query = query.Where(c =>
+                c.Numero.ToLower().Contains(term) ||
+                c.NomClient.ToLower().Contains(term) ||
+                c.Telephone.ToLower().Contains(term));
+        }
+
+        return query;
+    }
+
+    internal static IQueryable<SummaryRow> SummaryQuery(IQueryable<Commande> filtered, int page, int pageSize) =>
+        filtered
+            .OrderByDescending(c => c.DateCommande).ThenByDescending(c => c.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(c => new SummaryRow
+            {
+                Id = c.Id,
+                Numero = c.Numero,
+                Statut = c.Statut,
+                TypeCommande = c.TypeCommande,
+                NomClient = c.NomClient,
+                Telephone = c.Telephone,
+                TableNumero = c.Table != null ? (int?)c.Table.Numero : null,
+                Total = c.Total,
+                EstPayee = c.EstPayee,
+                NombreArticles = c.Items.Sum(i => i.Quantite),
+                DateCommande = c.DateCommande,
+                DateMiseAJour = c.DateMiseAJour
+            });
+
+    internal static IQueryable<DetailRow> DetailQuery(AppDbContext db, int id) =>
+        db.Commandes.AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new DetailRow
+            {
+                Id = x.Id,
+                Numero = x.Numero,
+                Statut = x.Statut,
+                TypeCommande = x.TypeCommande,
+                ModePaiement = x.ModePaiement,
+                EstPayee = x.EstPayee,
+                SousTotal = x.SousTotal,
+                FraisLivraison = x.FraisLivraison,
+                Total = x.Total,
+                Note = x.Note,
+                AdresseLivraison = x.AdresseLivraison,
+                TableNumero = x.Table != null ? (int?)x.Table.Numero : null,
+                UserId = x.UserId,
+                NomClient = x.NomClient,
+                Telephone = x.Telephone,
+                DateCommande = x.DateCommande,
+                DateMiseAJour = x.DateMiseAJour,
+                Version = x.Version
+            });
+
+    internal static IQueryable<LigneRow> LignesQuery(AppDbContext db, int id) =>
+        db.CommandeItems.AsNoTracking()
+            .Where(i => i.CommandeId == id)
+            .OrderBy(i => i.Id)
+            .Select(i => new LigneRow
+            {
+                ArticleId = i.ArticleId,
+                NomFr = i.NomFr,
+                NomAr = i.NomAr,
+                PrixUnitaire = i.PrixUnitaire,
+                Quantite = i.Quantite
+            });
+
+    // Projection ciblée : seuls l'identifiant et le nom d'affichage de l'auteur sortent de la base
+    // (jamais l'entité utilisateur, donc ni hash de mot de passe ni security stamp).
+    internal static IQueryable<HistoriqueRow> HistoriqueQuery(AppDbContext db, int id) =>
+        db.HistoriqueStatuts.AsNoTracking()
+            .Where(h => h.CommandeId == id)
+            .OrderBy(h => h.Date).ThenBy(h => h.Id)
+            .Select(h => new HistoriqueRow
+            {
+                Statut = h.Statut,
+                Date = h.Date,
+                ParUserId = h.ParUserId,
+                ParNom = h.ParUser != null ? (h.ParUser.Nom ?? h.ParUser.UserName) : null
+            });
+
+    internal static IQueryable<ActiveRow> ActivesQuery(AppDbContext db) =>
+        db.Commandes.AsNoTracking()
+            .Where(c => ActiveStatuts.Contains(c.Statut))
+            .OrderBy(c => c.DateCommande).ThenBy(c => c.Id)
+            .Take(MaxActives)
+            .Select(c => new ActiveRow
+            {
+                Id = c.Id,
+                Numero = c.Numero,
+                Statut = c.Statut,
+                TypeCommande = c.TypeCommande,
+                NomClient = c.NomClient,
+                TableNumero = c.Table != null ? (int?)c.Table.Numero : null,
+                Note = c.Note,
+                DateCommande = c.DateCommande,
+                DateMiseAJour = c.DateMiseAJour,
+                Version = c.Version,
+                Lignes = c.Items.OrderBy(i => i.Id)
+                    .Select(i => new ActiveLigneRow { NomFr = i.NomFr, NomAr = i.NomAr, Quantite = i.Quantite })
+                    .ToList()
+            });
+
+    internal static IQueryable<CounterRow> CountersQuery(AppDbContext db, DateTime startUtc, DateTime endUtc) =>
+        db.Commandes.AsNoTracking()
+            .Where(c => c.DateCommande >= startUtc && c.DateCommande < endUtc)
+            .GroupBy(c => c.Statut)
+            .Select(g => new CounterRow { Statut = g.Key, Nombre = g.Count() });
+
     // --- Analyse des filtres : toute saisie invalide donne un 400, jamais un 500 ---
 
     private static List<StatutCommande> ParseStatuts(IReadOnlyCollection<string>? values)
@@ -274,8 +436,6 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
 
         return parsed;
     }
-
-    private readonly record struct Bound(DateTime Utc, bool IsDateOnly);
 
     /// <summary>« 2024-06-30 » (jour UTC entier) ou date-heure ISO 8601 (« 2024-06-30T10:00:00Z », UTC si sans fuseau).</summary>
     private static Bound? ParseBound(string? value, string field)

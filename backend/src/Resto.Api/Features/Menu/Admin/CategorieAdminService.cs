@@ -8,11 +8,21 @@ namespace Resto.Api.Features.Menu.Admin;
 public class CategorieAdminService(AppDbContext db)
 {
     public async Task<IReadOnlyList<CategorieAdminResponse>> ListAsync(CancellationToken ct) =>
-        await Projected().OrderBy(c => c.Ordre).ThenBy(c => c.Id).ToListAsync(ct);
+        await ListQuery(db).ToListAsync(ct);
 
     public async Task<CategorieAdminResponse> GetAsync(int id, CancellationToken ct) =>
-        await Projected().FirstOrDefaultAsync(c => c.Id == id, ct)
+        await GetQuery(db, id).FirstOrDefaultAsync(ct)
             ?? throw AppException.NotFound("Catégorie introuvable.");
+
+    // Tri et filtre AVANT la projection : EF Core / Npgsql ne sait pas traduire un OrderBy ni un Where posé
+    // APRÈS un Select dont le constructeur contient un sous-select agrégé (Articles.Count(...)) ; la requête
+    // lève alors une InvalidOperationException (500). EF InMemory, lui, l'accepte : SqlTranslationTests
+    // vérifie donc la traduction avec le fournisseur Npgsql (sans connexion).
+    internal static IQueryable<CategorieAdminResponse> ListQuery(AppDbContext db) =>
+        Project(db.Categories.AsNoTracking().OrderBy(c => c.Ordre).ThenBy(c => c.Id));
+
+    internal static IQueryable<CategorieAdminResponse> GetQuery(AppDbContext db, int id) =>
+        Project(db.Categories.AsNoTracking().Where(c => c.Id == id));
 
     public async Task<CategorieAdminResponse> CreateAsync(CategorieRequest request, CancellationToken ct)
     {
@@ -89,8 +99,8 @@ public class CategorieAdminService(AppDbContext db)
         return await ListAsync(ct);
     }
 
-    private IQueryable<CategorieAdminResponse> Projected() =>
-        db.Categories.AsNoTracking().Select(c => new CategorieAdminResponse(
+    private static IQueryable<CategorieAdminResponse> Project(IQueryable<Categorie> categories) =>
+        categories.Select(c => new CategorieAdminResponse(
             c.Id, c.NomFr, c.NomAr, c.Ordre, c.EstActive, c.Articles.Count(a => a.EstActif)));
 
     private async Task<Categorie> FindAsync(int id, CancellationToken ct) =>
