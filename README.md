@@ -254,7 +254,7 @@ Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est tou
 
 `docs/catalogue.json` décrit la catégorie « Desserts et boissons » (ordre 6) et ses 16 articles (champ `ordre` 1 à 16, prix en DT, descriptions FR et arabe tunisien). C'est une source de données documentaire : le seed (`DbSeeder`) ne la lit pas encore et conserve son propre catalogue (catégories « Desserts et glaces » et « Boissons » séparées). L'alignement du seed demandera une décision séparée.
 
-- Champ `image` : `null` pour le makroud (aucune photo fiable trouvée : l'interface affiche `/images/default.svg`). Les autres photos sont en WebP (800 px, moins de 150 Ko) dans `frontend/public/images/menu/`, sauf la glace (`/images/glace.webp`, existante). `brownie.webp` est dérivé de `brownie.jpg`.
+- Champ `image` : `null` pour le makroud (aucune photo fiable trouvée : l'interface affiche `/images/default.svg`). Les autres photos sont en WebP (800 px, moins de 150 Ko) dans `frontend/public/images/menu/`.
 - Photos Unsplash téléchargées par l'API officielle (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée) ; origine, auteur et licence dans `docs/images-credits.md`. Vérification visuelle : ouvrir `docs/planche-contact.html`.
 - Validation : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (noms uniques, prix >= 0, textes FR/AR présents, existence et poids des seules images non nulles).
 

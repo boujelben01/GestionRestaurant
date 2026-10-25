@@ -168,9 +168,9 @@ public static class DbSeeder
             Plat(salades, "Salade méchouia", "سلطة مشوية", 6m, null,
                 "Poivrons et tomates grillés, ail et huile d'olive.", "فلفل وطماطم مشوية بالثوم وزيت الزيتون."),
 
-            Plat(desserts, "Brownie glacé", "براوني بالمثلجات", 8m, "brownie.jpg",
+            Plat(desserts, "Brownie glacé", "براوني بالمثلجات", 8m, "menu/brownie.webp",
                 "Brownie au chocolat chaud et boule de glace vanille.", "براوني بالشوكولاطة مع كرة مثلجات فانيليا.", true),
-            Plat(desserts, "Glace trois boules", "مثلجات ثلاث كرات", 6m, "glace.webp",
+            Plat(desserts, "Glace trois boules", "مثلجات ثلاث كرات", 6m, "menu/glace.webp",
                 "Trois boules au choix.", "ثلاث كرات حسب الاختيار."),
             Plat(desserts, "Makroudh", "مقروض", 2m, null,
                 "Semoule fourrée aux dattes, frite et nappée de miel.", "سميد محشي بالتمر مقلي ومغموس في العسل."),

@@ -10,7 +10,7 @@
     { "ordre": 3, "nomFr": "Brownie glacé", "nomAr": "براوني بالمثلجات", "prix": 8.0, "populaire": true, "disponible": true, "image": "/images/menu/brownie.webp",
       "descriptionFr": "Brownie tiède au chocolat servi avec une boule de glace à la vanille.",
       "descriptionAr": "براوني بالشوكولاطة سخون، ومعاه بولة جلاس بالفانيليا." },
-    { "ordre": 4, "nomFr": "Glace trois boules", "nomAr": "مثلجات ثلاث كرات", "prix": 6.0, "populaire": false, "disponible": true, "image": "/images/glace.webp",
+    { "ordre": 4, "nomFr": "Glace trois boules", "nomAr": "مثلجات ثلاث كرات", "prix": 6.0, "populaire": false, "disponible": true, "image": "/images/menu/glace.webp",
       "descriptionFr": "Trois boules de glace aux parfums de votre choix, fraîches et gourmandes.",
       "descriptionAr": "تلات بولات جلاس بالنكهات اللي تحبها، باردة وغنية." },
     { "ordre": 5, "nomFr": "Crêpe chocolat", "nomAr": "كريب شوكولا", "prix": 6.5, "populaire": false, "disponible": true, "image": "/images/menu/crepe-chocolat.webp",

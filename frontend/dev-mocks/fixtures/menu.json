@@ -248,7 +248,7 @@
         "nom": { "fr": "Brownie maison", "ar": "براوني منزلي" },
         "description": { "fr": "Chocolat noir fondant, noix.", "ar": "شوكولا سوداء طرية وجوز." },
         "prix": 6,
-        "imageUrl": "/images/brownie.jpg",
+        "imageUrl": "/images/menu/brownie.webp",
         "estPopulaire": true,
         "disponible": true
       },
@@ -257,7 +257,7 @@
         "nom": { "fr": "Glace artisanale", "ar": "جلاس حرفي" },
         "description": { "fr": "Trois boules au choix.", "ar": "ثلاث كرات على اختيارك." },
         "prix": 4.5,
-        "imageUrl": "/images/glace.webp",
+        "imageUrl": "/images/menu/glace.webp",
         "estPopulaire": false,
         "disponible": true
       },
