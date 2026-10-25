@@ -250,6 +250,14 @@ Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est tou
 - **Isolation :** l'adresse d'un autre utilisateur donne **404** (jamais 403).
 - **Limite connue :** sans contrainte SQL (pas de migration), deux requêtes simultanées du même utilisateur pourraient dépasser 10 adresses ou créer deux défauts ; ajouter un index unique partiel (`UserId` où `EstParDefaut`) demanderait une migration.
 
+## Catalogue « Desserts et boissons »
+
+`docs/catalogue.json` décrit la catégorie « Desserts et boissons » (ordre 6) et ses 16 articles (champ `ordre` 1 à 16, prix en DT, descriptions FR et arabe tunisien). C'est une source de données documentaire : le seed (`DbSeeder`) ne la lit pas encore et conserve son propre catalogue (catégories « Desserts et glaces » et « Boissons » séparées). L'alignement du seed demandera une décision séparée.
+
+- Champ `image` : `null` pour les articles sans photo (l'interface affiche alors `/images/default.svg`). Seuls le brownie (`brownie.jpg`) et la glace (`glace.webp`) ont une image.
+- Les photos (WebP, 800 px, moins de 150 Ko, dans `frontend/public/images/menu/`) restent à ajouter via l'API Pexels ou Unsplash (clé dans `PEXELS_API_KEY` ou `UNSPLASH_ACCESS_KEY`), avec les crédits dans `docs/images-credits.md`.
+- Validation : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (noms uniques, prix >= 0, textes FR/AR présents, existence et poids des seules images non nulles).
+
 ## Tests
 
 ```powershell
