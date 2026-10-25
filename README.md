@@ -254,8 +254,8 @@ Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est tou
 
 `docs/catalogue.json` décrit la catégorie « Desserts et boissons » (ordre 6) et ses 16 articles (champ `ordre` 1 à 16, prix en DT, descriptions FR et arabe tunisien). C'est une source de données documentaire : le seed (`DbSeeder`) ne la lit pas encore et conserve son propre catalogue (catégories « Desserts et glaces » et « Boissons » séparées). L'alignement du seed demandera une décision séparée.
 
-- Champ `image` : `null` pour les articles sans photo (l'interface affiche alors `/images/default.svg`). Seuls le brownie (`brownie.jpg`) et la glace (`glace.webp`) ont une image.
-- Les photos (WebP, 800 px, moins de 150 Ko, dans `frontend/public/images/menu/`) restent à ajouter via l'API Pexels ou Unsplash (clé dans `PEXELS_API_KEY` ou `UNSPLASH_ACCESS_KEY`), avec les crédits dans `docs/images-credits.md`.
+- Champ `image` : `null` pour le makroud (aucune photo fiable trouvée : l'interface affiche `/images/default.svg`). Les autres photos sont en WebP (800 px, moins de 150 Ko) dans `frontend/public/images/menu/`, sauf la glace (`/images/glace.webp`, existante). `brownie.webp` est dérivé de `brownie.jpg`.
+- Photos Unsplash téléchargées par l'API officielle (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée) ; origine, auteur et licence dans `docs/images-credits.md`. Vérification visuelle : ouvrir `docs/planche-contact.html`.
 - Validation : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (noms uniques, prix >= 0, textes FR/AR présents, existence et poids des seules images non nulles).
 
 ## Catalogue « Desserts et boissons »
