@@ -1,53 +1,54 @@
 {
-  "categorie": { "nomFr": "Desserts et boissons", "nomAr": "الحلويات والمشروبات", "ordre": 6 },
-  "articles": [
-    { "ordre": 1, "nomFr": "Baklawa (4 pièces)", "nomAr": "بقلاوة", "prix": 6.0, "populaire": true, "disponible": true, "image": "/images/menu/baklawa.webp",
-      "descriptionFr": "Feuilletés croustillants aux amandes et pistaches, nappés de sirop parfumé.",
-      "descriptionAr": "بقلاوة مقرمشة باللوز والفستق، مغطّسة في الشيرة." },
-    { "ordre": 2, "nomFr": "Makroud (4 pièces)", "nomAr": "مقروض", "prix": 5.0, "populaire": false, "disponible": true, "image": null,
-      "descriptionFr": "Semoule fourrée aux dattes, frite puis plongée dans le miel.",
-      "descriptionAr": "مقروض بالتمر، مقلي ومغطّس في العسل." },
-    { "ordre": 3, "nomFr": "Brownie glacé", "nomAr": "براوني بالمثلجات", "prix": 8.0, "populaire": true, "disponible": true, "image": "/images/menu/brownie.webp",
-      "descriptionFr": "Brownie tiède au chocolat servi avec une boule de glace à la vanille.",
-      "descriptionAr": "براوني بالشوكولاطة سخون، ومعاه بولة جلاس بالفانيليا." },
-    { "ordre": 4, "nomFr": "Glace trois boules", "nomAr": "مثلجات ثلاث كرات", "prix": 6.0, "populaire": false, "disponible": true, "image": "/images/menu/glace.webp",
-      "descriptionFr": "Trois boules de glace aux parfums de votre choix, fraîches et gourmandes.",
-      "descriptionAr": "تلات بولات جلاس بالنكهات اللي تحبها، باردة وغنية." },
-    { "ordre": 5, "nomFr": "Crêpe chocolat", "nomAr": "كريب شوكولا", "prix": 6.5, "populaire": false, "disponible": true, "image": "/images/menu/crepe-chocolat.webp",
-      "descriptionFr": "Crêpe moelleuse nappée de chocolat fondant.",
-      "descriptionAr": "كريب طري مغطّى بالشوكولاطة الذايبة." },
-    { "ordre": 6, "nomFr": "Salade de fruits", "nomAr": "سلطة فواكه", "prix": 5.5, "populaire": false, "disponible": true, "image": "/images/menu/salade-de-fruits.webp",
-      "descriptionFr": "Fruits frais coupés en morceaux, servis bien frais.",
-      "descriptionAr": "فواكه طازجة مقطّعة، تتقدّم باردة." },
-    { "ordre": 7, "nomFr": "Tiramisu", "nomAr": "تيراميسو", "prix": 8.0, "populaire": false, "disponible": false, "image": "/images/menu/tiramisu.webp",
-      "descriptionFr": "Biscuits imbibés de café et crème au mascarpone, saupoudrés de cacao.",
-      "descriptionAr": "بسكوي مبلول في القهوة مع كريمة الماسكاربوني وكاكاو من فوق." },
-    { "ordre": 8, "nomFr": "Thé à la menthe", "nomAr": "شاي بالنعناع", "prix": 2.5, "populaire": true, "disponible": true, "image": "/images/menu/the-a-la-menthe.webp",
-      "descriptionFr": "Thé infusé à la menthe fraîche, servi bien chaud et parfumé.",
-      "descriptionAr": "شاي بالنعناع الطازج، سخون ومعطّر." },
-    { "ordre": 9, "nomFr": "Café express", "nomAr": "قهوة", "prix": 2.0, "populaire": false, "disponible": true, "image": "/images/menu/cafe-express.webp",
-      "descriptionFr": "Café court, serré et parfumé, servi chaud.",
-      "descriptionAr": "قهوة قصيرة ومركّزة، سخونة وبريحتها." },
-    { "ordre": 10, "nomFr": "Café crème", "nomAr": "قهوة بالحليب", "prix": 3.0, "populaire": false, "disponible": true, "image": "/images/menu/cafe-creme.webp",
-      "descriptionFr": "Café allongé de lait chaud, onctueux et tout en douceur.",
-      "descriptionAr": "قهوة بالحليب السخون، ناعمة وخفيفة." },
-    { "ordre": 11, "nomFr": "Jus d'orange pressé", "nomAr": "عصير برتقال", "prix": 5.0, "populaire": false, "disponible": true, "image": "/images/menu/jus-orange-presse.webp",
-      "descriptionFr": "Oranges pressées au moment de servir, un jus frais et naturel.",
-      "descriptionAr": "برتقال معصور في الحين، عصير طازج وبارد." },
-    { "ordre": 12, "nomFr": "Citronnade", "nomAr": "ليمونادة", "prix": 4.0, "populaire": false, "disponible": true, "image": "/images/menu/citronnade.webp",
-      "descriptionFr": "Citrons pressés, eau fraîche et sucre pour une boisson désaltérante.",
-      "descriptionAr": "ليمون معصور مع الما الباردة والسكر، منعش." },
-    { "ordre": 13, "nomFr": "Jus de fruits frais", "nomAr": "عصير فواكه", "prix": 5.5, "populaire": false, "disponible": true, "image": "/images/menu/jus-de-fruits-frais.webp",
-      "descriptionFr": "Mélange de fruits frais mixés, servi bien frais.",
-      "descriptionAr": "فواكه طازجة مخلوطة، عصير بارد." },
-    { "ordre": 14, "nomFr": "Boisson gazeuse", "nomAr": "مشروب غازي", "prix": 3.0, "populaire": false, "disponible": true, "image": "/images/menu/boisson-gazeuse.webp",
-      "descriptionFr": "Boisson pétillante servie bien fraîche.",
-      "descriptionAr": "مشروب غازي بارد." },
-    { "ordre": 15, "nomFr": "Eau minérale 0,5 L", "nomAr": "ماء", "prix": 1.5, "populaire": false, "disponible": true, "image": "/images/menu/eau-minerale.webp",
-      "descriptionFr": "Eau minérale en petite bouteille de 0,5 L.",
-      "descriptionAr": "ماء معدني في قارورة صغيرة، نصف لتر." },
-    { "ordre": 16, "nomFr": "Eau minérale 1,5 L", "nomAr": "ماء كبير", "prix": 2.5, "populaire": false, "disponible": true, "image": "/images/menu/eau-minerale.webp",
-      "descriptionFr": "Eau minérale en grande bouteille de 1,5 L, idéale à partager.",
-      "descriptionAr": "ماء معدني في قارورة كبيرة 1,5 لتر، تنجم تشاركها مع غيرك." }
+  "categories": [
+    {
+      "nomFr": "Entrées et salades", "nomAr": "المقبلات والسلطات", "ordre": 1,
+      "articles": [
+        {"ordre":1,"nomFr":"Salade César","nomAr":"سلطة سيزر","descriptionFr":"Laitue croquante, poulet grillé, copeaux de parmesan, croûtons et sauce César.","descriptionAr":"خس طازج مع دجاج مشوي وجبن بارميزان وقطع خبز مقرمشة وصلصة سيزر.","prix":11,"populaire":true,"disponible":true,"image":"/images/menu/salade-cesar.webp"},
+        {"ordre":2,"nomFr":"Salade grecque","nomAr":"سلطة يونانية","descriptionFr":"Tomates, concombre, poivron, oignon rouge, olives et feta, assaisonnés d'huile d'olive.","descriptionAr":"طماطم وخيار وفلفل وبصل أحمر وزيتون وجبن فيتا مع زيت الزيتون.","prix":9.5,"populaire":false,"disponible":true,"image":"/images/menu/salade-grecque.webp"},
+        {"ordre":3,"nomFr":"Soupe de tomate","nomAr":"شوربة طماطم","descriptionFr":"Soupe de tomates mijotée, onctueuse et parfumée aux herbes.","descriptionAr":"شوربة طماطم ناعمة ومطيّبة بالأعشاب.","prix":6,"populaire":false,"disponible":true,"image":"/images/menu/soupe-tomate.webp"},
+        {"ordre":4,"nomFr":"Nuggets de poulet (6)","nomAr":"ناغتس دجاج","descriptionFr":"Six bouchées de poulet panées et dorées, croustillantes dehors, tendres dedans.","descriptionAr":"ست قطع دجاج مقرمشة ومحمّرة، طرية من الداخل.","prix":8,"populaire":false,"disponible":true,"image":"/images/menu/nuggets-poulet.webp"},
+        {"ordre":5,"nomFr":"Bruschetta","nomAr":"بروسكيتا","descriptionFr":"Pain grillé garni de tomates fraîches, mozzarella, basilic et filet d'huile d'olive.","descriptionAr":"خبز محمّص بالطماطم الطازجة والموزاريلا والريحان وزيت الزيتون.","prix":7.5,"populaire":false,"disponible":true,"image":"/images/menu/bruschetta.webp"}
+      ]
+    },
+    {
+      "nomFr": "Burgers et sandwichs", "nomAr": "البرغر والساندويتشات", "ordre": 2,
+      "articles": [
+        {"ordre":1,"nomFr":"Burger classique","nomAr":"برغر كلاسيك","descriptionFr":"Steak de bœuf, salade, tomate, oignon et sauce dans un pain moelleux.","descriptionAr":"ستيك لحم بقري مع خس وطماطم وبصل وصلصة في خبزة طرية.","prix":11,"populaire":true,"disponible":true,"image":"/images/menu/burger-classique.webp"},
+        {"ordre":2,"nomFr":"Cheeseburger","nomAr":"تشيز برغر","descriptionFr":"Steak de bœuf, cheddar fondu, salade et tomate dans un pain moelleux.","descriptionAr":"ستيك لحم بقري مع جبن شيدر ذائب وخس وطماطم في خبزة طرية.","prix":12.5,"populaire":false,"disponible":true,"image":"/images/menu/cheeseburger.webp"},
+        {"ordre":3,"nomFr":"Burger poulet croustillant","nomAr":"برغر دجاج","descriptionFr":"Filet de poulet pané et croustillant, salade et sauce dans un pain moelleux.","descriptionAr":"فيليه دجاج مقرمش مع خس وصلصة في خبزة طرية.","prix":11.5,"populaire":true,"disponible":true,"image":"/images/menu/burger-poulet-croustillant.webp"},
+        {"ordre":4,"nomFr":"Club sandwich","nomAr":"كلوب ساندويتش","descriptionFr":"Pain de mie grillé, poulet, œuf, salade, tomate et fromage, servi avec des frites.","descriptionAr":"خبز توست محمّص بطبقات من الدجاج والبيض والخس والطماطم والجبن، مع البطاطا المقلية.","prix":12,"populaire":false,"disponible":true,"image":"/images/menu/club-sandwich.webp"},
+        {"ordre":5,"nomFr":"Frites","nomAr":"بطاطا مقلية","descriptionFr":"Frites dorées et croustillantes, salées juste ce qu'il faut.","descriptionAr":"بطاطا مقلية ذهبية ومقرمشة.","prix":3.5,"populaire":false,"disponible":true,"image":"/images/menu/frites.webp"}
+      ]
+    },
+    {
+      "nomFr": "Pizzas et pâtes", "nomAr": "البيتزا والمعجنات", "ordre": 3,
+      "articles": [
+        {"ordre":1,"nomFr":"Pizza margherita","nomAr":"بيتزا مارغريتا","descriptionFr":"Sauce tomate, mozzarella et basilic frais.","descriptionAr":"صلصة طماطم وموزاريلا وريحان طازج.","prix":10,"populaire":true,"disponible":true,"image":"/images/menu/pizza-margherita.webp"},
+        {"ordre":2,"nomFr":"Pizza pepperoni","nomAr":"بيتزا بيبروني","descriptionFr":"Sauce tomate, mozzarella et rondelles de pepperoni légèrement relevées.","descriptionAr":"صلصة طماطم وموزاريلا وشرائح بيبروني حارّة قليلاً.","prix":14,"populaire":false,"disponible":true,"image":"/images/menu/pizza-pepperoni.webp"},
+        {"ordre":3,"nomFr":"Pizza 4 fromages","nomAr":"بيتزا 4 أجبان","descriptionFr":"Un mélange de quatre fromages fondants, gratiné sur une pâte dorée.","descriptionAr":"أربعة أنواع من الجبن الذائب، مجبّنة على عجينة ذهبية.","prix":15,"populaire":false,"disponible":true,"image":"/images/menu/pizza-4-fromages.webp"},
+        {"ordre":4,"nomFr":"Spaghetti bolognaise","nomAr":"سباغيتي بولونيز","descriptionFr":"Spaghetti nappés d'une sauce tomate mijotée à la viande hachée.","descriptionAr":"سباغيتي مع صلصة الطماطم واللحم المفروم.","prix":11,"populaire":false,"disponible":true,"image":"/images/menu/spaghetti-bolognaise.webp"},
+        {"ordre":5,"nomFr":"Lasagnes","nomAr":"لازانيا","descriptionFr":"Couches de pâtes, sauce à la viande et béchamel, gratinées au four.","descriptionAr":"طبقات من العجين مع صلصة اللحم والبشاميل، مجبّنة ومحمّرة في الفرن.","prix":13,"populaire":false,"disponible":false,"image":"/images/menu/lasagnes.webp"}
+      ]
+    },
+    {
+      "nomFr": "Desserts", "nomAr": "الحلويات", "ordre": 4,
+      "articles": [
+        {"ordre":1,"nomFr":"Brownie glacé","nomAr":"براوني بالمثلجات","descriptionFr":"Brownie tiède au chocolat servi avec une boule de glace à la vanille.","descriptionAr":"براوني بالشوكولاطة سخون، ومعاه بولة جلاس بالفانيليا.","prix":8,"populaire":true,"disponible":true,"image":"/images/menu/brownie.webp"},
+        {"ordre":2,"nomFr":"Tiramisu","nomAr":"تيراميسو","descriptionFr":"Biscuits imbibés de café et crème au mascarpone, saupoudrés de cacao.","descriptionAr":"بسكوي مبلول في القهوة مع كريمة الماسكاربوني وكاكاو من فوق.","prix":8,"populaire":false,"disponible":true,"image":"/images/menu/tiramisu.webp"},
+        {"ordre":3,"nomFr":"Cheesecake","nomAr":"تشيز كيك","descriptionFr":"Base biscuitée croustillante et crème au fromage onctueuse.","descriptionAr":"قاعدة بسكويت مقرمشة وكريمة جبن ناعمة.","prix":8.5,"populaire":false,"disponible":true,"image":"/images/menu/cheesecake.webp"},
+        {"ordre":4,"nomFr":"Crêpe chocolat","nomAr":"كريب شوكولا","descriptionFr":"Crêpe moelleuse nappée de chocolat fondant.","descriptionAr":"كريب طري مغطّى بالشوكولاطة الذايبة.","prix":6.5,"populaire":false,"disponible":true,"image":"/images/menu/crepe-chocolat.webp"},
+        {"ordre":5,"nomFr":"Glace trois boules","nomAr":"مثلجات ثلاث كرات","descriptionFr":"Trois boules de glace aux parfums de votre choix, fraîches et gourmandes.","descriptionAr":"تلات بولات جلاس بالنكهات اللي تحبها، باردة وغنية.","prix":6,"populaire":false,"disponible":true,"image":"/images/menu/glace.webp"}
+      ]
+    },
+    {
+      "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 5,
+      "articles": [
+        {"ordre":1,"nomFr":"Jus d'orange pressé","nomAr":"عصير برتقال","descriptionFr":"Oranges pressées au moment de servir, un jus frais et naturel.","descriptionAr":"برتقال معصور في الحين، عصير طازج وبارد.","prix":5,"populaire":true,"disponible":true,"image":"/images/menu/jus-orange-presse.webp"},
+        {"ordre":2,"nomFr":"Citronnade","nomAr":"ليمونادة","descriptionFr":"Citrons pressés, eau fraîche et sucre pour une boisson désaltérante.","descriptionAr":"ليمون معصور مع الما الباردة والسكر، منعش.","prix":4,"populaire":false,"disponible":true,"image":"/images/menu/citronnade.webp"},
+        {"ordre":3,"nomFr":"Milkshake","nomAr":"ميلك شيك","descriptionFr":"Glace mixée avec du lait, onctueux et bien frais.","descriptionAr":"مثلجات مخفوقة مع الحليب، ناعمة وباردة.","prix":6.5,"populaire":false,"disponible":true,"image":"/images/menu/milkshake.webp"},
+        {"ordre":4,"nomFr":"Boisson gazeuse","nomAr":"مشروب غازي","descriptionFr":"Boisson pétillante servie bien fraîche.","descriptionAr":"مشروب غازي بارد.","prix":3,"populaire":false,"disponible":true,"image":"/images/menu/boisson-gazeuse.webp"},
+        {"ordre":5,"nomFr":"Eau minérale 0,5 L","nomAr":"ماء","descriptionFr":"Eau minérale en petite bouteille de 0,5 L.","descriptionAr":"ماء معدني في قارورة صغيرة، نصف لتر.","prix":1.5,"populaire":false,"disponible":true,"image":"/images/menu/eau-minerale.webp"}
+      ]
+    }
   ]
 }
