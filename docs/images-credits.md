@@ -25,6 +25,7 @@ Photos téléchargées via l'API officielle d'Unsplash (site : unsplash.com), co
 | frontend/public/images/menu/assiette-chawarma.webp | Assiette chawarma | mahsa shamshiri fard | https://unsplash.com/photos/a-plate-of-food-with-a-variety-of-different-foods-on-it-Iax8VBp6CdU | Unsplash | Unsplash License |
 | frontend/public/images/menu/kebab.webp | Kebab | Augustus Caesar | https://unsplash.com/photos/a-white-plate-topped-with-meat-and-veggies-aFRaO77UP08 | Unsplash | Unsplash License |
 | frontend/public/images/menu/ojja-merguez.webp | Ojja merguez | Roman Shalkevic | https://unsplash.com/photos/egg-on-black-ceramic-plate-UDRZtw_F_Nc | Unsplash | Unsplash License |
+| frontend/public/images/menu/sahn-tounsi.webp | Sahn tounsi (275×234 px, non recadrée) | Fournie par le propriétaire du projet, auteur et licence inconnus : à confirmer | non renseignée | non renseigné | à confirmer avant mise en production |
 | frontend/public/images/menu/spaghetti-bolognaise.webp | Spaghetti bolognaise | Homescreenify | https://unsplash.com/photos/spaghetti-on-white-ceramic-plate-sA3wymYqyaI | Unsplash | Unsplash License |
 | frontend/public/images/menu/lasagnes.webp | Lasagnes | Emanuel Ekström | https://unsplash.com/photos/a-white-plate-topped-with-lasagna-covered-in-sauce-flEUTTwGlJQ | Unsplash | Unsplash License |
 | frontend/public/images/menu/brownie.webp | Brownie glacé | Aveedibya Dey | https://unsplash.com/photos/a-piece-of-chocolate-cake-with-a-couple-of-scoops-of-ice-cream-on-top-Zd_5jkP1x8c | Unsplash | Unsplash License |
