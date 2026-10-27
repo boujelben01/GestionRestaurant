@@ -45,8 +45,14 @@
       ]
     },
     {
-      "nomFr": "Baguettes farcies", "nomAr": "باغيت محشي", "ordre": 5,
-      "articles": []
+      "nomFr": "Baguettes farcies", "nomAr": "باغيت فارسي", "ordre": 5,
+      "articles": [
+        {"ordre": 1, "nomFr": "Baguette farcie poulet", "nomAr": "باغيت فارسي دجاج", "descriptionFr": "Baguette farcie de poulet, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بالدجاج والجبن المحمّر والصلصة، سخون.", "prix": 9, "populaire": true, "disponible": true, "image": "/images/menu/baguette-farcie-poulet.webp"},
+        {"ordre": 2, "nomFr": "Baguette farcie escalope", "nomAr": "باغيت فارسي إسكالوب", "descriptionFr": "Baguette farcie d'escalope de poulet panée, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بإسكالوب دجاج بانيه والجبن المحمّر والصلصة، سخون.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Baguette farcie viande hachée", "nomAr": "باغيت فارسي لحم مفروم", "descriptionFr": "Baguette farcie de viande hachée, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي باللحم المفروم والجبن المحمّر والصلصة، سخون.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Baguette farcie cordon bleu", "nomAr": "باغيت فارسي كوردون بلو", "descriptionFr": "Baguette farcie de cordon bleu, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بكوردون بلو والجبن المحمّر والصلصة، سخون.", "prix": 10, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Baguette farcie thon", "nomAr": "باغيت فارسي تون", "descriptionFr": "Baguette farcie de thon, olives, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بالتون والزيتون والجبن المحمّر والصلصة، سخون.", "prix": 8, "populaire": false, "disponible": true, "image": null}
+      ]
     },
     {
       "nomFr": "Tabouna", "nomAr": "طابونة", "ordre": 6,

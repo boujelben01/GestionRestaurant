@@ -33,6 +33,7 @@ Photos téléchargées via l'API officielle d'Unsplash (site : unsplash.com), co
 | frontend/public/images/menu/makloub-poulet.webp | Makloub poulet | Khalid Boutchich | https://unsplash.com/photos/fries-and-burger-on-white-ceramic-plate-0rn7rLnWKZ4 | Unsplash | Unsplash License |
 | frontend/public/images/menu/makloub-escalope.webp | Makloub escalope | Ashish Sam | https://unsplash.com/photos/a-wrap-and-french-fries-on-a-table-3iKynqKwfww | Unsplash | Unsplash License |
 | frontend/public/images/menu/makloub-viande-hachee.webp | Makloub viande hachée | Bayuaji Abiyu | https://unsplash.com/photos/a-cut-in-half-sandwich-sitting-on-top-of-a-cutting-board-xq04aTV-LVk | Unsplash | Unsplash License |
+| frontend/public/images/menu/baguette-farcie-poulet.webp | Baguette farcie poulet | Shoeib Abolhassani | https://unsplash.com/photos/a-delicious-cheesesteak-sandwich-on-a-dark-background-eMgLVzvKpIM | Unsplash | Unsplash License |
 | frontend/public/images/menu/spaghetti-bolognaise.webp | Spaghetti bolognaise | Homescreenify | https://unsplash.com/photos/spaghetti-on-white-ceramic-plate-sA3wymYqyaI | Unsplash | Unsplash License |
 | frontend/public/images/menu/lasagnes.webp | Lasagnes | Emanuel Ekström | https://unsplash.com/photos/a-white-plate-topped-with-lasagna-covered-in-sauce-flEUTTwGlJQ | Unsplash | Unsplash License |
 | frontend/public/images/menu/brownie.webp | Brownie glacé | Aveedibya Dey | https://unsplash.com/photos/a-piece-of-chocolate-cake-with-a-couple-of-scoops-of-ice-cream-on-top-Zd_5jkP1x8c | Unsplash | Unsplash License |
