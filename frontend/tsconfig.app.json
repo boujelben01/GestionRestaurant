@@ -20,7 +20,6 @@
     "noUncheckedIndexedAccess": true,
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": { "@/*": ["src/*"] }
   },
   "include": ["src"]
