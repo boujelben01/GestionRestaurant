@@ -36,7 +36,13 @@
     },
     {
       "nomFr": "Makloub", "nomAr": "مقلوب", "ordre": 4,
-      "articles": []
+      "articles": [
+        {"ordre": 1, "nomFr": "Makloub poulet", "nomAr": "مقلوب دجاج", "descriptionFr": "Pain makloub grillé garni de poulet, fromage, frites, salade et sauce.", "descriptionAr": "خبز مقلوب مشوي بالدجاج والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 9.5, "populaire": true, "disponible": true, "image": "/images/menu/makloub-poulet.webp"},
+        {"ordre": 2, "nomFr": "Makloub escalope", "nomAr": "مقلوب إسكالوب", "descriptionFr": "Pain makloub grillé garni d'escalope de poulet panée, fromage, frites et salade.", "descriptionAr": "خبز مقلوب مشوي بإسكالوب دجاج بانيه والجبن والبطاطا المقلية والسلاطة.", "prix": 10, "populaire": false, "disponible": true, "image": "/images/menu/makloub-escalope.webp"},
+        {"ordre": 3, "nomFr": "Makloub cordon bleu", "nomAr": "مقلوب كوردون بلو", "descriptionFr": "Pain makloub grillé garni de cordon bleu, fromage, frites, salade et sauce.", "descriptionAr": "خبز مقلوب مشوي بكوردون بلو والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 10.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Makloub viande hachée", "nomAr": "مقلوب لحم مفروم", "descriptionFr": "Pain makloub grillé garni de viande hachée, fromage, frites, salade et sauce.", "descriptionAr": "خبز مقلوب مشوي باللحم المفروم والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 10, "populaire": false, "disponible": true, "image": "/images/menu/makloub-viande-hachee.webp"},
+        {"ordre": 5, "nomFr": "Makloub thon", "nomAr": "مقلوب تون", "descriptionFr": "Pain makloub grillé garni de thon, fromage, salade, olives et harissa.", "descriptionAr": "خبز مقلوب مشوي بالتون والجبن والسلاطة والزيتون والهريسة.", "prix": 8, "populaire": false, "disponible": true, "image": null}
+      ]
     },
     {
       "nomFr": "Baguettes farcies", "nomAr": "باغيت محشي", "ordre": 5,
