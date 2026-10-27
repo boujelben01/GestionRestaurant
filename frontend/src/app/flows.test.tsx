@@ -51,7 +51,7 @@ const menu: MenuCategorie[] = [
 ]
 
 const restaurant: Restaurant = {
-  nom: 'Resto',
+  nom: 'El Resto',
   telephone: '+216 71 000 000',
   email: 'contact@resto.example',
   adresse: 'Avenue Habib Bourguiba, Tunis',

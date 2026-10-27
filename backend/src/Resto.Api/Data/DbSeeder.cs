@@ -23,7 +23,7 @@ public static class DbSeeder
             db.ParametresRestaurant.Add(new ParametresRestaurant
             {
                 Id = 1,
-                Nom = "Resto",
+                Nom = "El Resto",
                 Telephone = "+216 70 000 000",
                 Email = "contact@resto.local",
                 Adresse = "Avenue Habib Bourguiba, Tunis",

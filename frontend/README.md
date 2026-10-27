@@ -1,4 +1,4 @@
-# Resto — frontend
+# El Resto — frontend
 
 Site public du restaurant (français et arabe tunisien, RTL). Vite + React 18 + TypeScript strict,
 React Router, axios, TanStack Query, i18next, Tailwind CSS v4, motion.

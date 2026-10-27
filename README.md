@@ -1,4 +1,4 @@
-# Resto
+# El Resto
 
 Application de gestion de restaurant : API ASP.NET Core 8 (`backend/`), PostgreSQL, frontend à venir (`frontend/`).
 
