@@ -66,7 +66,13 @@
     },
     {
       "nomFr": "Cornet", "nomAr": "كورني", "ordre": 7,
-      "articles": []
+      "articles": [
+        {"ordre": 1, "nomFr": "Cornet poulet", "nomAr": "كورني دجاج", "descriptionFr": "Cornet garni de poulet, fromage, frites, salade et sauce.", "descriptionAr": "كورني بالدجاج والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 7.5, "populaire": true, "disponible": true, "image": null},
+        {"ordre": 2, "nomFr": "Cornet escalope", "nomAr": "كورني إسكالوب", "descriptionFr": "Cornet garni d'escalope de poulet panée, fromage, frites et salade.", "descriptionAr": "كورني بإسكالوب دجاج بانيه والجبن والبطاطا المقلية والسلاطة.", "prix": 8, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Cornet cordon bleu", "nomAr": "كورني كوردون بلو", "descriptionFr": "Cornet garni de cordon bleu, fromage, frites, salade et sauce.", "descriptionAr": "كورني بكوردون بلو والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 8.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Cornet chawarma", "nomAr": "كورني شاورما", "descriptionFr": "Cornet garni de chawarma de poulet, frites, salade et sauce.", "descriptionAr": "كورني بشاورما دجاج والبطاطا المقلية والسلاطة والصلصة.", "prix": 8, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Cornet thon", "nomAr": "كورني تون", "descriptionFr": "Cornet garni de thon, fromage, salade, olives et harissa.", "descriptionAr": "كورني بالتون والجبن والسلاطة والزيتون والهريسة.", "prix": 6.5, "populaire": false, "disponible": true, "image": null}
+      ]
     },
     {
       "nomFr": "Lablabi", "nomAr": "لبلابي", "ordre": 8,
