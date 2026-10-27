@@ -18,7 +18,8 @@ public static class AuthExtensions
         services.AddOptions<JwtOptions>()
             .Bind(configuration.GetSection(JwtOptions.SectionName))
             .Validate(o => o.SecretKey.Length >= JwtOptions.MinSecretKeyLength,
-                $"Jwt:SecretKey doit contenir au moins {JwtOptions.MinSecretKeyLength} caractères.")
+                $"Jwt:SecretKey (variable d'environnement Jwt__SecretKey) est absente ou trop courte : " +
+                $"au moins {JwtOptions.MinSecretKeyLength} caractères.")
             .Validate(o => !string.IsNullOrWhiteSpace(o.Issuer) && !string.IsNullOrWhiteSpace(o.Audience),
                 "Jwt:Issuer et Jwt:Audience sont obligatoires.")
             .Validate(o => o.AccessTokenMinutes > 0, "Jwt:AccessTokenMinutes doit être positif.")

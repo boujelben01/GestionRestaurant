@@ -18,7 +18,8 @@ Les valeurs se stockent dans les user-secrets du projet (`UserSecretsId` déjà 
 | `Jwt:SecretKey` | Clé de signature HS256, 32 caractères minimum (l'API refuse de démarrer sinon) |
 | `Jwt:Issuer`, `Jwt:Audience` | Non secrets, dans `appsettings.json` |
 | `Jwt:AccessTokenMinutes` | Durée de vie du jeton (60 par défaut) |
-| `Cors:AllowedOrigins` | Tableau des origines autorisées (défaut `http://localhost:5173`) |
+| `Cors:AllowedOrigins` | Origines autorisées : liste séparée par des virgules (variable `Cors__AllowedOrigins`) ou tableau. Sans réglage : `http://localhost:5173` en Development, **aucune** ailleurs ; `*` est ignoré |
+| `PORT` | Port d'écoute HTTP (fourni par Render, 10000 dans l'image Docker). Absent en local : `launchSettings.json` s'applique |
 | `Seed:AdminPassword` | Mot de passe du compte `admin` créé par le seed (sans lui, l'admin n'est pas créé) |
 | `Seed:DemoPassword` | Mot de passe commun des comptes de démonstration créés par `--seed-demo` (sans lui, la commande refuse de tourner ; variable `Seed__DemoPassword` hors user-secrets) |
 
@@ -40,7 +41,8 @@ dotnet run
 - API : http://localhost:5118 (Swagger sur `/swagger`, santé sur `/health`).
 - En Development, le seed (rôles, admin, paramètres, horaires, tables) s'exécute au démarrage ; les données ne sont insérées que si les tables sont vides. Il ne touche pas au catalogue (voir « Catalogue » plus bas).
 - Hors Development, le seed ne tourne que sur demande : `dotnet run -- --seed` (il s'arrête ensuite).
-- Aucune migration n'est appliquée automatiquement.
+- Aucune migration n'est appliquée automatiquement. `dotnet run -- --migrate` applique les migrations en attente sur la base de `ConnectionStrings:Default`, affiche leur nombre et s'arrête (code 0 succès, 1 échec, 2 option inconnue) ; testé par `MigrateTests`.
+- Hors Development : pas de Swagger, en-têtes `X-Forwarded-For` / `X-Forwarded-Proto` pris en compte (proxy de Render), HSTS mais pas de redirection HTTPS interne (le proxy s'en charge).
 
 ## Authentification
 
@@ -321,5 +323,75 @@ dotnet test
 ```
 
 Les tests d'intégration utilisent un fournisseur EF InMemory : il ne reproduit pas les contraintes PostgreSQL (CHECK, index uniques, clés étrangères) ni `xmin` (la colonne `Version` reste à 0 et n'est jamais incrémentée) ni de vraies transactions. Ils vérifient l'autorisation, les flux métier et la comparaison explicite de `version` ; la détection de concurrence par `xmin` et l'anti-doublon à la création ne sont pas exercés.
+
+## Déploiement sur Render
+
+L'API tourne dans un conteneur Docker (`backend/Dockerfile`, contexte `backend/`), le site est un site statique ; les deux sont décrits dans `render.yaml` (Blueprint) à la racine. La base reste sur Neon. Aucun secret n'est dans le dépôt ni dans l'image : tout passe par des variables d'environnement saisies dans Render (`sync: false`).
+
+### Prérequis
+
+- Une base PostgreSQL Neon (projet et branche de production) et sa chaîne de connexion.
+- Le dépôt sur GitHub, en **privé**, relié au compte Render.
+- Sur le PC : SDK .NET 8 (pour lancer `--migrate`, `--seed`, `--seed-catalog`, `--seed-demo` contre Neon).
+
+### Variables d'environnement
+
+| Service | Variable | Contenu (forme, jamais de vraie valeur ici) |
+| --- | --- | --- |
+| `el-resto-api` | `ASPNETCORE_ENVIRONMENT` | `Production` (déjà dans `render.yaml`) |
+| `el-resto-api` | `ConnectionStrings__Default` | Chaîne Npgsql de Neon : `Host=<hôte>.neon.tech;Database=<base>;Username=<utilisateur>;Password=<mot-de-passe>;SSL Mode=Require` |
+| `el-resto-api` | `Jwt__SecretKey` | Clé aléatoire d'au moins 32 caractères (ex. 48 octets aléatoires en base64) |
+| `el-resto-api` | `Cors__AllowedOrigins` | Adresse(s) du site, séparées par des virgules, sans slash final : `https://<site>.onrender.com` |
+| `el-resto-api` | `Seed__AdminPassword` | Mot de passe du compte `admin`, lu seulement par `--seed` : peut rester vide sur Render si `--seed` est lancé depuis le PC |
+| `el-resto` | `VITE_API_URL` | Adresse de l'API, sans slash final : `https://<api>.onrender.com` |
+| `el-resto` | `VITE_PUBLIC_URL` | Adresse publique du site, sans slash final (encodée dans les QR des tables) : `https://<site>.onrender.com` |
+| `el-resto` | `NODE_VERSION` | Version de Node pour le build (`24`, déjà dans `render.yaml`) |
+| PC seulement | `Seed__DemoPassword` | Mot de passe commun des comptes de démo (commande `--seed-demo`) |
+
+`PORT` est fourni par Render (10000 par défaut, déjà la valeur de l'image) : ne pas le définir. `Jwt__Issuer`, `Jwt__Audience` et `Jwt__AccessTokenMinutes` ont leurs valeurs dans `appsettings.json`. Les variables `VITE_*` sont lues **au build** du site : après un changement, relancer un déploiement du site.
+
+Au démarrage hors Development, l'API s'arrête avec un message qui cite le **nom** du réglage manquant (`ConnectionStrings__Default`, ou `Jwt__SecretKey` absente ou trop courte), jamais sa valeur. Sans `Cors__AllowedOrigins`, aucune origine n'est autorisée (le site ne peut pas appeler l'API).
+
+**Chaîne Neon** : Neon affiche une URL `postgresql://<utilisateur>:<mot-de-passe>@<hôte>/<base>?sslmode=require&channel_binding=require`. Npgsql attend la forme clé=valeur, lue telle quelle depuis la variable : `Host=<hôte>;Database=<base>;Username=<utilisateur>;Password=<mot-de-passe>;SSL Mode=Require;Channel Binding=Require`. Pour l'API, l'hôte « pooler » (`...-pooler...`) convient ; pour `--migrate`, préférer l'hôte direct (sans `-pooler`), comme le recommande Neon pour les migrations.
+
+### Commandes depuis le PC (PowerShell)
+
+`dotnet run` utilise le profil de lancement (environnement Development, user-secrets chargés) ; les variables d'environnement de la session **priment** sur les user-secrets. Saisie masquée, rien dans l'historique :
+
+```powershell
+cd backend/src/Resto.Api
+$s = Read-Host "Chaîne Npgsql Neon" -AsSecureString
+$env:ConnectionStrings__Default = [Net.NetworkCredential]::new('', $s).Password
+dotnet run -- --migrate                     # applique les migrations, affiche leur nombre ; code 0 ou 1
+
+$s = Read-Host "Mot de passe admin" -AsSecureString
+$env:Seed__AdminPassword = [Net.NetworkCredential]::new('', $s).Password
+dotnet run -- --seed                        # rôles, compte admin, paramètres, horaires, tables (idempotent)
+dotnet run -- --seed-catalog                # simulation, puis :
+dotnet run -- --seed-catalog --apply
+
+$s = Read-Host "Mot de passe des comptes de démo" -AsSecureString
+$env:Seed__DemoPassword = [Net.NetworkCredential]::new('', $s).Password
+dotnet run -- --seed-demo                   # simulation, puis :
+dotnet run -- --seed-demo --apply
+
+Remove-Item Env:ConnectionStrings__Default, Env:Seed__AdminPassword, Env:Seed__DemoPassword
+```
+
+Définir `Seed__AdminPassword` explicitement : sinon `--seed` prendrait le mot de passe admin des user-secrets locaux. Dans l'image Docker, les mêmes commandes s'écrivent `dotnet Resto.Api.dll --migrate` (point d'entrée : `docker run --rm -e ConnectionStrings__Default <image> --migrate`). L'API ne migre jamais d'elle-même, et le seed ne tourne jamais au démarrage en production : l'administrateur initial et les paramètres de base se créent avec `--seed`, une fois.
+
+### Ordre des opérations
+
+1. Sauvegarder la branche Neon de production (branche de sauvegarde ou instantané) avant toute écriture.
+2. `--migrate` depuis le PC.
+3. `--seed` (admin et paramètres de base), puis `--seed-catalog --apply`, puis `--seed-demo --apply` depuis le PC (la démo est facultative ; la retirer avec `--seed-demo --reset-demo --apply` avant l'ouverture réelle).
+4. Déployer l'API (Render → New → Blueprint, `render.yaml`) avec `ConnectionStrings__Default` et `Jwt__SecretKey` ; vérifier `https://<api>.onrender.com/health` (réponse 200, sans interroger la base).
+5. Renseigner `Cors__AllowedOrigins` avec l'adresse du site (connue dès la création du service `el-resto`), l'API redémarre.
+6. Déployer le site avec `VITE_API_URL` = adresse de l'API.
+7. Renseigner `VITE_PUBLIC_URL` = adresse définitive du site, redéployer le site, puis seulement imprimer les QR des tables (`/admin/tables`).
+
+Le site a besoin de l'adresse de l'API (au build) et l'API de celle du site (CORS) : créer les deux services, puis compléter ces deux variables et redéployer.
+
+**Offre gratuite de Render** : l'API se met en veille après environ 15 minutes sans requête ; la requête suivante la réveille et peut prendre jusqu'à une minute. Le site statique, lui, ne dort pas. Un appel à `/health` suffit à réveiller l'API.
 
 `SqlTranslationTests` compense une autre limite d'InMemory : il évalue le LINQ en mémoire et accepte des requêtes que PostgreSQL ne sait pas traduire (elles donnent un 500 en production, par exemple un `OrderBy` placé après un `Select` qui contient un `Count`). Ce test construit les requêtes des routes admin critiques (catégories, articles, commandes) avec le fournisseur Npgsql et une chaîne factice, puis appelle `ToQueryString()` : la requête est compilée en SQL sans connexion. Il prouve que la requête est traduisible, pas qu'elle s'exécute correctement sur une vraie base. Règle : filtrer et trier avant de projeter.

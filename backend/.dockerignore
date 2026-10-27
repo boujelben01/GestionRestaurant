@@ -1,0 +1,28 @@
+# Contexte de build Docker = dossier backend. Seul src/Resto.Api est utile à l'image.
+**/bin/
+**/obj/
+**/publish/
+**/TestResults/
+**/scratchpad/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/.omc/
+.git
+.gitignore
+.dockerignore
+Dockerfile
+tests/
+**/*.md
+**/*.http
+**/*.user
+**/*.log
+
+# Secrets et configuration locale : jamais dans l'image.
+**/.env
+**/.env.*
+**/secrets.json
+**/appsettings.*.local.json
+**/appsettings.Development.json
+**/*.pfx
+**/*.key

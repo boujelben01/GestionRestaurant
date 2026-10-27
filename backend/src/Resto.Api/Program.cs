@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -21,8 +22,19 @@ using Resto.Api.Features.Tables;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("Default")
-    ?? throw new InvalidOperationException("La chaîne de connexion 'ConnectionStrings:Default' est manquante.");
+// Seul le NOM du réglage est cité, jamais sa valeur.
+var connectionString = builder.Configuration.GetConnectionString("Default");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "Réglage obligatoire manquant : ConnectionStrings:Default (variable d'environnement ConnectionStrings__Default).");
+}
+
+// Render (et l'image Docker) donnent le port d'écoute dans PORT ; sans PORT, rien ne change (launchSettings en local).
+if (int.TryParse(builder.Configuration["PORT"], out var port))
+{
+    builder.WebHost.UseUrls($"http://+:{port}");
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString, npgsql => npgsql.EnableRetryOnFailure()));
@@ -54,12 +66,28 @@ builder.Services.AddScoped<StatistiquesService>();
 builder.Services.AddScoped<FavoriService>();
 builder.Services.AddScoped<AdresseService>();
 
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:5173"];
+// Cors:AllowedOrigins : liste séparée par des virgules (variable Cors__AllowedOrigins) ou tableau (user-secrets).
+// Sans réglage : origine locale en Development, aucune ailleurs (jamais AllowAnyOrigin, « * » est ignoré).
+var corsSection = builder.Configuration.GetSection("Cors:AllowedOrigins");
+var allowedOrigins = (corsSection.Value?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        ?? corsSection.Get<string[]>()
+        ?? (builder.Environment.IsDevelopment() ? ["http://localhost:5173"] : []))
+    .Select(origin => origin.TrimEnd('/'))
+    .Where(origin => origin is not ("" or "*"))
+    .ToArray();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins(allowedOrigins)
     .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
     .WithHeaders("Authorization", "Content-Type", "Accept")));
+
+// Derrière le proxy de Render (TLS terminé par lui) : schéma et IP client lus dans X-Forwarded-Proto / X-Forwarded-For.
+// Les IP du proxy ne sont pas connues à l'avance ; ForwardLimit = 1 ne retient que l'entrée ajoutée par le proxy.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -88,6 +116,15 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+// Les migrations ne s'appliquent QUE par cette commande, jamais au démarrage.
+if (MigrateCommand.IsRequested(args))
+{
+    using var migrateScope = app.Services.CreateScope();
+    Environment.ExitCode = await MigrateCommand.RunAsync(
+        args, migrateScope.ServiceProvider.GetRequiredService<AppDbContext>(), Console.Out);
+    return;
+}
 
 if (CatalogueCommand.IsRequested(args))
 {
@@ -123,12 +160,17 @@ if (app.Environment.IsDevelopment() || seedRequested)
     }
 }
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseForwardedHeaders();
+}
+
 app.UseExceptionHandler();
 
+// Pas de UseHttpsRedirection : le proxy (Render) force déjà HTTPS ; une redirection interne bouclerait.
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
-    app.UseHttpsRedirection();
 }
 
 app.Use(async (context, next) =>
@@ -154,6 +196,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+// Aucun contrôle enregistré : /health répond 200 sans interroger la base (réveil et health check de Render).
 app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();
