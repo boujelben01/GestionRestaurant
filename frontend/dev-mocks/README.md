@@ -142,6 +142,8 @@ Le menu vient du fichier unique `backend/src/Resto.Api/Data/catalogue.json`, le 
 l'ordre du fichier (à partir de 1), `estActive`/`estActif` à `true`, `imageUrl` = `image`. Ajouter ou
 modifier un plat dans ce fichier suffit ; redémarrer le mock. Aucune donnée du mock (statistiques de
 démo, commandes de démo, favoris) ne dépend d'un id d'article précis.
+Une catégorie du fichier sans article (cas actuel de la plupart) existe côté admin
+(`/api/admin/categories`) mais n'apparaît pas dans `GET /api/menu`.
 `fixtures/restaurant.json` : dimanche fermé, samedi jusqu'à 02:00 (« après minuit »), frais de
 livraison 3 DT, minimum de livraison 20 DT. `commandesOuvertes` y est la valeur initiale ;
 ensuite la source de vérité est le réglage en mémoire.

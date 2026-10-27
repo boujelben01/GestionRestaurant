@@ -6,6 +6,7 @@ using Resto.Api.Features.Menu.Contracts;
 
 namespace Resto.Api.Features.Menu;
 
+// Une catégorie sans article actif (par exemple une catégorie du catalogue encore vide) n'est pas publiée.
 public class MenuService(AppDbContext db)
 {
     public const int MaxPageSize = 50;
@@ -13,7 +14,7 @@ public class MenuService(AppDbContext db)
     public async Task<IReadOnlyList<MenuCategorieResponse>> GetMenuAsync(string lang, CancellationToken ct)
     {
         var categories = await db.Categories.AsNoTracking()
-            .Where(c => c.EstActive)
+            .Where(c => c.EstActive && c.Articles.Any(a => a.EstActif))
             .OrderBy(c => c.Ordre).ThenBy(c => c.Id)
             .Include(c => c.Articles.Where(a => a.EstActif).OrderBy(a => a.Ordre).ThenBy(a => a.Id))
             .ToListAsync(ct);
@@ -30,7 +31,7 @@ public class MenuService(AppDbContext db)
     public async Task<IReadOnlyList<CategorieResponse>> GetCategoriesAsync(string lang, CancellationToken ct)
     {
         var categories = await db.Categories.AsNoTracking()
-            .Where(c => c.EstActive)
+            .Where(c => c.EstActive && c.Articles.Any(a => a.EstActif))
             .OrderBy(c => c.Ordre).ThenBy(c => c.Id)
             .ToListAsync(ct);
 

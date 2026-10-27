@@ -295,6 +295,8 @@ function menuFor(lang) {
           ordre: a.ordre,
         })),
     }))
+    // Comme le vrai back-end : une catégorie sans article actif n'est pas publiée.
+    .filter((category) => category.articles.length > 0)
 }
 
 /** Heure de Tunis : calcule ouvertMaintenant comme le vrai back-end (fermeture après minuit incluse). */

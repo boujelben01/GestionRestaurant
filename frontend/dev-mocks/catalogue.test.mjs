@@ -24,14 +24,18 @@ describe('backend/src/Resto.Api/Data/catalogue.json', () => {
     expect(unique(categories.map((c) => c.ordre))).toBe(true)
   })
 
-  it('a des articles ordonnés de façon consécutive à partir de 1 dans chaque catégorie', () => {
+  it('a des articles ordonnés de façon consécutive à partir de 1 dans chaque catégorie (une catégorie vide est valide)', () => {
     for (const c of categories) {
-      expect(c.articles.length, c.nomFr).toBeGreaterThan(0)
+      expect(Array.isArray(c.articles), c.nomFr).toBe(true)
       expect(
         c.articles.map((a) => a.ordre),
         c.nomFr,
       ).toEqual(seq(c.articles.length))
     }
+  })
+
+  it('contient au moins un article au total', () => {
+    expect(articles.length).toBeGreaterThan(0)
   })
 
   it('a des noms uniques par catégorie, des prix >= 0 à 2 décimales et des textes FR/AR non vides', () => {

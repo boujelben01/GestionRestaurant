@@ -1,7 +1,39 @@
 {
   "categories": [
     {
-      "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 1,
+      "nomFr": "Pizza", "nomAr": "بيتزا", "ordre": 1,
+      "articles": []
+    },
+    {
+      "nomFr": "Plats", "nomAr": "أطباق", "ordre": 2,
+      "articles": []
+    },
+    {
+      "nomFr": "Sandwich", "nomAr": "ساندويتش", "ordre": 3,
+      "articles": []
+    },
+    {
+      "nomFr": "Makloub", "nomAr": "مقلوب", "ordre": 4,
+      "articles": []
+    },
+    {
+      "nomFr": "Baguettes farcies", "nomAr": "باغيت محشي", "ordre": 5,
+      "articles": []
+    },
+    {
+      "nomFr": "Tabouna", "nomAr": "طابونة", "ordre": 6,
+      "articles": []
+    },
+    {
+      "nomFr": "Cornet", "nomAr": "كورني", "ordre": 7,
+      "articles": []
+    },
+    {
+      "nomFr": "Lablabi", "nomAr": "لبلابي", "ordre": 8,
+      "articles": []
+    },
+    {
+      "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 9,
       "articles": [
         {"ordre": 1, "nomFr": "Jus d'orange pressé", "nomAr": "عصير برتقال", "descriptionFr": "Oranges pressées au moment de servir, un jus frais et naturel.", "descriptionAr": "برتقال معصور في الحين، عصير طازج وبارد.", "prix": 5, "populaire": true, "disponible": true, "image": "/images/menu/jus-orange-presse.webp"},
         {"ordre": 2, "nomFr": "Citronnade", "nomAr": "ليمونادة", "descriptionFr": "Citrons pressés, eau fraîche et sucre pour une boisson désaltérante.", "descriptionAr": "ليمون معصور مع الماء البارد والسكر، منعش.", "prix": 4, "populaire": false, "disponible": true, "image": "/images/menu/citronnade.webp"},

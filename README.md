@@ -63,8 +63,8 @@ Routes publiques (anonymes, GET). `lang=fr|ar` (défaut `fr`, repli sur le fran�
 
 | Méthode | Route | Rôle |
 | --- | --- | --- |
-| GET | `/api/menu` | Catégories actives avec leurs articles actifs |
-| GET | `/api/menu/categories` | Catégories actives |
+| GET | `/api/menu` | Catégories actives ayant au moins un article actif, avec leurs articles actifs |
+| GET | `/api/menu/categories` | Catégories actives ayant au moins un article actif |
 | GET | `/api/menu/articles` | Articles paginés (`categorieId`, `populaire`, `recherche`, `page`, `pageSize` ≤ 50) |
 | GET | `/api/menu/articles/{id}` | Détail d'un article |
 | GET | `/api/restaurant` | Paramètres, horaires des 7 jours, `ouvertMaintenant` (fuseau Africa/Tunis) |
@@ -254,7 +254,7 @@ Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est tou
 
 Un seul fichier décrit la carte : `backend/src/Resto.Api/Data/catalogue.json` (copié dans le dossier de sortie du build). Il alimente la base via la commande `--seed-catalog` et le faux serveur du front (`frontend/dev-mocks/server.mjs`). Il n'existe plus d'autre liste de plats (ni dans `DbSeeder`, ni dans `docs/`, ni dans les fixtures du mock).
 
-Structure : `{ "categories": [ { nomFr, nomAr, ordre, articles: [ { ordre, nomFr, nomAr, descriptionFr, descriptionAr, prix, populaire, disponible, image } ] } ] }`. Prix en DT à 2 décimales au plus, `image` = chemin `/images/...` ou URL https (règles d'`ImageUrlRules`) ou `null` (l'interface affiche alors `/images/default.svg`). Pour l'instant le fichier ne contient que la catégorie « Boissons » (5 articles) ; les autres catégories seront ajoutées plus tard.
+Structure : `{ "categories": [ { nomFr, nomAr, ordre, articles: [ { ordre, nomFr, nomAr, descriptionFr, descriptionAr, prix, populaire, disponible, image } ] } ] }`. Prix en DT à 2 décimales au plus, `image` = chemin `/images/...` ou URL https (règles d'`ImageUrlRules`) ou `null` (l'interface affiche alors `/images/default.svg`). Pour l'instant le fichier contient 9 catégories (Pizza, Plats, Sandwich, Makloub, Baguettes farcies, Tabouna, Cornet, Lablabi, Boissons) dont seule « Boissons » a des articles (5). Une catégorie sans article est valide : elle est créée ou mise à jour, mais le menu public ne la publie pas tant qu'elle n'a pas d'article actif. Les noms FR doivent correspondre exactement à ceux de la base (la commande retrouve une catégorie par `NomFr`).
 
 Procédure : modifier le fichier, puis **toujours simuler avant d'appliquer**.
 

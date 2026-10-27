@@ -96,6 +96,46 @@ public class CatalogueTests
         Assert.Contains(CatalogueValidator.Validate(twice), e => e.Contains("en double"));
     }
 
+    private const string WithEmptyCategory = """
+        { "categories": [
+          { "nomFr": "Pizza", "nomAr": "بيتزا", "ordre": 1, "articles": [] },
+          { "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 2, "articles": [
+            { "ordre": 1, "nomFr": "Eau", "nomAr": "ماء", "prix": 1.5, "populaire": false, "disponible": true, "image": null } ] } ] }
+        """;
+
+    [Fact]
+    public void Validate_accepts_a_category_without_articles_but_not_a_missing_list()
+    {
+        Assert.Empty(CatalogueValidator.Validate(Parse(WithEmptyCategory)));
+
+        var missingList = Parse("""{ "categories": [ { "nomFr": "A", "nomAr": "أ", "ordre": 1 } ] }""");
+        Assert.Contains(CatalogueValidator.Validate(missingList), e => e.Contains("articles"));
+    }
+
+    [Fact]
+    public async Task Empty_category_is_planned_created_updated_and_idempotent_without_articles()
+    {
+        await using var db = NewDb();
+
+        var simulation = await CatalogueSync.PlanAsync(db, Parse(WithEmptyCategory), deactivateMissing: false);
+        Assert.Contains(simulation.Changes, c => c is { Entity: "Catégorie", Type: ChangeType.Create, Name: "Pizza" });
+        Assert.Equal(0, await db.Categories.CountAsync());
+
+        await CatalogueSync.ApplyAsync(db, Parse(WithEmptyCategory), false);
+        var pizza = await db.Categories.Include(c => c.Articles).SingleAsync(c => c.NomFr == "Pizza");
+        Assert.Empty(pizza.Articles);
+
+        var renamed = Parse(WithEmptyCategory.Replace("بيتزا", "بيتزا جديدة").Replace("\"ordre\": 1, \"articles\": []", "\"ordre\": 7, \"articles\": []"));
+        var update = await CatalogueSync.ApplyAsync(db, renamed, false);
+        Assert.Contains(update.Changes, c => c is { Entity: "Catégorie", Type: ChangeType.Update, Name: "Pizza" });
+        db.ChangeTracker.Clear();
+        Assert.Equal(7, (await db.Categories.SingleAsync(c => c.NomFr == "Pizza")).Ordre);
+
+        var again = await CatalogueSync.ApplyAsync(db, renamed, false);
+        Assert.Equal(0, again.Count(ChangeType.Create) + again.Count(ChangeType.Update));
+        Assert.Equal(2, await db.Categories.CountAsync());
+    }
+
     [Fact]
     public async Task Plan_on_an_empty_database_creates_everything_and_writes_nothing()
     {
