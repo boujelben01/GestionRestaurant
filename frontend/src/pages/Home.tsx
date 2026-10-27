@@ -249,7 +249,7 @@ export default function Home() {
   const { t } = useTranslation()
   return (
     <>
-      <Seo title={t('seo.homeTitle')} description={t('seo.homeDescription')} />
+      <Seo description={t('seo.homeDescription')} />
       <Hero />
       <FavoritesSection />
       <PopularSection />

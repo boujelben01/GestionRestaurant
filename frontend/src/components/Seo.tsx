@@ -24,7 +24,7 @@ export function Seo({
 }: SeoProps) {
   const { t } = useTranslation()
   const brand = t('brand.name')
-  const fullTitle = title ? `${title} · ${brand}` : `${brand} · ${t('brand.tagline')}`
+  const fullTitle = title ? `${title} · ${brand}` : brand
   const text = description ?? t('brand.description')
   const imageUrl = image.startsWith('http') ? image : `${window.location.origin}${image}`
 

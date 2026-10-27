@@ -7,6 +7,10 @@ Les clients commandent sur place, à emporter ou en livraison, et paient à la r
 Le site est pensé pour la carte réelle du restaurant : pizzas, plats, sandwichs, makloub, baguettes farcies,
 tabouna, cornets, lablabi et boissons.
 
+**Voir le site en ligne : <https://el-resto.onrender.com/>**
+
+> Le site est hébergé sur l'offre gratuite de Render : après un moment d'inactivité, la première visite peut mettre jusqu'à une minute à répondre.
+
 ## Ce que l'application permet
 
 ### Pour les clients
@@ -50,7 +54,7 @@ tabouna, cornets, lablabi et boissons.
 | --- | --- |
 | Site | React, TypeScript, Tailwind CSS |
 | API | ASP.NET Core 8, PostgreSQL |
-| Hébergement | prévu sur Render et Neon |
+| Hébergement | Render (site et API) et Neon (base de données) |
 
 ## Points forts du projet
 
@@ -71,9 +75,5 @@ cd backend/src/Resto.Api; dotnet run                           # API sur http://
 cd frontend; npm install; npm run dev                          # site sur http://localhost:5173
 ```
 
-## Crédits
-
-- Photos des plats : Unsplash (licence Unsplash), sauf une photo fournie par le propriétaire du projet dont la source reste à confirmer ; auteurs et sources dans [docs/images-credits.md](docs/images-credits.md).
-- Polices : Fraunces et Inter, auto-hébergées via Fontsource.
 
 
