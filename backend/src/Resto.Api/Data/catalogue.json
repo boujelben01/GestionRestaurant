@@ -23,8 +23,16 @@
       ]
     },
     {
-      "nomFr": "Sandwich", "nomAr": "ساندويتش", "ordre": 3,
-      "articles": []
+      "nomFr": "Sandwich", "nomAr": "ساندويتشات", "ordre": 3,
+      "articles": [
+        {"ordre": 1, "nomFr": "Sandwich œuf", "nomAr": "ساندويتش عظمة", "descriptionFr": "Sandwich à l'œuf dans un pain frais, préparé à la commande.", "descriptionAr": "ساندويتش بيض في خبز طازج، يتحضّر في الحين.", "prix": 3.5, "populaire": false, "disponible": true, "image": "/images/menu/sandwich-oeuf.webp"},
+        {"ordre": 2, "nomFr": "Sandwich Kwika", "nomAr": "ساندويتش كويكة", "descriptionFr": "Sandwich Kwika dans un pain frais, préparé à la commande.", "descriptionAr": "ساندويتش كويكة في خبز طازج، يتحضّر في الحين.", "prix": 4.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Sandwich thon", "nomAr": "ساندويتش تون", "descriptionFr": "Thon, salade, olives, œuf et harissa dans un pain frais.", "descriptionAr": "تون وسلاطة وزيتون وبيض وهريسة في خبز طازج.", "prix": 5, "populaire": false, "disponible": true, "image": "/images/menu/sandwich-thon.webp"},
+        {"ordre": 4, "nomFr": "Sandwich œuf + Kwika", "nomAr": "ساندويتش عظمة وكويكة", "descriptionFr": "Sandwich à l'œuf et à la Kwika dans un pain frais, préparé à la commande.", "descriptionAr": "ساندويتش بيض وكويكة في خبز طازج، يتحضّر في الحين.", "prix": 5.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Sandwich merguez", "nomAr": "ساندويتش مرقاز", "descriptionFr": "Merguez grillée, salade et harissa dans un pain frais.", "descriptionAr": "مرقاز مشوي وسلاطة وهريسة في خبز طازج.", "prix": 7, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 6, "nomFr": "Sandwich escalope", "nomAr": "ساندويتش إسكالوب", "descriptionFr": "Escalope de poulet panée, salade et sauce dans un pain frais.", "descriptionAr": "إسكالوب دجاج بانيه وسلاطة وصلصة في خبز طازج.", "prix": 8, "populaire": false, "disponible": true, "image": "/images/menu/sandwich-escalope.webp"},
+        {"ordre": 7, "nomFr": "Sandwich chawarma", "nomAr": "ساندويتش شاورما", "descriptionFr": "Chawarma de poulet, salade, frites et sauce dans un pain frais.", "descriptionAr": "شاورما دجاج وسلاطة وبطاطا مقلية وصلصة في خبز طازج.", "prix": 8.5, "populaire": true, "disponible": true, "image": "/images/menu/sandwich-chawarma.webp"}
+      ]
     },
     {
       "nomFr": "Makloub", "nomAr": "مقلوب", "ordre": 4,

@@ -26,6 +26,10 @@ Photos téléchargées via l'API officielle d'Unsplash (site : unsplash.com), co
 | frontend/public/images/menu/kebab.webp | Kebab | Augustus Caesar | https://unsplash.com/photos/a-white-plate-topped-with-meat-and-veggies-aFRaO77UP08 | Unsplash | Unsplash License |
 | frontend/public/images/menu/ojja-merguez.webp | Ojja merguez | Roman Shalkevic | https://unsplash.com/photos/egg-on-black-ceramic-plate-UDRZtw_F_Nc | Unsplash | Unsplash License |
 | frontend/public/images/menu/sahn-tounsi.webp | Sahn tounsi (275×234 px, non recadrée) | Fournie par le propriétaire du projet, auteur et licence inconnus : à confirmer | non renseignée | non renseigné | à confirmer avant mise en production |
+| frontend/public/images/menu/sandwich-oeuf.webp | Sandwich œuf | ubeyonroad | https://unsplash.com/photos/sandwich-with-egg-and-avocado-on-a-plate-WIqGAgAn11k | Unsplash | Unsplash License |
+| frontend/public/images/menu/sandwich-thon.webp | Sandwich thon | Anthony Espinosa | https://unsplash.com/photos/a-white-plate-topped-with-a-sandwich-on-top-of-a-table-REZfdxxn8bY | Unsplash | Unsplash License |
+| frontend/public/images/menu/sandwich-escalope.webp | Sandwich escalope | Abdul Raheem Kannath | https://unsplash.com/photos/a-delicious-sandwich-cut-in-half-on-a-plate-v1Tk9mLgq4E | Unsplash | Unsplash License |
+| frontend/public/images/menu/sandwich-chawarma.webp | Sandwich chawarma | Orkun Orcan | https://unsplash.com/photos/a-burrito-with-a-side-of-pickles-and-a-small-bowl-of-ranch-dressing-C7ESFm-638Q | Unsplash | Unsplash License |
 | frontend/public/images/menu/spaghetti-bolognaise.webp | Spaghetti bolognaise | Homescreenify | https://unsplash.com/photos/spaghetti-on-white-ceramic-plate-sA3wymYqyaI | Unsplash | Unsplash License |
 | frontend/public/images/menu/lasagnes.webp | Lasagnes | Emanuel Ekström | https://unsplash.com/photos/a-white-plate-topped-with-lasagna-covered-in-sauce-flEUTTwGlJQ | Unsplash | Unsplash License |
 | frontend/public/images/menu/brownie.webp | Brownie glacé | Aveedibya Dey | https://unsplash.com/photos/a-piece-of-chocolate-cake-with-a-couple-of-scoops-of-ice-cream-on-top-Zd_5jkP1x8c | Unsplash | Unsplash License |
