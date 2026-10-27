@@ -76,7 +76,13 @@
     },
     {
       "nomFr": "Lablabi", "nomAr": "لبلابي", "ordre": 8,
-      "articles": []
+      "articles": [
+        {"ordre": 1, "nomFr": "Lablabi classique", "nomAr": "لبلابي", "descriptionFr": "Soupe de pois chiches à l'ail, cumin et harissa, servie sur du pain sec avec de l'huile d'olive.", "descriptionAr": "شوربة حمص بالثوم والكمون والهريسة، على خبز يابس وزيت الزيتون.", "prix": 5, "populaire": true, "disponible": true, "image": "/images/menu/lablabi-classique.webp"},
+        {"ordre": 2, "nomFr": "Lablabi œuf", "nomAr": "لبلابي بالعظمة", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec un œuf.", "descriptionAr": "لبلابي بالحمص والثوم والكمون والهريسة، مع العظمة.", "prix": 5.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Lablabi thon", "nomAr": "لبلابي بالتون", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec du thon.", "descriptionAr": "لبلابي بالحمص والثوم والكمون والهريسة، مع التون.", "prix": 6.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Lablabi thon-œuf", "nomAr": "لبلابي بالتون والعظمة", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec du thon et un œuf.", "descriptionAr": "لبلابي بالحمص والثوم والكمون والهريسة، مع التون والعظمة.", "prix": 7.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Lablabi hargma", "nomAr": "لبلابي بالهرقمة", "descriptionFr": "Lablabi servi avec de la hargma : pieds d'agneau mijotés dans une sauce épicée.", "descriptionAr": "لبلابي مع الهرقمة: كرعين علوش مطيّبين في صلصة حارة.", "prix": 12, "populaire": false, "disponible": true, "image": null}
+      ]
     },
     {
       "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 9,
