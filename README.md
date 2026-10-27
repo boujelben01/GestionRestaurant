@@ -1,397 +1,83 @@
 # El Resto
 
-Application de gestion de restaurant : API ASP.NET Core 8 (`backend/`), PostgreSQL, frontend à venir (`frontend/`).
+**Commander en ligne et faire tourner la salle, depuis le même site.**
 
-## Prérequis
+El Resto est un site de commande en ligne doublé d'un outil de gestion, conçu pour un restaurant tunisien.
+Les clients commandent sur place, à emporter ou en livraison, et paient à la réception.
+Le site est pensé pour la carte réelle du restaurant : pizzas, plats, sandwichs, makloub, baguettes farcies,
+tabouna, cornets, lablabi et boissons.
 
-- SDK .NET 8
-- Outil EF Core : `dotnet tool install --global dotnet-ef --version 8.*`
-- Une base PostgreSQL accessible (par exemple Neon)
+## Ce que l'application permet
 
-## Configuration
+### Pour les clients
 
-Les valeurs se stockent dans les user-secrets du projet (`UserSecretsId` déjà défini dans `Resto.Api.csproj`) ou dans des variables d'environnement. Ne jamais les committer.
+- Parcourir la carte par catégories et voir d'un coup d'œil les plats populaires ou épuisés.
+- Retrouver un plat en tapant son nom dans la recherche.
+- Mettre ses plats préférés en favoris pour les retrouver en un clic.
+- Composer son panier et voir le total avant de valider.
+- Commander sur place en scannant le QR code de sa table, sans attendre le serveur.
+- Commander à emporter ou en livraison, avec les frais et le minimum de livraison affichés.
+- Enregistrer ses adresses de livraison et choisir l'adresse par défaut.
+- Suivre l'avancement de sa commande, mis à jour automatiquement.
+- Annuler sa commande tant que la cuisine ne l'a pas prise en charge.
+- Retrouver l'historique de ses commandes et recommander la même chose en un clic.
+- Gérer son profil et changer son mot de passe.
 
-| Clé | Rôle |
+### Pour le restaurant
+
+- Voir les nouvelles commandes arriver en direct, avec une alerte sonore.
+- Faire avancer chaque commande : en attente, en préparation, prête, terminée (ou annulée).
+- Repérer les commandes en retard, signalées en rouge.
+- Gérer la carte : catégories, articles, prix, photos, disponibilité et ordre d'affichage.
+- Régler les horaires d'ouverture et ouvrir ou fermer la prise de commandes d'un clic.
+- Gérer les tables et imprimer leurs QR codes.
+- Suivre la salle : tables libres, occupées ou à encaisser, encaisser et libérer une table.
+- Consulter un tableau de bord des ventes : chiffre d'affaires, panier moyen, plats les plus vendus, heures de pointe.
+- Gérer les comptes clients : rechercher, activer ou désactiver un compte.
+
+## Comment ça se passe
+
+1. Le client s'installe, scanne le QR code posé sur sa table et arrive sur la carte.
+2. Il choisit ses plats, vérifie son panier et valide sa commande (il se connecte à son compte s'il ne l'est pas déjà).
+3. En cuisine, l'écran des commandes sonne : l'équipe passe la commande « en préparation », puis « prête ».
+4. Le client voit l'avancement sur son téléphone.
+5. Le serveur encaisse la table depuis le plan de salle, puis la libère pour les clients suivants.
+
+<!-- captures d'écran à ajouter dans docs/screenshots/ -->
+
+## Technologies
+
+| Partie | Outils |
 | --- | --- |
-| `ConnectionStrings:Default` | Chaîne de connexion PostgreSQL (obligatoire, l'API refuse de démarrer sans elle) |
-| `Jwt:SecretKey` | Clé de signature HS256, 32 caractères minimum (l'API refuse de démarrer sinon) |
-| `Jwt:Issuer`, `Jwt:Audience` | Non secrets, dans `appsettings.json` |
-| `Jwt:AccessTokenMinutes` | Durée de vie du jeton (60 par défaut) |
-| `Cors:AllowedOrigins` | Origines autorisées : liste séparée par des virgules (variable `Cors__AllowedOrigins`) ou tableau. Sans réglage : `http://localhost:5173` en Development, **aucune** ailleurs ; `*` est ignoré |
-| `PORT` | Port d'écoute HTTP (fourni par Render, 10000 dans l'image Docker). Absent en local : `launchSettings.json` s'applique |
-| `Seed:AdminPassword` | Mot de passe du compte `admin` créé par le seed (sans lui, l'admin n'est pas créé) |
-| `Seed:DemoPassword` | Mot de passe commun des comptes de démonstration créés par `--seed-demo` (sans lui, la commande refuse de tourner ; variable `Seed__DemoPassword` hors user-secrets) |
+| Site | React, TypeScript, Tailwind CSS |
+| API | ASP.NET Core 8, PostgreSQL |
+| Hébergement | prévu sur Render et Neon |
+
+## Points forts du projet
+
+- **Des montants fiables** : sous-total, frais et total sont recalculés par le serveur à partir des prix enregistrés ; le navigateur n'envoie jamais de prix.
+- **Pas de commande en double** : un double clic ou deux envois simultanés ne créent qu'une seule commande.
+- **Un QR code par table** : généré directement dans le navigateur, imprimable, et remplaçable si un QR doit être invalidé.
+- **Un tableau de bord juste et accessible** : les ventes sont comptées à l'heure de Tunis (une commande tardive tombe dans le bon jour) ; chaque graphique a un résumé et un tableau équivalent pour les lecteurs d'écran, se parcourt au clavier, et les variations ne reposent jamais sur la couleur seule.
+- **Comptes et rôles** : client ou administrateur ; un compte désactivé perd l'accès immédiatement, et la connexion est bloquée 10 minutes après 5 mots de passe erronés.
+- **Testé automatiquement** : 517 tests côté serveur, tous réussis ; 430 tests côté site, dont 424 réussis et 6 en cours de correction (favoris, adresses et une vérification du tableau de bord).
+## Essayer le projet
+
+Prérequis : .NET 8, Node.js et une base PostgreSQL (chaîne de connexion et mot de passe administrateur à régler d'abord).
 
 ```powershell
-cd backend/src/Resto.Api
-dotnet user-secrets set "ConnectionStrings:Default" "<chaine-de-connexion>"
-dotnet user-secrets set "Seed:AdminPassword" "<mot-de-passe>"
+cd backend/src/Resto.Api; dotnet ef database update          # crée les tables
+cd backend/src/Resto.Api; dotnet run -- --seed-catalog --apply # charge la carte
+cd backend/src/Resto.Api; dotnet run                           # API sur http://localhost:5118
+cd frontend; npm install; npm run dev                          # site sur http://localhost:5173
 ```
 
-## Base de données et lancement
+Chaque commande part de la racine du dépôt. Les comptes de démonstration sont créés par une commande dédiée, avec un mot de passe défini dans une variable de configuration (jamais écrit dans le dépôt).
+Tout le détail (configuration, démonstration, tests, déploiement) : [docs/TECHNIQUE.md](docs/TECHNIQUE.md).
 
-```powershell
-cd backend
-dotnet ef database update -p src/Resto.Api -s src/Resto.Api
-cd src/Resto.Api
-dotnet run
-```
+## Crédits
 
-- API : http://localhost:5118 (Swagger sur `/swagger`, santé sur `/health`).
-- En Development, le seed (rôles, admin, paramètres, horaires, tables) s'exécute au démarrage ; les données ne sont insérées que si les tables sont vides. Il ne touche pas au catalogue (voir « Catalogue » plus bas).
-- Hors Development, le seed ne tourne que sur demande : `dotnet run -- --seed` (il s'arrête ensuite).
-- Aucune migration n'est appliquée automatiquement. `dotnet run -- --migrate` applique les migrations en attente sur la base de `ConnectionStrings:Default`, affiche leur nombre et s'arrête (code 0 succès, 1 échec, 2 option inconnue) ; testé par `MigrateTests`.
-- Hors Development : pas de Swagger, en-têtes `X-Forwarded-For` / `X-Forwarded-Proto` pris en compte (proxy de Render), HSTS mais pas de redirection HTTPS interne (le proxy s'en charge).
+- Photos des plats : Unsplash (licence Unsplash), sauf une photo fournie par le propriétaire du projet dont la source reste à confirmer ; auteurs et sources dans [docs/images-credits.md](docs/images-credits.md).
+- Polices : Fraunces et Inter, auto-hébergées via Fontsource.
 
-## Authentification
-
-Toutes les routes exigent un jeton `Authorization: Bearer <jwt>`, sauf `register`, `login` et `/health`. Exemples dans `backend/src/Resto.Api/Resto.Api.http`.
-
-| Méthode | Route | Accès | Rôle |
-| --- | --- | --- | --- |
-| POST | `/api/auth/register` | Anonyme (10 req/min/IP) | Crée un compte Client, renvoie 201 |
-| POST | `/api/auth/login` | Anonyme (10 req/min/IP) | Renvoie jeton, expiration et profil ; verrouillage 10 min après 5 échecs |
-| GET | `/api/auth/me` | Authentifié | Profil du jeton |
-| PUT | `/api/auth/me` | Authentifié | Modifie nom, téléphone, langue |
-| POST | `/api/auth/me/password` | Authentifié | Change le mot de passe (ancien + nouveau) |
-| GET | `/api/admin/users` | Admin | Liste paginée (`page`, `pageSize` ≤ 50, `search`) |
-| PATCH | `/api/admin/users/{id}/actif` | Admin | Active ou désactive un compte (jamais le sien) |
-
-Un compte désactivé est refusé à chaque requête, même avec un jeton encore valide. Les erreurs suivent RFC 7807 (`application/problem+json`).
-
-## Menu et restaurant
-
-Routes publiques (anonymes, GET). `lang=fr|ar` (défaut `fr`, repli sur le français si la traduction est vide). Le menu est servi avec `Cache-Control: public, max-age=60` : une modification admin peut mettre jusqu'à 60 s à apparaître.
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET | `/api/menu` | Catégories actives ayant au moins un article actif, avec leurs articles actifs |
-| GET | `/api/menu/categories` | Catégories actives ayant au moins un article actif |
-| GET | `/api/menu/articles` | Articles paginés (`categorieId`, `populaire`, `recherche`, `page`, `pageSize` ≤ 50) |
-| GET | `/api/menu/articles/{id}` | Détail d'un article |
-| GET | `/api/restaurant` | Paramètres, horaires des 7 jours, `ouvertMaintenant` (fuseau Africa/Tunis) |
-
-Un article indisponible reste visible (`disponible: false`). Un article inactif, ou dont la catégorie est inactive, n'est jamais renvoyé.
-
-Administration (rôle Admin). Il n'y a aucune route DELETE : « supprimer » = désactiver.
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET, POST | `/api/admin/categories` | Liste complète (inactives incluses), création |
-| GET, PUT | `/api/admin/categories/{id}` | Détail, modification |
-| PATCH | `/api/admin/categories/{id}/active` | Active/désactive (409 si articles actifs) |
-| PUT | `/api/admin/categories/ordre` | Réordonne : `{ "ids": [..] }` dans le nouvel ordre |
-| GET, POST | `/api/admin/articles` | Liste paginée (`categorieId`, `actif`, `disponible`, `recherche`), création |
-| GET, PUT | `/api/admin/articles/{id}` | Détail, modification |
-| PATCH | `/api/admin/articles/{id}/disponible` | Disponible ou non |
-| PATCH | `/api/admin/articles/{id}/actif` | Active/désactive |
-| PUT | `/api/admin/articles/ordre` | Réordonne (articles d'une même catégorie) |
-| PUT | `/api/admin/restaurant` | Paramètres (frais, minimum, téléphone, e-mail, adresse) |
-| PUT | `/api/admin/restaurant/horaires` | Remplace les 7 horaires (`HH:mm`, `jourSemaine` 0 = dimanche à 6 = samedi) |
-| PATCH | `/api/admin/restaurant/commandes-ouvertes` | Ouvre ou ferme la prise de commandes |
-
-`ImageUrl` : chemin relatif `/images/<nom>` (lettres, chiffres, `.`, `_`, `-`) ou URL `https`. Une fermeture antérieure à l'ouverture signifie une fermeture après minuit.
-
-## Panier et commandes
-
-Toutes ces routes exigent un compte connecté. **Décision assumée : les invités anonymes ne peuvent pas commander** (la FallbackPolicy exige un jeton) ; un client sur place doit créer un compte, puis scanner le QR de sa table. L'identité vient toujours du jeton : aucun `userId` ni `panierId` n'est lu dans les requêtes.
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET | `/api/panier?lang=` | Panier (créé à la volée) : lignes, prix courants, sous-total, `avertissement` par ligne (`inactif`, `indisponible`) |
-| POST | `/api/panier/items` | `{articleId, quantite}` : ajoute et cumule (plafond 20) |
-| PUT | `/api/panier/items/{articleId}` | `{quantite}` (1 à 20) : fixe la quantité |
-| DELETE | `/api/panier/items/{articleId}` | Retire la ligne (idempotent) |
-| DELETE | `/api/panier` | Vide le panier (idempotent) |
-| POST | `/api/commandes` | `{typeCommande, telephone, note?, adresseLivraison?, tableCode?}` : crée la commande depuis le panier |
-| GET | `/api/commandes` | Mes commandes, paginées (`page`, `pageSize` ≤ 50), plus récentes d'abord |
-| GET | `/api/commandes/{id}` | Détail avec lignes et historique (404 si la commande d'un autre) |
-| POST | `/api/commandes/{id}/annuler` | Annule une commande `EnAttente` (409 sinon) |
-| GET | `/api/tables/{code}` | Anonyme : `{numero}` d'une table active, sinon 404 |
-
-Les énumérations (`typeCommande`, `statut`...) s'échangent en chaînes : `SurPlace`, `ARemporter`, `Livraison` ; `EnAttente`, `EnPreparation`, `Prete`, `Terminee`, `Annulee`.
-
-Règles métier de `POST /api/commandes` :
-
-- Refus (409) si `CommandesOuvertes` est faux ou si le restaurant est fermé (horaires, fuseau Africa/Tunis).
-- Panier vide : 400. Article devenu inactif ou indisponible : 409 avec la liste des articles, le panier reste intact.
-- `Livraison` : adresse de 10 à 500 caractères, sous-total ≥ montant minimum (sinon 400), frais = paramètre du restaurant. Les autres types : frais = 0.
-- `SurPlace` : `tableCode` (Guid du QR) d'une table active obligatoire. `ARemporter` : ni adresse ni table. Un champ non applicable au type est refusé (400).
-- Sous-total, frais et total sont recalculés côté serveur (2 décimales, arrondi « away from zero ») ; les prix sont lus en base, jamais envoyés par le client. Paiement : espèces, `estPayee = false`.
-- Les lignes copient `NomFr`, `NomAr` et le prix au moment de la commande. Numéro `CMD-000123` dérivé de l'identifiant.
-
-**Anti-doublon.** La création s'exécute dans une seule transaction (via la stratégie d'exécution EF, car `EnableRetryOnFailure` est actif). Elle commence par `SELECT ... FOR UPDATE` sur la ligne du panier de l'utilisateur : deux requêtes simultanées (ou un double clic) sont sérialisées, la seconde lit un panier déjà vidé par la première et reçoit 400 « panier vide ». Le panier est vidé dans la même transaction que la création. Si PostgreSQL signale un échec transitoire après le commit, la nouvelle tentative trouve un panier vide (400) plutôt que de créer un doublon. L'annulation s'appuie sur `xmin` : une modification concurrente donne un 409.
-
-## Administration des commandes
-
-Rôle Admin uniquement (401 sans jeton, 403 pour un Client). Aucune route DELETE ni modification des lignes ou du total : l'historique comptable reste intact. Les DTO admin sont distincts des DTO client et ne contiennent aucune donnée Identity (ni hash, ni security stamp) ; le nom et le téléphone du client sont ceux figés sur la commande.
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET | `/api/admin/commandes` | Liste paginée (`page`, `pageSize` ≤ 50), plus récentes d'abord, avec filtres (voir ci-dessous) |
-| GET | `/api/admin/commandes/{id}` | Détail : lignes `nomFr`/`nomAr`, totaux, adresse, table, note, client, historique **avec l'auteur** de chaque changement, `statutsSuivants`, `version` |
-| GET | `/api/admin/commandes/actives` | Écran cuisine : `EnAttente`, `EnPreparation`, `Prete`, plus anciennes d'abord, 200 au plus, avec les lignes à préparer |
-| GET | `/api/admin/commandes/compteurs` | Compteurs par statut **du jour** (fuseau Africa/Tunis) + nombre de commandes `EnAttente` toutes dates confondues |
-| PATCH | `/api/admin/commandes/{id}/statut` | `{ "statut": "Prete", "version": 12345 }` : applique une transition valide (`version` facultative) |
-| PATCH | `/api/admin/commandes/{id}/paiement` | `{ "estPayee": true }` : marque payée ou non payée |
-
-**Filtres de la liste** : `statut` (répétable, `statut=EnAttente&statut=Prete`, ou séparé par des virgules ; insensible à la casse), `typeCommande`, `estPayee`, `du` / `au`, `recherche` (numéro, nom du client ou téléphone, insensible à la casse, 100 caractères max). `du` et `au` sont en UTC, bornes incluses : `2024-06-30` couvre le jour entier, une date-heure ISO 8601 (`2024-06-30T10:00:00Z`) est prise à la seconde près. Toute valeur invalide (statut inconnu, nombre à la place d'un nom, date illisible, `du` après `au`) donne un 400, jamais un 500.
-
-**Compteurs** : `parStatut` contient un compteur par statut (0 compris) pour la journée civile `date` du restaurant (minuit à minuit à Tunis), `totalAujourdhui` leur somme, `enAttente` toutes les commandes en attente quelle que soit leur date (pour la pastille et l'alerte sonore : une commande oubliée depuis hier compte).
-
-### Cycle de vie d'une commande
-
-Un seul moteur de règles (`StatutTransitions`) sert l'administration et l'annulation par le client.
-
-```mermaid
-stateDiagram-v2
-    [*] --> EnAttente : création (client)
-    EnAttente --> EnPreparation
-    EnAttente --> Annulee
-    EnPreparation --> Prete
-    EnPreparation --> Annulee
-    Prete --> Terminee
-    Prete --> Annulee
-    Terminee --> [*]
-    Annulee --> [*]
-```
-
-- Toute autre transition est refusée en **409** (« EnAttente -> Terminee n'est pas autorisé. »). `Terminee` et `Annulee` sont finaux : une commande annulée ne revient jamais en arrière.
-- Redemander le statut courant est **idempotent** : 200, aucune ligne d'historique ajoutée.
-- Chaque changement écrit une ligne d'historique (statut, date, auteur) et met à jour `dateMiseAJour`. Le client voit le nouveau statut et l'historique via `GET /api/commandes/{id}`.
-- Le client ne peut annuler lui-même qu'une commande `EnAttente` (`POST /api/commandes/{id}/annuler`, 409 sinon) ; dès que l'admin l'a prise en charge, l'annulation passe par l'admin.
-- Paiement : refusé (409) sur une commande `Annulee` ; autorisé sur une commande `Terminee`. Redemander la même valeur est idempotent.
-
-### Concurrence
-
-`Commande.Version` est la colonne système PostgreSQL `xmin` (jeton de concurrence EF). Deux protections :
-
-1. **Optimiste explicite** : si `version` (lue dans le détail ou dans `actives`) est fournie et ne correspond plus à la commande, le PATCH répond 409 « La commande a été modifiée entre-temps. Rechargez-la et réessayez. » sans rien écrire.
-2. **Au moment de l'écriture** : si la commande change entre la lecture et l'UPDATE (autre admin, annulation du client), `UPDATE ... WHERE xmin = ...` ne touche aucune ligne, EF lève `DbUpdateConcurrencyException` et le gestionnaire global répond 409.
-
-Cas particulier : si le statut demandé est déjà le statut courant, la réponse est 200 même avec une `version` périmée (l'objectif est atteint, rien à écrire). Ces mécanismes n'ont été exercés que de façon partielle : voir la limite des tests ci-dessous.
-
-## Administration des tables
-
-Rôle Admin uniquement (401 sans jeton, 403 pour un Client). Aucune route DELETE : « supprimer » = désactiver. Le schéma n'a pas changé (`Numero` unique, `Code` GUID unique, `Capacite`, `EstActive`).
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET | `/api/admin/tables` | Toutes les tables, inactives incluses, triées par numéro : `id`, `numero`, `code`, `capacite`, `estActive` |
-| GET | `/api/admin/tables/{id}` | Une table |
-| POST | `/api/admin/tables` | `{ "numero"?: 5, "capacite": 4 }` : crée une table (201) avec un nouveau `code` ; sans `numero`, le plus grand numéro + 1 |
-| PUT | `/api/admin/tables/{id}` | `{ "numero": 5, "capacite": 4 }` : modifie numéro et capacité |
-| PATCH | `/api/admin/tables/{id}/active` | `{ "estActive": false }` : active ou désactive (idempotent) |
-| POST | `/api/admin/tables/{id}/regenerer-code` | Nouveau GUID ; renvoie la table |
-
-- **Règles :** `numero` de 1 à 9999, `capacite` de 1 à 50 (400 sinon). Un numéro déjà pris donne un **409** (contrôle applicatif ; une création simultanée est arrêtée par l'index unique, également traduite en 409).
-- **QR codes :** le QR d'une table encode `<adresse du site>/table/<code>`. `GET /api/tables/{code}` (public) ne répond que pour les tables **actives**. **Régénérer le code invalide immédiatement les QR déjà imprimés** (404) : à ne faire que si un QR a fuité ou doit être remplacé. Imprimer les QR après avoir fixé l'adresse définitive du site.
-- **Désactiver** une table refuse les nouvelles commandes sur place (400 sur `tableCode`) et rend son QR muet ; les commandes passées ne changent pas (lien par identifiant interne).
-- **Effet de bord à connaître :** le numéro affiché sur une commande est lu sur la table (jointure), il n'est pas copié sur la commande. **Modifier le numéro d'une table change donc aussi le numéro montré sur ses commandes passées.** Désactiver ou régénérer le code n'a pas cet effet.
-
-## Plan de salle
-
-Rôle Admin uniquement. L'état d'une table n'est **jamais stocké** : il est déduit de ses commandes sur place (`SurPlace`), calculé par le serveur.
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET | `/api/admin/tables/salle` | Pour chaque table (par numéro) : `etat`, `totalAEncaisser`, `nombreCommandes`, `premiereCommandeUtc`, `commandes` |
-| POST | `/api/admin/tables/{id}/encaisser` | Marque payées les commandes non payées et non annulées de la table (historique inchangé) ; 409 si rien à encaisser |
-| POST | `/api/admin/tables/{id}/liberer` | Libère la table ; 409 s'il reste des commandes en cours ou non payées |
-
-- **Commandes suivies** : celles de la table qui ne sont ni `Annulee`, ni `Terminee` et payée.
-- **États** : `Inactive` (table désactivée, prioritaire) ; `Occupee` (au moins une commande `EnAttente`, `EnPreparation` ou `Prete`) ; `AEncaisser` (plus rien en cours mais au moins une commande non payée) ; `Libre` sinon. `totalAEncaisser` somme les commandes suivies non payées (frais inclus) ; `premiereCommandeUtc` donne le début de l'occupation.
-- **Encaisser** : un second appel immédiat renvoie 409 (« rien à encaisser »), sans aucun effet.
-- **Libérer** : exige que plus rien ne soit en attente ou en préparation et que tout soit payé (le message de 409 nomme chaque raison et propose d'encaisser ou de terminer d'abord). Les commandes encore `Prete` passent alors en `Terminee` (historique + auteur, via `StatutTransitions`). Sur une table déjà libre : 200 sans effet.
-- **Implémentation** : deux requêtes pour toute la salle (les tables, puis les commandes suivies en colonnes simples), agrégées en mémoire : pas de N+1. **Limite** : `xmin` protège les commandes déjà lues ; une commande créée sur la table entre la lecture et l'écriture de « Libérer » n'est pas détectée (la table restera simplement « Occupée » au relevé suivant).
-
-## Statistiques
-
-Rôle Admin uniquement. Toutes les routes acceptent `du` et `au` (`AAAA-MM-JJ`) : **jours civils Africa/Tunis, bornes incluses**. Sans paramètre : les 30 derniers jours, aujourd'hui compris (seul `du` : jusqu'à aujourd'hui ; seul `au` : les 30 jours qui précèdent). Format invalide, `du` après `au` ou plus de **366 jours** : 400.
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET | `/api/admin/statistiques/resume` | Indicateurs de la période, de la période **précédente de même durée** (jours immédiatement avant `du`) et variation en % |
-| GET | `/api/admin/statistiques/ventes-par-jour` | Une entrée par jour de la période (jours sans vente à 0) : `date`, `chiffreAffaires`, `commandes` |
-| GET | `/api/admin/statistiques/top-articles?limite=10&lang=fr` | Articles les plus vendus : `articleId?`, `nom` (`fr` ou `ar`), `quantite`, `chiffreAffaires` ; `limite` ramenée entre 1 et 20 |
-| GET | `/api/admin/statistiques/heures-de-pointe` | 24 entrées (heure locale de Tunis, 0 à 23) : `commandes`, `chiffreAffaires` |
-| GET | `/api/admin/statistiques/repartition?lang=fr` | `parType`, `parStatut`, `parCategorie` |
-
-**Définitions.**
-
-- `chiffreAffaires` = somme des lignes `PrixUnitaire × Quantite` (arrondie à 2 décimales par ligne) des commandes **non annulées**, **hors frais de livraison**. Les commandes annulées sont exclues partout, sauf des compteurs `nombreAnnulees` et `parStatut`.
-- `nombreCommandes` = commandes non annulées ; `panierMoyen` = `chiffreAffaires / nombreCommandes` (0 sans commande).
-- `montantAEncaisser` = `Total` (**frais de livraison inclus**, ce que le client doit) des commandes non annulées et non payées de la période.
-- `nouveauxClients` = comptes de rôle Client créés pendant la période (jamais les admins).
-- Variation : `(courant − précédent) / précédent × 100`, arrondie à 1 décimale ; **`null` si la valeur précédente est 0**.
-- `parCategorie` : via l'article de la ligne ; les lignes dont l'article a été supprimé forment « Autres » (`categorieId` null, toujours en dernier). `parStatut` : le chiffre d'affaires d'une commande annulée est 0.
-- Les noms du top viennent des lignes de commande (copiés à la commande) : un article renommé ou supprimé garde son ancien nom ; les lignes sans article sont regroupées par nom copié.
-
-**Fuseau.** Tunis est en UTC+1 toute l'année (pas d'heure d'été). Un instant UTC est converti avant d'être rangé dans un jour ou une heure : une commande à 23:30 UTC compte pour le **jour suivant**. Les bornes de période sont les minuits de Tunis (début inclus, fin = minuit du lendemain du dernier jour, exclue).
-
-**Implémentation.** Chaque route lit seulement les colonnes nécessaires sur la période bornée (366 jours au plus), puis agrège en mémoire : le regroupement par jour ou par heure de Tunis n'est pas traduisible en SQL de façon portable. Les requêtes sont de simples sélections filtrées, vérifiées par `SqlTranslationTests`.
-
-## Favoris et adresses
-
-Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est toujours lue dans le jeton** ; rien n'est lu dans l'URL ni le corps.
-
-| Méthode | Route | Rôle |
-| --- | --- | --- |
-| GET | `/api/favoris?lang=fr\|ar` | Articles favoris : `id`, `categorieId`, `nom`, `description`, `prix`, `imageUrl`, `estPopulaire`, `disponible`, `actif` |
-| GET | `/api/favoris/ids` | Identifiants favoris seulement (pour afficher les cœurs) |
-| PUT | `/api/favoris/{articleId}` | Ajoute (204, idempotent) ; 404 si l'article n'existe pas ou est inactif |
-| DELETE | `/api/favoris/{articleId}` | Retire (204, idempotent) |
-| GET | `/api/adresses` | Adresses, la défaut d'abord puis par ancienneté |
-| POST | `/api/adresses` | `{ libelle, ligne, ville, details?, telephone, estParDefaut }` (201) |
-| PUT | `/api/adresses/{id}` | Modifie (mêmes champs) |
-| PATCH | `/api/adresses/{id}/defaut` | Désigne la défaut (idempotent) |
-| DELETE | `/api/adresses/{id}` | Supprime pour de bon (204) : c'est une donnée personnelle |
-
-- **Favoris, tri :** le modèle `Favori` n'a pas de date d'ajout et aucune colonne n'a été ajoutée (pas de migration) : la liste est triée par identifiant d'article **décroissant** (plat le plus récemment créé en premier), pas par date d'ajout. Un article désactivé reste listé avec `actif: false` (`actif` = article actif **et** catégorie active) ; un article indisponible (épuisé) peut être mis en favori. On ne peut pas ajouter un article inactif (404).
-- **Adresses, règles :** 10 au plus par utilisateur (409 au-delà) ; longueurs alignées sur la base (libellé 50, ligne 200, ville 100, détails 300, téléphone 20, `[Phone]`) ; valeurs rognées, détails vides = `null`. **Une seule adresse par défaut** : la première créée l'est automatiquement ; en désigner une autre (création, modification ou PATCH) retire l'ancienne ; on ne peut pas retirer la défaut en modifiant (`estParDefaut: false` sur la défaut est ignoré : il faut en désigner une autre) ; si on supprime la défaut, **la plus ancienne** adresse restante le devient.
-- **Isolation :** l'adresse d'un autre utilisateur donne **404** (jamais 403).
-- **Limite connue :** sans contrainte SQL (pas de migration), deux requêtes simultanées du même utilisateur pourraient dépasser 10 adresses ou créer deux défauts ; ajouter un index unique partiel (`UserId` où `EstParDefaut`) demanderait une migration.
-
-## Catalogue
-
-Un seul fichier décrit la carte : `backend/src/Resto.Api/Data/catalogue.json` (copié dans le dossier de sortie du build). Il alimente la base via la commande `--seed-catalog` et le faux serveur du front (`frontend/dev-mocks/server.mjs`). Il n'existe plus d'autre liste de plats (ni dans `DbSeeder`, ni dans `docs/`, ni dans les fixtures du mock).
-
-Structure : `{ "categories": [ { nomFr, nomAr, ordre, articles: [ { ordre, nomFr, nomAr, descriptionFr, descriptionAr, prix, populaire, disponible, image } ] } ] }`. Prix en DT à 2 décimales au plus, `image` = chemin `/images/...` ou URL https (règles d'`ImageUrlRules`) ou `null` (l'interface affiche alors `/images/default.svg`). Pour l'instant le fichier contient 9 catégories (Pizza, Plats, Sandwich, Makloub, Baguettes farcies, Tabouna, Cornet, Lablabi, Boissons) dont « Pizza » (6 articles), « Plats » (6 articles), « Sandwich » (7 articles), « Makloub » (5 articles), « Baguettes farcies » (5 articles), « Tabouna » (5 articles), « Cornet » (5 articles), « Lablabi » (5 articles) et « Boissons » (5 articles) ont des articles. Une catégorie sans article est valide : elle est créée ou mise à jour, mais le menu public ne la publie pas tant qu'elle n'a pas d'article actif. Les noms FR doivent correspondre exactement à ceux de la base (la commande retrouve une catégorie par `NomFr`).
-
-Procédure : modifier le fichier, puis **toujours simuler avant d'appliquer**.
-
-```powershell
-cd backend/src/Resto.Api
-dotnet run -- --seed-catalog                                  # simulation : n'écrit rien
-dotnet run -- --seed-catalog --apply                          # upsert en une transaction
-dotnet run -- --seed-catalog --apply --deactivate-missing     # + désactive ce qui n'est plus dans le fichier
-```
-
-- La simulation (par défaut) affiche ce qui serait créé, modifié, inchangé, et ce qui est présent en base mais absent du fichier. Elle lit la base (la chaîne de connexion est requise) mais n'écrit rien.
-- `--apply` : catégorie retrouvée par `NomFr`, article par (catégorie, `NomFr`), sans tenir compte de la casse. Relancer deux fois ne crée aucun doublon. Aucune suppression. Un article ou une catégorie trouvés sont alignés sur le fichier (textes, prix, image, ordre, `populaire`, `disponible`) et **réactivés** s'ils étaient inactifs : le fichier fait foi pour ce qu'il contient.
-- `--deactivate-missing` (uniquement avec `--apply`) : catégories et articles absents du fichier passent à inactif (les articles d'une catégorie absente aussi). Jamais de suppression.
-- Le fichier est validé en entier avant toute écriture : noms FR/AR non vides (≤ 100 pour une catégorie, ≤ 150 pour un article), noms uniques (catégories, et articles par catégorie), prix de 0 à 99 999 999,99 avec 2 décimales au plus, `ordre` de 0 à 10 000, descriptions ≤ 1000 caractères, image conforme ou `null`, au moins une catégorie. En cas d'erreur, la commande les liste et s'arrête avec le code 1.
-- L'application s'arrête après la commande. Code de sortie : 0 succès, 1 catalogue invalide, 2 arguments incorrects.
-- Le code est dans `backend/src/Resto.Api/Data/Catalogue/` (lecture, validation, plan, application, commande), testé par `CatalogueTests` et `SeedTests`.
-
-Le menu public met jusqu'à 60 s à refléter un changement (cache de `/api/menu`).
-
-- Images : les photos WebP (800 px, moins de 150 Ko) sont dans `frontend/public/images/menu/`, issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Les photos non référencées par le fichier restent dans le dépôt.
-- Validation du fichier côté front : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (structure, noms uniques par catégorie, ordres, prix >= 0, textes FR/AR, existence et poids des images non nulles).
-- Faux serveur : `cd frontend; npm run mock:api` lit ce même fichier (voir `frontend/dev-mocks/README.md`).
-
-## Données de démonstration
-
-Le fichier `backend/src/Resto.Api/Data/demo.json` (copié dans le dossier de sortie du build) décrit des données fictives pour montrer l'administration et les statistiques : 15 clients aux noms tunisiens inventés (e-mail `nomprénom@test.com`, téléphones `+21620000001` à `+21620000015`, le 15e inactif, inscrits sur les 90 derniers jours), 1 ou 2 adresses inventées chacun, 3 à 8 favoris, 8 commandes écrites à la main (`commandesManuelles`) et les réglages de génération (`reglages` : graine, nombre de jours, commandes par jour, répartition des types, pourcentage d'annulations, lignes par commande, quantité maximale, commandes actives du jour). Il ne contient ni prix, ni identifiant, ni mot de passe : les articles sont retrouvés par (catégorie, `NomFr`), les tables par numéro, les adresses de livraison des commandes manuelles par libellé ; « heure » est en heure de Tunis.
-
-La commande `--seed-demo` génère en C# (générateur SplitMix64 à graine fixe : seule la date de référence « aujourd'hui à Tunis » change d'une exécution à l'autre) les commandes des `jours` derniers jours :
-
-- nombre par jour entre `min` et `max`, moins le dimanche, plus le vendredi et le samedi ; heures entre 11 h et 22 h avec des pics 12 h-14 h et 19 h-22 h (heure de Tunis, stockées en UTC) ; seuls les clients actifs déjà inscrits à cette date commandent ;
-- type selon `repartitionTypes` ; sur place sur une table active, livraison vers une adresse du client avec les frais et le minimum de livraison des paramètres du restaurant ;
-- lignes tirées parmi les articles **actifs et disponibles** de la base au moment de l'exécution (populaires plus fréquents), prix unitaire = prix actuel, totaux calculés par `CommandeRules.ComputeTotals` comme `CommandeService` ;
-- jours passés : `Terminee` (payée) ou `Annulee` (selon `pourcentageAnnulees`), avec un historique de statuts aux transitions valides et aux horodatages croissants ; aujourd'hui seulement : les commandes actives de `commandesActivesAujourdhui` (dont une sur trois sur place, pour le plan de salle). Aucune commande dans le futur ; une commande manuelle active dont l'heure n'est pas encore passée est ramenée à 10 minutes avant l'exécution ;
-- numéros `CMD-000123` comme l'application ; les étapes du client (création, annulation en attente) lui sont attribuées, celles du restaurant n'ont pas d'auteur.
-
-Les horaires d'ouverture enregistrés ne sont pas consultés (la génération suit le créneau 11 h-23 h du seed).
-
-**Repère des comptes de démo** : `test.com` est un vrai domaine, ce n'est donc PAS un repère fiable. Un compte est « de démo » si son e-mail figure exactement dans `demo.json` **et** si son téléphone commence par `+2162000`. Cette règle sert partout : idempotence, `--reset-demo`, tests. Un compte existant avec un e-mail (ou identifiant) de `demo.json` qui n'est pas de démo est un conflit : la commande le signale et n'écrit rien. Un compte Admin n'est jamais créé, modifié ni supprimé.
-
-Procédure (il faut d'abord le seed de l'application et le catalogue : `--seed`, `--seed-catalog --apply`) :
-
-```powershell
-cd backend/src/Resto.Api
-dotnet user-secrets set "Seed:DemoPassword" "<mot-de-passe>"   # ailleurs : variable Seed__DemoPassword
-dotnet run -- --seed-demo                              # simulation : valide et affiche, n'écrit rien
-dotnet run -- --seed-demo --apply                      # crée tout en une transaction
-dotnet run -- --seed-demo --reset-demo                 # affiche ce qui serait supprimé
-dotnet run -- --seed-demo --reset-demo --apply         # supprime les comptes de démo et leurs données
-```
-
-- La simulation valide `demo.json` puis la base (articles et tables introuvables ou inactifs, conflits d'e-mail, catalogue sans article actif, paramètres absents) : toutes les erreurs sont listées et le code de sortie vaut 1. Sinon elle affiche les comptes, adresses et favoris à créer, le nombre de commandes par jour (min, moyenne, max, moyenne par jour de semaine), la répartition par statut et par type, la période et le chiffre d'affaires (hors annulées, comme les statistiques).
-- `--apply` : comptes avec le rôle Client et le mot de passe `Seed:DemoPassword` (règles Identity appliquées ; le mot de passe n'est jamais affiché). Idempotent : un compte, une adresse (même libellé) ou un favori de démo déjà présent n'est pas recréé ; si des commandes de comptes de démo existent déjà, la partie commandes est ignorée (les dates étant relatives à aujourd'hui, il faut `--reset-demo --apply` pour les régénérer).
-- `--reset-demo` supprime UNIQUEMENT les comptes de démo (règle ci-dessus) et leurs commandes, lignes, historiques, favoris, adresses et paniers, après avoir affiché la liste. Catégories, articles, tables, horaires, paramètres, compte admin et vrais comptes clients ne sont jamais touchés. **À faire avant la mise en production.**
-- La commande refuse de tourner si `ASPNETCORE_ENVIRONMENT=Production`, sauf avec `--allow-production`. L'application s'arrête après la commande. Code de sortie : 0 succès, 1 refus, 2 arguments incorrects.
-- **Avertissement** : les adresses `@test.com` appartiennent à un domaine réel. Supprimer les comptes de démo (`--reset-demo --apply`) avant d'activer tout envoi d'e-mails.
-- Le code est dans `backend/src/Resto.Api/Data/Demo/` (lecture, validation, génération, plan, application, commande), testé par `DemoTests` (EF InMemory) et `SqlTranslationTests`. Le faux serveur du front (`frontend/dev-mocks`) n'utilise pas ce fichier.
-
-## Tests
-
-```powershell
-cd backend
-dotnet test
-```
-
-Les tests d'intégration utilisent un fournisseur EF InMemory : il ne reproduit pas les contraintes PostgreSQL (CHECK, index uniques, clés étrangères) ni `xmin` (la colonne `Version` reste à 0 et n'est jamais incrémentée) ni de vraies transactions. Ils vérifient l'autorisation, les flux métier et la comparaison explicite de `version` ; la détection de concurrence par `xmin` et l'anti-doublon à la création ne sont pas exercés.
-
-## Déploiement sur Render
-
-L'API tourne dans un conteneur Docker (`backend/Dockerfile`, contexte `backend/`), le site est un site statique ; les deux sont décrits dans `render.yaml` (Blueprint) à la racine. La base reste sur Neon. Aucun secret n'est dans le dépôt ni dans l'image : tout passe par des variables d'environnement saisies dans Render (`sync: false`).
-
-### Prérequis
-
-- Une base PostgreSQL Neon (projet et branche de production) et sa chaîne de connexion.
-- Le dépôt sur GitHub, en **privé**, relié au compte Render.
-- Sur le PC : SDK .NET 8 (pour lancer `--migrate`, `--seed`, `--seed-catalog`, `--seed-demo` contre Neon).
-
-### Variables d'environnement
-
-| Service | Variable | Contenu (forme, jamais de vraie valeur ici) |
-| --- | --- | --- |
-| `el-resto-api` | `ASPNETCORE_ENVIRONMENT` | `Production` (déjà dans `render.yaml`) |
-| `el-resto-api` | `ConnectionStrings__Default` | Chaîne Npgsql de Neon : `Host=<hôte>.neon.tech;Database=<base>;Username=<utilisateur>;Password=<mot-de-passe>;SSL Mode=Require` |
-| `el-resto-api` | `Jwt__SecretKey` | Clé aléatoire d'au moins 32 caractères (ex. 48 octets aléatoires en base64) |
-| `el-resto-api` | `Cors__AllowedOrigins` | Adresse(s) du site, séparées par des virgules, sans slash final : `https://<site>.onrender.com` |
-| `el-resto-api` | `Seed__AdminPassword` | Mot de passe du compte `admin`, lu seulement par `--seed` : peut rester vide sur Render si `--seed` est lancé depuis le PC |
-| `el-resto` | `VITE_API_URL` | Adresse de l'API, sans slash final : `https://<api>.onrender.com` |
-| `el-resto` | `VITE_PUBLIC_URL` | Adresse publique du site, sans slash final (encodée dans les QR des tables) : `https://<site>.onrender.com` |
-| `el-resto` | `NODE_VERSION` | Version de Node pour le build (`24`, déjà dans `render.yaml`) |
-| PC seulement | `Seed__DemoPassword` | Mot de passe commun des comptes de démo (commande `--seed-demo`) |
-
-`PORT` est fourni par Render (10000 par défaut, déjà la valeur de l'image) : ne pas le définir. `Jwt__Issuer`, `Jwt__Audience` et `Jwt__AccessTokenMinutes` ont leurs valeurs dans `appsettings.json`. Les variables `VITE_*` sont lues **au build** du site : après un changement, relancer un déploiement du site.
-
-Au démarrage hors Development, l'API s'arrête avec un message qui cite le **nom** du réglage manquant (`ConnectionStrings__Default`, ou `Jwt__SecretKey` absente ou trop courte), jamais sa valeur. Sans `Cors__AllowedOrigins`, aucune origine n'est autorisée (le site ne peut pas appeler l'API).
-
-**Chaîne Neon** : Neon affiche une URL `postgresql://<utilisateur>:<mot-de-passe>@<hôte>/<base>?sslmode=require&channel_binding=require`. Npgsql attend la forme clé=valeur, lue telle quelle depuis la variable : `Host=<hôte>;Database=<base>;Username=<utilisateur>;Password=<mot-de-passe>;SSL Mode=Require;Channel Binding=Require`. Pour l'API, l'hôte « pooler » (`...-pooler...`) convient ; pour `--migrate`, préférer l'hôte direct (sans `-pooler`), comme le recommande Neon pour les migrations.
-
-### Commandes depuis le PC (PowerShell)
-
-`dotnet run` utilise le profil de lancement (environnement Development, user-secrets chargés) ; les variables d'environnement de la session **priment** sur les user-secrets. Saisie masquée, rien dans l'historique :
-
-```powershell
-cd backend/src/Resto.Api
-$s = Read-Host "Chaîne Npgsql Neon" -AsSecureString
-$env:ConnectionStrings__Default = [Net.NetworkCredential]::new('', $s).Password
-dotnet run -- --migrate                     # applique les migrations, affiche leur nombre ; code 0 ou 1
-
-$s = Read-Host "Mot de passe admin" -AsSecureString
-$env:Seed__AdminPassword = [Net.NetworkCredential]::new('', $s).Password
-dotnet run -- --seed                        # rôles, compte admin, paramètres, horaires, tables (idempotent)
-dotnet run -- --seed-catalog                # simulation, puis :
-dotnet run -- --seed-catalog --apply
-
-$s = Read-Host "Mot de passe des comptes de démo" -AsSecureString
-$env:Seed__DemoPassword = [Net.NetworkCredential]::new('', $s).Password
-dotnet run -- --seed-demo                   # simulation, puis :
-dotnet run -- --seed-demo --apply
-
-Remove-Item Env:ConnectionStrings__Default, Env:Seed__AdminPassword, Env:Seed__DemoPassword
-```
-
-Définir `Seed__AdminPassword` explicitement : sinon `--seed` prendrait le mot de passe admin des user-secrets locaux. Dans l'image Docker, les mêmes commandes s'écrivent `dotnet Resto.Api.dll --migrate` (point d'entrée : `docker run --rm -e ConnectionStrings__Default <image> --migrate`). L'API ne migre jamais d'elle-même, et le seed ne tourne jamais au démarrage en production : l'administrateur initial et les paramètres de base se créent avec `--seed`, une fois.
-
-### Ordre des opérations
-
-1. Sauvegarder la branche Neon de production (branche de sauvegarde ou instantané) avant toute écriture.
-2. `--migrate` depuis le PC.
-3. `--seed` (admin et paramètres de base), puis `--seed-catalog --apply`, puis `--seed-demo --apply` depuis le PC (la démo est facultative ; la retirer avec `--seed-demo --reset-demo --apply` avant l'ouverture réelle).
-4. Déployer l'API (Render → New → Blueprint, `render.yaml`) avec `ConnectionStrings__Default` et `Jwt__SecretKey` ; vérifier `https://<api>.onrender.com/health` (réponse 200, sans interroger la base).
-5. Renseigner `Cors__AllowedOrigins` avec l'adresse du site (connue dès la création du service `el-resto`), l'API redémarre.
-6. Déployer le site avec `VITE_API_URL` = adresse de l'API.
-7. Renseigner `VITE_PUBLIC_URL` = adresse définitive du site, redéployer le site, puis seulement imprimer les QR des tables (`/admin/tables`).
-
-Le site a besoin de l'adresse de l'API (au build) et l'API de celle du site (CORS) : créer les deux services, puis compléter ces deux variables et redéployer.
-
-**Offre gratuite de Render** : l'API se met en veille après environ 15 minutes sans requête ; la requête suivante la réveille et peut prendre jusqu'à une minute. Le site statique, lui, ne dort pas. Un appel à `/health` suffit à réveiller l'API.
-
-`SqlTranslationTests` compense une autre limite d'InMemory : il évalue le LINQ en mémoire et accepte des requêtes que PostgreSQL ne sait pas traduire (elles donnent un 500 en production, par exemple un `OrderBy` placé après un `Select` qui contient un `Count`). Ce test construit les requêtes des routes admin critiques (catégories, articles, commandes) avec le fournisseur Npgsql et une chaîne factice, puis appelle `ToQueryString()` : la requête est compilée en SQL sans connexion. Il prouve que la requête est traduisible, pas qu'elle s'exécute correctement sur une vraie base. Règle : filtrer et trier avant de projeter.
+Projet réalisé dans le cadre de mon portfolio.
