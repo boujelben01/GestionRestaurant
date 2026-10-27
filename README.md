@@ -254,7 +254,7 @@ Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est tou
 
 Un seul fichier décrit la carte : `backend/src/Resto.Api/Data/catalogue.json` (copié dans le dossier de sortie du build). Il alimente la base via la commande `--seed-catalog` et le faux serveur du front (`frontend/dev-mocks/server.mjs`). Il n'existe plus d'autre liste de plats (ni dans `DbSeeder`, ni dans `docs/`, ni dans les fixtures du mock).
 
-Structure : `{ "categories": [ { nomFr, nomAr, ordre, articles: [ { ordre, nomFr, nomAr, descriptionFr, descriptionAr, prix, populaire, disponible, image } ] } ] }`. Prix en DT à 2 décimales au plus, `image` = chemin `/images/...` ou URL https (règles d'`ImageUrlRules`) ou `null` (l'interface affiche alors `/images/default.svg`). Pour l'instant le fichier contient 9 catégories (Pizza, Plats, Sandwich, Makloub, Baguettes farcies, Tabouna, Cornet, Lablabi, Boissons) dont seule « Boissons » a des articles (5). Une catégorie sans article est valide : elle est créée ou mise à jour, mais le menu public ne la publie pas tant qu'elle n'a pas d'article actif. Les noms FR doivent correspondre exactement à ceux de la base (la commande retrouve une catégorie par `NomFr`).
+Structure : `{ "categories": [ { nomFr, nomAr, ordre, articles: [ { ordre, nomFr, nomAr, descriptionFr, descriptionAr, prix, populaire, disponible, image } ] } ] }`. Prix en DT à 2 décimales au plus, `image` = chemin `/images/...` ou URL https (règles d'`ImageUrlRules`) ou `null` (l'interface affiche alors `/images/default.svg`). Pour l'instant le fichier contient 9 catégories (Pizza, Plats, Sandwich, Makloub, Baguettes farcies, Tabouna, Cornet, Lablabi, Boissons) dont « Pizza » (6 articles) et « Boissons » (5 articles) ont des articles. Une catégorie sans article (les 7 autres pour l'instant) est valide : elle est créée ou mise à jour, mais le menu public ne la publie pas tant qu'elle n'a pas d'article actif. Les noms FR doivent correspondre exactement à ceux de la base (la commande retrouve une catégorie par `NomFr`).
 
 Procédure : modifier le fichier, puis **toujours simuler avant d'appliquer**.
 
@@ -274,7 +274,7 @@ dotnet run -- --seed-catalog --apply --deactivate-missing     # + désactive ce 
 
 Le menu public met jusqu'à 60 s à refléter un changement (cache de `/api/menu`).
 
-- Images : les photos WebP (800 px, moins de 150 Ko) sont dans `frontend/public/images/menu/`, issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Les photos des catégories pas encore ajoutées au fichier restent dans le dépôt ; elles seront référencées quand leurs catégories reviendront.
+- Images : les photos WebP (800 px, moins de 150 Ko) sont dans `frontend/public/images/menu/`, issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Les photos non référencées par le fichier restent dans le dépôt.
 - Validation du fichier côté front : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (structure, noms uniques par catégorie, ordres, prix >= 0, textes FR/AR, existence et poids des images non nulles).
 - Faux serveur : `cd frontend; npm run mock:api` lit ce même fichier (voir `frontend/dev-mocks/README.md`).
 

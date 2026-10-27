@@ -2,7 +2,14 @@
   "categories": [
     {
       "nomFr": "Pizza", "nomAr": "بيتزا", "ordre": 1,
-      "articles": []
+      "articles": [
+        {"ordre": 1, "nomFr": "Pizza Margherita", "nomAr": "بيتزا مارغريتا", "descriptionFr": "Sauce tomate, mozzarella fondante et basilic frais sur une pâte dorée. 30 cm.", "descriptionAr": "صلصة طماطم وموزاريلا ذايبة وريحان طازج على عجينة مدهّبة. 30 سم.", "prix": 9, "populaire": true, "disponible": true, "image": "/images/menu/pizza-margherita.webp"},
+        {"ordre": 2, "nomFr": "Pizza thon-olives", "nomAr": "بيتزا تون وزيتون", "descriptionFr": "Thon, olives noires, oignon et mozzarella sur sauce tomate. 30 cm.", "descriptionAr": "تون وزيتون كحل وبصل وموزاريلا على صلصة طماطم. 30 سم.", "prix": 12, "populaire": false, "disponible": true, "image": "/images/menu/pizza-thon-olives.webp"},
+        {"ordre": 3, "nomFr": "Pizza pepperoni", "nomAr": "بيتزا بيبروني", "descriptionFr": "Rondelles de pepperoni de bœuf, mozzarella fondante et sauce tomate. 30 cm.", "descriptionAr": "شرائح بيبروني بقري وموزاريلا ذايبة وصلصة طماطم. 30 سم.", "prix": 13, "populaire": false, "disponible": true, "image": "/images/menu/pizza-pepperoni.webp"},
+        {"ordre": 4, "nomFr": "Pizza 4 saisons", "nomAr": "بيتزا 4 فصول", "descriptionFr": "Quatre garnitures : champignons, poivron, olives et jambon de dinde. 30 cm.", "descriptionAr": "أربع تشكيلات: فطر وفلفل وزيتون وجامبون ديك رومي. 30 سم.", "prix": 13.5, "populaire": false, "disponible": true, "image": "/images/menu/pizza-4-saisons.webp"},
+        {"ordre": 5, "nomFr": "Pizza mexicaine", "nomAr": "بيتزا مكسيكية", "descriptionFr": "Viande hachée épicée, poivron, oignon et piment sur sauce tomate et mozzarella. 30 cm.", "descriptionAr": "لحم مفروم متبّل وفلفل وبصل وفلفل حار على صلصة طماطم وموزاريلا. 30 سم.", "prix": 13.5, "populaire": false, "disponible": true, "image": "/images/menu/pizza-mexicaine.webp"},
+        {"ordre": 6, "nomFr": "Pizza 4 fromages", "nomAr": "بيتزا 4 أجبان", "descriptionFr": "Quatre fromages fondus : mozzarella, emmental, chèvre et gorgonzola. 30 cm.", "descriptionAr": "أربعة أنواع جبن ذايبة: موزاريلا وإمنتال وجبن الماعز وغورغونزولا. 30 سم.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/pizza-4-fromages.webp"}
+      ]
     },
     {
       "nomFr": "Plats", "nomAr": "أطباق", "ordre": 2,
