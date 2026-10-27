@@ -13,7 +13,14 @@
     },
     {
       "nomFr": "Plats", "nomAr": "أطباق", "ordre": 2,
-      "articles": []
+      "articles": [
+        {"ordre": 1, "nomFr": "Escalope panée", "nomAr": "إسكالوب بانيه", "descriptionFr": "Escalope de poulet panée et dorée, servie avec frites et salade.", "descriptionAr": "إسكالوب دجاج بانيه مقرمش، مع بطاطا مقلية وسلاطة.", "prix": 13, "populaire": true, "disponible": true, "image": "/images/menu/escalope-panee.webp"},
+        {"ordre": 2, "nomFr": "Poulet grillé", "nomAr": "دجاج مشوي", "descriptionFr": "Poulet mariné et grillé, servi avec frites et salade.", "descriptionAr": "دجاج متبّل ومشوي، مع بطاطا مقلية وسلاطة.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/poulet-grille.webp"},
+        {"ordre": 3, "nomFr": "Assiette chawarma", "nomAr": "صحن شاورما", "descriptionFr": "Chawarma de poulet, frites, salade et sauce, servis dans une assiette.", "descriptionAr": "شاورما دجاج مع بطاطا مقلية وسلاطة وصلصة في صحن.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/assiette-chawarma.webp"},
+        {"ordre": 4, "nomFr": "Kebab", "nomAr": "كباب", "descriptionFr": "Brochettes de viande hachée grillées, servies avec frites et salade.", "descriptionAr": "كباب لحم مفروم مشوي، مع بطاطا مقلية وسلاطة.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/kebab.webp"},
+        {"ordre": 5, "nomFr": "Ojja merguez", "nomAr": "عجّة مرقاز", "descriptionFr": "Merguez mijotée dans une sauce tomate épicée avec des œufs, servie avec du pain.", "descriptionAr": "عجّة مرقاز مطيّبة بالطماطم الحارة والبيض، مع الخبز.", "prix": 12, "populaire": false, "disponible": true, "image": "/images/menu/ojja-merguez.webp"},
+        {"ordre": 6, "nomFr": "Sahn tounsi", "nomAr": "صحن تونسي", "descriptionFr": "Assiette tunisienne : salade méchouia, brik, merguez grillée, frites et pain.", "descriptionAr": "صحن تونسي: سلاطة مشوية، بريك، مرقاز مشوي، بطاطا مقلية وخبز.", "prix": 15, "populaire": false, "disponible": true, "image": null}
+      ]
     },
     {
       "nomFr": "Sandwich", "nomAr": "ساندويتش", "ordre": 3,
