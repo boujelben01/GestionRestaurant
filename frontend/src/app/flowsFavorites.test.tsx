@@ -260,7 +260,7 @@ describe('/favoris', () => {
         'GET /api/favoris': () => ({
           data: [
             favorite(303, 'Kamounia', { disponible: false }),
-            favorite(201, 'Brik au thon', { actif: false }),
+            favorite(201, 'Makloub thon', { actif: false }),
             favorite(101, 'Brik à l’œuf'),
           ],
         }),
@@ -275,11 +275,11 @@ describe('/favoris', () => {
     expect(screen.getAllByText('Indisponible').length).toBeGreaterThan(0)
     // Le cœur d'un article retiré du menu permet de le retirer des favoris.
     expect(
-      screen.getByRole('button', { name: 'Retirer des favoris : Brik au thon' }),
+      screen.getByRole('button', { name: 'Retirer des favoris : Makloub thon' }),
     ).toBeInTheDocument()
-    const inactiveCard = screen.getByText('Brik au thon').closest('article') as HTMLElement
+    const inactiveCard = screen.getByText('Makloub thon').closest('article') as HTMLElement
     expect(
-      within(inactiveCard).getByRole('button', { name: /Ajouter Brik au thon au panier/ }),
+      within(inactiveCard).getByRole('button', { name: /Ajouter Makloub thon au panier/ }),
     ).toHaveAttribute('aria-disabled', 'true')
   })
 
@@ -289,7 +289,11 @@ describe('/favoris', () => {
     renderApp('/favoris')
 
     expect(await screen.findByText('Aucun favori pour l’instant')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /menu/i })).toHaveAttribute('href', '/menu')
+    // En-tête et pied de page ont aussi un lien vers le menu : on cible celui de l'état vide (zone principale).
+    expect(within(screen.getByRole('main')).getByRole('link', { name: /menu/i })).toHaveAttribute(
+      'href',
+      '/menu',
+    )
   })
 
   it('erreur de chargement : message et bouton Réessayer', async () => {
@@ -343,7 +347,7 @@ describe('accueil : « Vos plats favoris »', () => {
   })
 
   it("absent s'il n'y a que des favoris désactivés, ou aucun", async () => {
-    await home(client, [favorite(201, 'Brik au thon', { actif: false })])
+    await home(client, [favorite(201, 'Makloub thon', { actif: false })])
 
     await waitFor(() => expect(mock!.calls.some((c) => c.url === '/api/favoris')).toBe(true))
     expect(screen.queryByText('Vos plats favoris')).not.toBeInTheDocument()
@@ -406,12 +410,43 @@ describe('profil : Mes adresses', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
 
     await waitFor(() => expect(body).toBeDefined())
+    // Première adresse du carnet : la case « par défaut » est cochée d'office (règle du serveur, AdresseService).
     expect(body).toEqual({
       libelle: 'Maison',
       ligne: '12 rue de la Liberté',
       ville: 'Tunis',
       details: null,
       telephone: '+21620123456',
+      estParDefaut: true,
+    })
+  })
+
+  it("ajout quand une adresse existe déjà : la case « par défaut » n'est pas cochée d'office", async () => {
+    let body: unknown
+    await profile([address(1, 'Maison', { estParDefaut: true })], {
+      'POST /api/adresses': (config) => {
+        body = JSON.parse(String(config.data))
+        return { status: 201, data: address(2, 'Bureau') }
+      },
+    })
+
+    await userEvent.click(
+      (await screen.findAllByRole('button', { name: 'Ajouter une adresse' }))[0]!,
+    )
+    const dialog = await screen.findByRole('dialog')
+    await userEvent.type(within(dialog).getByLabelText(/^Libellé/), ' Bureau  ')
+    await userEvent.type(within(dialog).getByLabelText(/^Adresse$/), '5 avenue Habib Bourguiba')
+    await userEvent.type(within(dialog).getByLabelText(/^Ville/), 'Tunis')
+    await userEvent.type(within(dialog).getByLabelText(/^Téléphone/), '+21698765432')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() => expect(body).toBeDefined())
+    expect(body).toEqual({
+      libelle: 'Bureau',
+      ligne: '5 avenue Habib Bourguiba',
+      ville: 'Tunis',
+      details: null,
+      telephone: '+21698765432',
       estParDefaut: false,
     })
   })

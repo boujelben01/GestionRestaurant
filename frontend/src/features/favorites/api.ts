@@ -28,13 +28,23 @@ export function useFavoriteIds() {
   })
 }
 
-/** Articles favoris ; un article désactivé reste listé avec `actif: false`. */
+/**
+ * Articles favoris ; un article désactivé reste listé avec `actif: false`. La liste amorce le cache des
+ * identifiants s'il est vide : sans cela, sur /favoris, les cœurs s'afficheraient « Ajouter aux favoris » tant
+ * que /api/favoris/ids n'a pas répondu, et un clic enverrait un PUT (404 pour un article retiré du menu) au lieu
+ * de retirer le favori.
+ */
 export function useFavorites() {
   const enabled = useCustomerFeatures()
+  const queryClient = useQueryClient()
   return useQuery({
     queryKey: listRoot,
     enabled,
-    queryFn: async () => (await api.get<FavoriteArticle[]>('/api/favoris')).data,
+    queryFn: async () => {
+      const list = (await api.get<FavoriteArticle[]>('/api/favoris')).data
+      queryClient.setQueryData<number[]>(favoriteIdsKey, (ids) => ids ?? list.map((a) => a.id))
+      return list
+    },
     staleTime: 30_000,
   })
 }

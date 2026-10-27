@@ -371,7 +371,10 @@ export default function Checkout() {
                   <div className="flex flex-col gap-5">
                     {customer && (
                       <fieldset>
-                        <legend className="mb-2 text-sm font-semibold text-ink-800">
+                        <legend
+                          id="saved-addresses"
+                          className="mb-2 text-sm font-semibold text-ink-800"
+                        >
                           {t('addresses.checkoutTitle')}
                         </legend>
                         {addressesQuery.isPending && (
@@ -385,7 +388,11 @@ export default function Checkout() {
                           </p>
                         )}
                         {savedAddresses.length > 0 && (
-                          <div role="radiogroup" className="grid gap-2 sm:grid-cols-2">
+                          <div
+                            role="radiogroup"
+                            aria-labelledby="saved-addresses"
+                            className="grid gap-2 sm:grid-cols-2"
+                          >
                             {[
                               ...savedAddresses.map((a) => ({
                                 id: a.id as number | 'other',

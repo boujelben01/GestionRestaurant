@@ -102,6 +102,11 @@ const base = (over: Record<string, MockHandler> = {}): Record<string, MockHandle
   'GET /api/admin/statistiques/top-articles': () => ({ data: top }),
   'GET /api/admin/statistiques/heures-de-pointe': () => ({ data: hours() }),
   'GET /api/admin/statistiques/repartition': () => ({ data: breakdown }),
+  // Badge « commandes en attente » de la barre d'administration : sans ce mock, la requête échoue, React Query
+  // la relance ~1 s plus tard et cette relance était comptée comme une « nouvelle requête » du tableau de bord.
+  'GET /api/admin/commandes/compteurs': () => ({
+    data: { date: '2024-06-01', parStatut: [], totalAujourdhui: 0, enAttente: 0 },
+  }),
   ...over,
 })
 

@@ -59,7 +59,7 @@ tabouna, cornets, lablabi et boissons.
 - **Un QR code par table** : généré directement dans le navigateur, imprimable, et remplaçable si un QR doit être invalidé.
 - **Un tableau de bord juste et accessible** : les ventes sont comptées à l'heure de Tunis (une commande tardive tombe dans le bon jour) ; chaque graphique a un résumé et un tableau équivalent pour les lecteurs d'écran, se parcourt au clavier, et les variations ne reposent jamais sur la couleur seule.
 - **Comptes et rôles** : client ou administrateur ; un compte désactivé perd l'accès immédiatement, et la connexion est bloquée 10 minutes après 5 mots de passe erronés.
-- **Testé automatiquement** : 517 tests côté serveur, tous réussis ; 430 tests côté site, dont 424 réussis et 6 en cours de correction (favoris, adresses et une vérification du tableau de bord).
+- **Testé automatiquement** : 517 tests côté serveur, tous réussis ; 431 tests côté site, tous réussis.
 ## Essayer le projet
 
 Prérequis : .NET 8, Node.js et une base PostgreSQL (chaîne de connexion et mot de passe administrateur à régler d'abord).
