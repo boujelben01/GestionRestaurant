@@ -1,0 +1,266 @@
+{
+  "reglages": {
+    "graine": 20261027,
+    "jours": 60,
+    "commandesParJour": { "min": 15, "max": 30 },
+    "repartitionTypes": { "ARemporter": 45, "SurPlace": 35, "Livraison": 20 },
+    "pourcentageAnnulees": 8,
+    "lignesParCommande": { "min": 1, "max": 4 },
+    "quantiteMax": 3,
+    "commandesActivesAujourdhui": { "EnAttente": 4, "EnPreparation": 3, "Prete": 2 }
+  },
+  "utilisateurs": [
+    {
+      "cle": "u01", "nom": "Hedi Triki", "email": "trikihedi@test.com", "telephone": "+21620000001", "actif": true, "creeIlYaJours": 88,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "14 rue des Orangers, Cité des Jasmins", "ville": "Tunis", "details": "2e étage, porte gauche", "telephone": null, "parDefaut": true },
+        { "libelle": "Bureau", "ligne": "7 impasse du Figuier, Les Arcades", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": false }
+      ],
+      "favoris": [
+        { "categorie": "Pizza", "article": "Pizza Margherita" },
+        { "categorie": "Plats", "article": "Escalope panée" },
+        { "categorie": "Boissons", "article": "Jus d'orange pressé" },
+        { "categorie": "Lablabi", "article": "Lablabi classique" },
+        { "categorie": "Pizza", "article": "Pizza 4 fromages" }
+      ]
+    },
+    {
+      "cle": "u02", "nom": "Sana Mejri", "email": "mejrisana@test.com", "telephone": "+21620000002", "actif": true, "creeIlYaJours": 85,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "3 rue du Palmier, Cité Narcisse", "ville": "Tunis", "details": "Résidence Les Lilas, bloc B", "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Makloub", "article": "Makloub poulet" },
+        { "categorie": "Sandwich", "article": "Sandwich chawarma" },
+        { "categorie": "Boissons", "article": "Citronnade" }
+      ]
+    },
+    {
+      "cle": "u03", "nom": "Oussama Dridi", "email": "dridioussama@test.com", "telephone": "+21620000003", "actif": true, "creeIlYaJours": 80,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "22 avenue des Glycines, El Yasmina", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Sandwich", "article": "Sandwich chawarma" },
+        { "categorie": "Cornet", "article": "Cornet poulet" },
+        { "categorie": "Tabouna", "article": "Tabouna poulet" },
+        { "categorie": "Sandwich", "article": "Sandwich merguez" },
+        { "categorie": "Boissons", "article": "Boisson gazeuse" },
+        { "categorie": "Plats", "article": "Kebab" }
+      ]
+    },
+    {
+      "cle": "u04", "nom": "Lina Ferchichi", "email": "ferchichilina@test.com", "telephone": "+21620000004", "actif": true, "creeIlYaJours": 74,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "9 rue des Mimosas, Cité Bel Horizon", "ville": "Tunis", "details": "Villa blanche au portail vert", "telephone": null, "parDefaut": true },
+        { "libelle": "Parents", "ligne": "41 rue de la Source, Jardins d'Amilcar", "ville": "Tunis", "details": null, "telephone": "+21620000104", "parDefaut": false }
+      ],
+      "favoris": [
+        { "categorie": "Pizza", "article": "Pizza Margherita" },
+        { "categorie": "Lablabi", "article": "Lablabi classique" },
+        { "categorie": "Boissons", "article": "Thé à la menthe" },
+        { "categorie": "Plats", "article": "Sahn tounsi" }
+      ]
+    },
+    {
+      "cle": "u05", "nom": "Bilel Sassi", "email": "sassibilel@test.com", "telephone": "+21620000005", "actif": true, "creeIlYaJours": 70,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "18 rue de l'Olivier, Cité El Mourouj Vert", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Makloub", "article": "Makloub poulet" },
+        { "categorie": "Baguettes farcies", "article": "Baguette farcie poulet" },
+        { "categorie": "Makloub", "article": "Makloub escalope" },
+        { "categorie": "Boissons", "article": "Jus d'orange pressé" },
+        { "categorie": "Sandwich", "article": "Sandwich escalope" },
+        { "categorie": "Plats", "article": "Escalope panée" },
+        { "categorie": "Cornet", "article": "Cornet chawarma" }
+      ]
+    },
+    {
+      "cle": "u06", "nom": "Yosra Khemiri", "email": "khemiriyosra@test.com", "telephone": "+21620000006", "actif": true, "creeIlYaJours": 66,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "5 rue des Hirondelles, Cité Ennour", "ville": "Tunis", "details": "Immeuble Saphir, appartement 12", "telephone": null, "parDefaut": true },
+        { "libelle": "Travail", "ligne": "60 avenue du Lac Bleu, Les Berges Neuves", "ville": "Tunis", "details": "Accueil au rez-de-chaussée", "telephone": null, "parDefaut": false }
+      ],
+      "favoris": [
+        { "categorie": "Baguettes farcies", "article": "Baguette farcie poulet" },
+        { "categorie": "Pizza", "article": "Pizza Margherita" },
+        { "categorie": "Pizza", "article": "Pizza thon-olives" }
+      ]
+    },
+    {
+      "cle": "u07", "nom": "Anis Zouari", "email": "zouarianis@test.com", "telephone": "+21620000007", "actif": true, "creeIlYaJours": 61,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "27 rue du Cèdre, Cité Les Pins", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Plats", "article": "Kebab" },
+        { "categorie": "Plats", "article": "Ojja merguez" },
+        { "categorie": "Plats", "article": "Escalope panée" },
+        { "categorie": "Boissons", "article": "Eau minérale 0,5 L" },
+        { "categorie": "Lablabi", "article": "Lablabi hargma" }
+      ]
+    },
+    {
+      "cle": "u08", "nom": "Meriem Hajji", "email": "hajjimeriem@test.com", "telephone": "+21620000008", "actif": true, "creeIlYaJours": 55,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "11 rue des Coquelicots, Cité Bab Sahra", "ville": "Tunis", "details": "Au-dessus de la pharmacie", "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Tabouna", "article": "Tabouna poulet" },
+        { "categorie": "Cornet", "article": "Cornet poulet" },
+        { "categorie": "Tabouna", "article": "Tabouna thon" },
+        { "categorie": "Boissons", "article": "Citronnade" }
+      ]
+    },
+    {
+      "cle": "u09", "nom": "Fares Ayari", "email": "ayarifares@test.com", "telephone": "+21620000009", "actif": true, "creeIlYaJours": 47,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "33 rue de la Fontaine, Cité Zitouna Nord", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": true },
+        { "libelle": "Salle de sport", "ligne": "2 rue des Athlètes, Cité Olympe", "ville": "Tunis", "details": "Entrée côté parking", "telephone": null, "parDefaut": false }
+      ],
+      "favoris": [
+        { "categorie": "Plats", "article": "Poulet grillé" },
+        { "categorie": "Plats", "article": "Escalope panée" },
+        { "categorie": "Sandwich", "article": "Sandwich thon" },
+        { "categorie": "Boissons", "article": "Eau minérale 0,5 L" },
+        { "categorie": "Sandwich", "article": "Sandwich chawarma" },
+        { "categorie": "Makloub", "article": "Makloub poulet" },
+        { "categorie": "Pizza", "article": "Pizza pepperoni" },
+        { "categorie": "Baguettes farcies", "article": "Baguette farcie escalope" }
+      ]
+    },
+    {
+      "cle": "u10", "nom": "Dorra Nasri", "email": "nasridorra@test.com", "telephone": "+21620000010", "actif": true, "creeIlYaJours": 40,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "8 rue des Lauriers Roses, Cité Ibn Sina Est", "ville": "Tunis", "details": "Interphone Nasri", "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Lablabi", "article": "Lablabi classique" },
+        { "categorie": "Lablabi", "article": "Lablabi thon-œuf" },
+        { "categorie": "Boissons", "article": "Thé à la menthe" }
+      ]
+    },
+    {
+      "cle": "u11", "nom": "Skander Bouslama", "email": "bouslamaskander@test.com", "telephone": "+21620000011", "actif": true, "creeIlYaJours": 33,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "16 rue du Grenadier, Cité Les Vergers", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Pizza", "article": "Pizza mexicaine" },
+        { "categorie": "Pizza", "article": "Pizza Margherita" },
+        { "categorie": "Sandwich", "article": "Sandwich chawarma" },
+        { "categorie": "Boissons", "article": "Boisson gazeuse" },
+        { "categorie": "Cornet", "article": "Cornet poulet" }
+      ]
+    },
+    {
+      "cle": "u12", "nom": "Emna Louati", "email": "louatiemna@test.com", "telephone": "+21620000012", "actif": true, "creeIlYaJours": 25,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "4 rue des Amandiers, Cité Dar Fadhal Sud", "ville": "Tunis", "details": "3e étage", "telephone": null, "parDefaut": true },
+        { "libelle": "Studio", "ligne": "19 rue des Peintres, Cité des Arts", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": false }
+      ],
+      "favoris": [
+        { "categorie": "Makloub", "article": "Makloub poulet" },
+        { "categorie": "Boissons", "article": "Jus d'orange pressé" },
+        { "categorie": "Tabouna", "article": "Tabouna escalope" },
+        { "categorie": "Sandwich", "article": "Sandwich œuf" }
+      ]
+    },
+    {
+      "cle": "u13", "nom": "Tarek Mabrouk", "email": "mabrouktarek@test.com", "telephone": "+21620000013", "actif": true, "creeIlYaJours": 18,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "29 rue du Moulin, Cité El Wafa", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Baguettes farcies", "article": "Baguette farcie poulet" },
+        { "categorie": "Plats", "article": "Assiette chawarma" },
+        { "categorie": "Lablabi", "article": "Lablabi classique" },
+        { "categorie": "Makloub", "article": "Makloub cordon bleu" },
+        { "categorie": "Boissons", "article": "Citronnade" },
+        { "categorie": "Plats", "article": "Escalope panée" }
+      ]
+    },
+    {
+      "cle": "u14", "nom": "Hanen Cherif", "email": "cherifhanen@test.com", "telephone": "+21620000014", "actif": true, "creeIlYaJours": 10,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "12 rue des Tulipes, Cité Jardin Fleuri", "ville": "Tunis", "details": "Bâtiment C, 1er étage", "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Pizza", "article": "Pizza Margherita" },
+        { "categorie": "Tabouna", "article": "Tabouna poulet" },
+        { "categorie": "Boissons", "article": "Jus d'orange pressé" }
+      ]
+    },
+    {
+      "cle": "u15", "nom": "Mehdi Rezgui", "email": "rezguimehdi@test.com", "telephone": "+21620000015", "actif": false, "creeIlYaJours": 90,
+      "adresses": [
+        { "libelle": "Maison", "ligne": "6 rue de l'Étoile, Cité Nouvelle Médina", "ville": "Tunis", "details": null, "telephone": null, "parDefaut": true }
+      ],
+      "favoris": [
+        { "categorie": "Sandwich", "article": "Sandwich chawarma" },
+        { "categorie": "Cornet", "article": "Cornet poulet" },
+        { "categorie": "Sandwich", "article": "Sandwich Kwika" }
+      ]
+    }
+  ],
+  "commandesManuelles": [
+    {
+      "utilisateur": "u01", "type": "SurPlace", "table": 3, "adresse": null, "ilYaJours": 3, "heure": "12:40", "statut": "Terminee", "paye": true,
+      "lignes": [
+        { "categorie": "Pizza", "article": "Pizza Margherita", "quantite": 2 },
+        { "categorie": "Boissons", "article": "Citronnade", "quantite": 2 }
+      ]
+    },
+    {
+      "utilisateur": "u02", "type": "Livraison", "table": null, "adresse": "Maison", "ilYaJours": 5, "heure": "20:15", "statut": "Terminee", "paye": true,
+      "lignes": [
+        { "categorie": "Plats", "article": "Escalope panée", "quantite": 1 },
+        { "categorie": "Pizza", "article": "Pizza 4 fromages", "quantite": 1 },
+        { "categorie": "Boissons", "article": "Boisson gazeuse", "quantite": 2 }
+      ]
+    },
+    {
+      "utilisateur": "u03", "type": "ARemporter", "table": null, "adresse": null, "ilYaJours": 2, "heure": "13:05", "statut": "Annulee", "paye": false,
+      "lignes": [
+        { "categorie": "Sandwich", "article": "Sandwich chawarma", "quantite": 2 }
+      ]
+    },
+    {
+      "utilisateur": "u04", "type": "SurPlace", "table": 2, "adresse": null, "ilYaJours": 0, "heure": "12:30", "statut": "EnAttente", "paye": false,
+      "lignes": [
+        { "categorie": "Lablabi", "article": "Lablabi classique", "quantite": 2 },
+        { "categorie": "Boissons", "article": "Thé à la menthe", "quantite": 2 }
+      ]
+    },
+    {
+      "utilisateur": "u05", "type": "ARemporter", "table": null, "adresse": null, "ilYaJours": 0, "heure": "12:10", "statut": "EnPreparation", "paye": false,
+      "lignes": [
+        { "categorie": "Makloub", "article": "Makloub poulet", "quantite": 1 },
+        { "categorie": "Boissons", "article": "Jus d'orange pressé", "quantite": 1 }
+      ]
+    },
+    {
+      "utilisateur": "u06", "type": "Livraison", "table": null, "adresse": "Travail", "ilYaJours": 0, "heure": "11:50", "statut": "Prete", "paye": false,
+      "lignes": [
+        { "categorie": "Baguettes farcies", "article": "Baguette farcie poulet", "quantite": 2 }
+      ]
+    },
+    {
+      "utilisateur": "u07", "type": "SurPlace", "table": 5, "adresse": null, "ilYaJours": 1, "heure": "21:10", "statut": "Terminee", "paye": true,
+      "lignes": [
+        { "categorie": "Plats", "article": "Kebab", "quantite": 1 },
+        { "categorie": "Plats", "article": "Ojja merguez", "quantite": 1 },
+        { "categorie": "Boissons", "article": "Eau minérale 0,5 L", "quantite": 2 }
+      ]
+    },
+    {
+      "utilisateur": "u08", "type": "ARemporter", "table": null, "adresse": null, "ilYaJours": 7, "heure": "19:30", "statut": "Terminee", "paye": true,
+      "lignes": [
+        { "categorie": "Tabouna", "article": "Tabouna poulet", "quantite": 2 },
+        { "categorie": "Cornet", "article": "Cornet poulet", "quantite": 1 }
+      ]
+    }
+  ]
+}

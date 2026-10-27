@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using Resto.Api.Common;
 using Resto.Api.Data;
 using Resto.Api.Data.Catalogue;
+using Resto.Api.Data.Demo;
 using Resto.Api.Domain;
 using Resto.Api.Features.Auth;
 using Resto.Api.Features.Adresses;
@@ -93,6 +94,21 @@ if (CatalogueCommand.IsRequested(args))
     using var catalogueScope = app.Services.CreateScope();
     Environment.ExitCode = await CatalogueCommand.RunAsync(
         args, catalogueScope.ServiceProvider.GetRequiredService<AppDbContext>(), CatalogueReader.DefaultPath, Console.Out);
+    return;
+}
+
+if (DemoCommand.IsRequested(args))
+{
+    using var demoScope = app.Services.CreateScope();
+    Environment.ExitCode = await DemoCommand.RunAsync(
+        args,
+        demoScope.ServiceProvider.GetRequiredService<AppDbContext>(),
+        demoScope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>(),
+        app.Configuration[DemoCommand.PasswordKey],
+        app.Environment.EnvironmentName,
+        DemoReader.DefaultPath,
+        Console.Out,
+        DateTimeOffset.UtcNow);
     return;
 }
 

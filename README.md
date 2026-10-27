@@ -20,6 +20,7 @@ Les valeurs se stockent dans les user-secrets du projet (`UserSecretsId` déjà 
 | `Jwt:AccessTokenMinutes` | Durée de vie du jeton (60 par défaut) |
 | `Cors:AllowedOrigins` | Tableau des origines autorisées (défaut `http://localhost:5173`) |
 | `Seed:AdminPassword` | Mot de passe du compte `admin` créé par le seed (sans lui, l'admin n'est pas créé) |
+| `Seed:DemoPassword` | Mot de passe commun des comptes de démonstration créés par `--seed-demo` (sans lui, la commande refuse de tourner ; variable `Seed__DemoPassword` hors user-secrets) |
 
 ```powershell
 cd backend/src/Resto.Api
@@ -277,6 +278,40 @@ Le menu public met jusqu'à 60 s à refléter un changement (cache de `/api/menu
 - Images : les photos WebP (800 px, moins de 150 Ko) sont dans `frontend/public/images/menu/`, issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Les photos non référencées par le fichier restent dans le dépôt.
 - Validation du fichier côté front : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (structure, noms uniques par catégorie, ordres, prix >= 0, textes FR/AR, existence et poids des images non nulles).
 - Faux serveur : `cd frontend; npm run mock:api` lit ce même fichier (voir `frontend/dev-mocks/README.md`).
+
+## Données de démonstration
+
+Le fichier `backend/src/Resto.Api/Data/demo.json` (copié dans le dossier de sortie du build) décrit des données fictives pour montrer l'administration et les statistiques : 15 clients aux noms tunisiens inventés (e-mail `nomprénom@test.com`, téléphones `+21620000001` à `+21620000015`, le 15e inactif, inscrits sur les 90 derniers jours), 1 ou 2 adresses inventées chacun, 3 à 8 favoris, 8 commandes écrites à la main (`commandesManuelles`) et les réglages de génération (`reglages` : graine, nombre de jours, commandes par jour, répartition des types, pourcentage d'annulations, lignes par commande, quantité maximale, commandes actives du jour). Il ne contient ni prix, ni identifiant, ni mot de passe : les articles sont retrouvés par (catégorie, `NomFr`), les tables par numéro, les adresses de livraison des commandes manuelles par libellé ; « heure » est en heure de Tunis.
+
+La commande `--seed-demo` génère en C# (générateur SplitMix64 à graine fixe : seule la date de référence « aujourd'hui à Tunis » change d'une exécution à l'autre) les commandes des `jours` derniers jours :
+
+- nombre par jour entre `min` et `max`, moins le dimanche, plus le vendredi et le samedi ; heures entre 11 h et 22 h avec des pics 12 h-14 h et 19 h-22 h (heure de Tunis, stockées en UTC) ; seuls les clients actifs déjà inscrits à cette date commandent ;
+- type selon `repartitionTypes` ; sur place sur une table active, livraison vers une adresse du client avec les frais et le minimum de livraison des paramètres du restaurant ;
+- lignes tirées parmi les articles **actifs et disponibles** de la base au moment de l'exécution (populaires plus fréquents), prix unitaire = prix actuel, totaux calculés par `CommandeRules.ComputeTotals` comme `CommandeService` ;
+- jours passés : `Terminee` (payée) ou `Annulee` (selon `pourcentageAnnulees`), avec un historique de statuts aux transitions valides et aux horodatages croissants ; aujourd'hui seulement : les commandes actives de `commandesActivesAujourdhui` (dont une sur trois sur place, pour le plan de salle). Aucune commande dans le futur ; une commande manuelle active dont l'heure n'est pas encore passée est ramenée à 10 minutes avant l'exécution ;
+- numéros `CMD-000123` comme l'application ; les étapes du client (création, annulation en attente) lui sont attribuées, celles du restaurant n'ont pas d'auteur.
+
+Les horaires d'ouverture enregistrés ne sont pas consultés (la génération suit le créneau 11 h-23 h du seed).
+
+**Repère des comptes de démo** : `test.com` est un vrai domaine, ce n'est donc PAS un repère fiable. Un compte est « de démo » si son e-mail figure exactement dans `demo.json` **et** si son téléphone commence par `+2162000`. Cette règle sert partout : idempotence, `--reset-demo`, tests. Un compte existant avec un e-mail (ou identifiant) de `demo.json` qui n'est pas de démo est un conflit : la commande le signale et n'écrit rien. Un compte Admin n'est jamais créé, modifié ni supprimé.
+
+Procédure (il faut d'abord le seed de l'application et le catalogue : `--seed`, `--seed-catalog --apply`) :
+
+```powershell
+cd backend/src/Resto.Api
+dotnet user-secrets set "Seed:DemoPassword" "<mot-de-passe>"   # ailleurs : variable Seed__DemoPassword
+dotnet run -- --seed-demo                              # simulation : valide et affiche, n'écrit rien
+dotnet run -- --seed-demo --apply                      # crée tout en une transaction
+dotnet run -- --seed-demo --reset-demo                 # affiche ce qui serait supprimé
+dotnet run -- --seed-demo --reset-demo --apply         # supprime les comptes de démo et leurs données
+```
+
+- La simulation valide `demo.json` puis la base (articles et tables introuvables ou inactifs, conflits d'e-mail, catalogue sans article actif, paramètres absents) : toutes les erreurs sont listées et le code de sortie vaut 1. Sinon elle affiche les comptes, adresses et favoris à créer, le nombre de commandes par jour (min, moyenne, max, moyenne par jour de semaine), la répartition par statut et par type, la période et le chiffre d'affaires (hors annulées, comme les statistiques).
+- `--apply` : comptes avec le rôle Client et le mot de passe `Seed:DemoPassword` (règles Identity appliquées ; le mot de passe n'est jamais affiché). Idempotent : un compte, une adresse (même libellé) ou un favori de démo déjà présent n'est pas recréé ; si des commandes de comptes de démo existent déjà, la partie commandes est ignorée (les dates étant relatives à aujourd'hui, il faut `--reset-demo --apply` pour les régénérer).
+- `--reset-demo` supprime UNIQUEMENT les comptes de démo (règle ci-dessus) et leurs commandes, lignes, historiques, favoris, adresses et paniers, après avoir affiché la liste. Catégories, articles, tables, horaires, paramètres, compte admin et vrais comptes clients ne sont jamais touchés. **À faire avant la mise en production.**
+- La commande refuse de tourner si `ASPNETCORE_ENVIRONMENT=Production`, sauf avec `--allow-production`. L'application s'arrête après la commande. Code de sortie : 0 succès, 1 refus, 2 arguments incorrects.
+- **Avertissement** : les adresses `@test.com` appartiennent à un domaine réel. Supprimer les comptes de démo (`--reset-demo --apply`) avant d'activer tout envoi d'e-mails.
+- Le code est dans `backend/src/Resto.Api/Data/Demo/` (lecture, validation, génération, plan, application, commande), testé par `DemoTests` (EF InMemory) et `SqlTranslationTests`. Le faux serveur du front (`frontend/dev-mocks`) n'utilise pas ce fichier.
 
 ## Tests
 

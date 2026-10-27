@@ -22,6 +22,8 @@
   <ItemGroup>
     <!-- Source unique du catalogue, lue par la commande seed-catalog. -->
     <Content Update="Data\catalogue.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Données de démonstration, lues par la commande seed-demo. -->
+    <Content Update="Data\demo.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

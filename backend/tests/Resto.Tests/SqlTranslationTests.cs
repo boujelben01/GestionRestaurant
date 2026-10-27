@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Resto.Api.Data;
+using Resto.Api.Data.Demo;
 using Resto.Api.Domain;
 using Resto.Api.Features.Commandes.Admin;
 using Resto.Api.Features.Adresses;
@@ -213,5 +214,19 @@ public class SqlTranslationTests
 
         HasSql(sql, "WHERE");
         HasSql(sql, "ORDER BY");
+    }
+
+    // ---------- Données de démonstration (--seed-demo) ----------
+
+    [Fact]
+    public void The_demo_seed_queries_translate_to_sql()
+    {
+        using var db = NpgsqlContext();
+        string[] emails = ["TRIKIHEDI@TEST.COM"];
+        string[] ids = ["user-1"];
+
+        HasSql(Sql(DemoSync.MatchingUsersQuery(db, emails)), "WHERE");
+        HasSql(Sql(DemoSync.AdminIdsQuery(db, ids)), "EXISTS");
+        HasSql(Sql(DemoSync.OrdersOfQuery(db, ids)), "WHERE");
     }
 }
