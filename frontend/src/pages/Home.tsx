@@ -11,6 +11,7 @@ import {
   ZelligePattern,
 } from '@/components/ui'
 import { ConnectedArticleCard } from '@/features/cart/ConnectedArticleCard'
+import { useCustomerFeatures, useFavorites } from '@/features/favorites/api'
 import { useMenu } from '@/features/menu/api'
 import { ArticleGridSkeleton } from '@/features/menu/MenuSkeleton'
 import { InfoBand } from '@/features/restaurant/InfoBand'
@@ -72,6 +73,40 @@ function Hero() {
           />
         </Reveal>
       </div>
+    </section>
+  )
+}
+
+/**
+ * « Vos plats favoris » : seulement pour un client connecté qui a au moins un favori encore au menu.
+ * Rien n'est rendu (ni squelette) tant que les données manquent : aucun décalage pour les autres visiteurs.
+ */
+function FavoritesSection() {
+  const { t } = useTranslation()
+  const customer = useCustomerFeatures()
+  const { data } = useFavorites()
+  const active = (data ?? []).filter((article) => article.actif).slice(0, 4)
+  if (!customer || active.length === 0) return null
+  return (
+    <section aria-labelledby="favorites-title" className="container-page pt-20 pb-2">
+      <Reveal className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-eyebrow text-terracotta-700">{t('favorites.homeEyebrow')}</p>
+          <h2 id="favorites-title" className="mt-2 text-3xl sm:text-4xl">
+            {t('favorites.homeTitle')}
+          </h2>
+        </div>
+        <Button to="/favoris" variant="ghost" size="sm" icon={<ArrowIcon className="size-4" />}>
+          {t('favorites.seeAll')}
+        </Button>
+      </Reveal>
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {active.map((article, index) => (
+          <Reveal as="li" key={article.id} index={index % 4} className="h-full">
+            <ConnectedArticleCard article={article} />
+          </Reveal>
+        ))}
+      </ul>
     </section>
   )
 }
@@ -216,6 +251,7 @@ export default function Home() {
     <>
       <Seo title={t('seo.homeTitle')} description={t('seo.homeDescription')} />
       <Hero />
+      <FavoritesSection />
       <PopularSection />
       <StorySection />
       <InfoBand />

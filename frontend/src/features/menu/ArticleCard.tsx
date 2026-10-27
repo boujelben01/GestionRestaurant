@@ -1,6 +1,7 @@
 import type { SyntheticEvent } from 'react'
+import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import { Badge, Card, PlusIcon, StarIcon, Tooltip } from '@/components/ui'
+import { Badge, Card, HeartIcon, PlusIcon, StarIcon, Tooltip } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { formatPrice } from '@/lib/format'
 import type { MenuArticle } from '@/lib/types'
@@ -17,6 +18,11 @@ interface ArticleCardProps {
   adding?: boolean
   /** Quantité déjà au panier : pastille discrète si > 0. */
   inCartQuantity?: number
+  /** Favori ? Sans `onToggleFavorite`, aucun cœur n'est rendu (carte pure). */
+  isFavorite?: boolean
+  onToggleFavorite?: (article: MenuArticle) => void
+  /** Article retiré du menu public (liste de favoris) : grisé, badge, ajout impossible. */
+  unlisted?: boolean
   className?: string
 }
 
@@ -36,11 +42,14 @@ export function ArticleCard({
   onAdd,
   adding = false,
   inCartQuantity = 0,
+  isFavorite = false,
+  onToggleFavorite,
+  unlisted = false,
   className,
 }: ArticleCardProps) {
   const { t } = useTranslation()
   const lang = useLang()
-  const unavailable = !article.disponible
+  const unavailable = !article.disponible || unlisted
   const interactive = Boolean(onAdd) && !unavailable
 
   return (
@@ -63,6 +72,25 @@ export function ArticleCard({
             unavailable && 'grayscale',
           )}
         />
+        {onToggleFavorite && (
+          <button
+            type="button"
+            aria-pressed={isFavorite}
+            aria-label={t(isFavorite ? 'favorites.remove' : 'favorites.add', { name: article.nom })}
+            onClick={() => onToggleFavorite(article)}
+            className="absolute end-1 top-1 grid size-11 place-items-center rounded-full bg-white/90 text-terracotta-700 shadow-soft transition-colors hover:bg-white"
+          >
+            <motion.span
+              key={String(isFavorite)}
+              initial={{ scale: isFavorite ? 0.6 : 1 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 14 }}
+              className="grid place-items-center"
+            >
+              <HeartIcon filled={isFavorite} className="size-6" />
+            </motion.span>
+          </button>
+        )}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
@@ -81,7 +109,11 @@ export function ArticleCard({
               {t('menu.popular')}
             </Badge>
           )}
-          {unavailable && <Badge tone="neutral">{t('menu.unavailable')}</Badge>}
+          {unlisted ? (
+            <Badge tone="neutral">{t('favorites.unlisted')}</Badge>
+          ) : (
+            unavailable && <Badge tone="neutral">{t('menu.unavailable')}</Badge>
+          )}
         </div>
         {inCartQuantity > 0 && (
           <p className="w-fit rounded-full bg-olive-100 px-2.5 py-0.5 text-xs font-semibold text-olive-700">
@@ -115,7 +147,12 @@ export function ArticleCard({
           ) : (
             <Tooltip
               content={
-                addHint ?? (unavailable ? t('menu.unavailableHint') : t('common.comingSoon'))
+                addHint ??
+                (unlisted
+                  ? t('favorites.unlistedHint')
+                  : unavailable
+                    ? t('menu.unavailableHint')
+                    : t('common.comingSoon'))
               }
               placement="top"
               align="end"

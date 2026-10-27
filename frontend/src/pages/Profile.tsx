@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { Seo } from '@/components/Seo'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, Card, Input, useToast } from '@/components/ui'
+import { AddressesSection } from '@/features/addresses/AddressesSection'
 import { useAuth } from '@/features/auth/AuthContext'
+import { useCustomerFeatures } from '@/features/favorites/api'
 import { FormAlert, PasswordInput } from '@/features/auth/AuthLayout'
 import type { FieldErrors } from '@/features/auth/validation'
 import { useChangePassword, useUpdateProfile } from '@/features/profile/api'
@@ -13,10 +15,7 @@ import {
   validatePasswordChange,
   validateProfile,
 } from '@/features/profile/validation'
-import { cn } from '@/lib/cn'
 import { toAppError } from '@/lib/errors'
-import { setExplicitLang } from '@/lib/i18n'
-import type { Lang } from '@/lib/types'
 
 function failureMessage(error: unknown, t: ReturnType<typeof useTranslation>['t']) {
   const e = toAppError(error)
@@ -33,8 +32,7 @@ function ProfileForm() {
 
   const [nom, setNom] = useState(user?.nom ?? '')
   const [telephone, setTelephone] = useState(user?.telephone ?? '')
-  const [langue, setLangue] = useState<Lang>(user?.langueFavorite ?? 'fr')
-  const [errors, setErrors] = useState<FieldErrors<'nom' | 'telephone' | 'langueFavorite'>>({})
+  const [errors, setErrors] = useState<FieldErrors<'nom' | 'telephone'>>({})
   const [general, setGeneral] = useState<string>()
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -48,15 +46,13 @@ function ProfileForm() {
       ;(form.elements.namedItem(first) as HTMLElement | null)?.focus()
       return
     }
-    const previous = user?.langueFavorite
     try {
-      await update.mutateAsync({ nom, telephone, langueFavorite: langue })
-      if (langue !== previous) await setExplicitLang(langue)
+      await update.mutateAsync({ nom, telephone, langueFavorite: 'fr' })
       toast(t('profile.saved'), { variant: 'success' })
     } catch (error) {
       const e = toAppError(error)
       const fields: typeof errors = {}
-      for (const key of ['nom', 'telephone', 'langueFavorite'] as const) {
+      for (const key of ['nom', 'telephone'] as const) {
         const message = e.fieldError(key)
         if (message) fields[key] = message
       }
@@ -108,40 +104,6 @@ function ProfileForm() {
           ltr
           optional
         />
-        <fieldset>
-          <legend className="mb-1.5 text-sm font-semibold text-ink-800">
-            {t('profile.language')}
-          </legend>
-          <div role="radiogroup" className="grid grid-cols-2 gap-3">
-            {(['fr', 'ar'] as const).map((code) => (
-              <div key={code} className="relative">
-                <input
-                  type="radio"
-                  name="langueFavorite"
-                  id={`lang-${code}`}
-                  value={code}
-                  checked={langue === code}
-                  onChange={() => setLangue(code)}
-                  className="peer sr-only"
-                />
-                <label
-                  htmlFor={`lang-${code}`}
-                  lang={code}
-                  dir={code === 'ar' ? 'rtl' : 'ltr'}
-                  className={cn(
-                    'flex min-h-12 cursor-pointer items-center justify-center rounded-md border-[1.5px] border-sand-400 bg-white px-4 font-semibold transition-colors duration-200',
-                    'peer-checked:border-terracotta-600 peer-checked:bg-terracotta-100/50 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-sidi-600 hover:border-ink-500',
-                  )}
-                >
-                  {t(`lang.${code}`, { lng: code })}
-                </label>
-              </div>
-            ))}
-          </div>
-          {errors.langueFavorite && (
-            <p className="mt-1.5 text-sm font-medium text-danger-600">{errors.langueFavorite}</p>
-          )}
-        </fieldset>
         <Button type="submit" size="lg" loading={update.isPending} className="self-start">
           {t('profile.save')}
         </Button>
@@ -260,6 +222,7 @@ export default function Profile() {
   const { logout } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
+  const customer = useCustomerFeatures()
 
   return (
     <>
@@ -268,6 +231,7 @@ export default function Profile() {
       <div className="container-page flex-1 py-8">
         <div className="mx-auto flex max-w-2xl flex-col gap-6">
           <ProfileForm />
+          {customer && <AddressesSection />}
           <PasswordForm />
           <div className="flex justify-center py-2">
             <Button

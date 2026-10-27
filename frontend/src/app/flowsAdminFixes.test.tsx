@@ -46,12 +46,12 @@ beforeEach(async () => {
 afterEach(() => mock?.restore())
 
 describe('liens du menu utilisateur selon le rôle', () => {
-  it('un admin ne garde que « Administration » ; un client garde Mes commandes et Profil', () => {
+  it('un admin ne garde que « Administration » ; un client garde Mes commandes, Mes favoris et Profil', () => {
     expect(accountLinksFor(['Admin'])).toEqual([ADMIN_LINK])
     expect(accountLinksFor(['Client'])).toEqual([...ACCOUNT_LINKS])
     expect(accountLinksFor([])).toEqual([...ACCOUNT_LINKS])
     expect(accountLinksFor(['Client', 'Admin'])).toEqual([ADMIN_LINK])
-    expect(ACCOUNT_LINKS.map((l) => l.to)).toEqual(['/commandes', '/profil'])
+    expect(ACCOUNT_LINKS.map((l) => l.to)).toEqual(['/commandes', '/favoris', '/profil'])
   })
 
   const openMenu = async (user: User) => {
@@ -75,13 +75,15 @@ describe('liens du menu utilisateur selon le rôle', () => {
     expect(nav.getByRole('link', { name: 'Administration' })).toHaveAttribute('href', '/admin')
     expect(nav.queryByRole('link', { name: 'Mes commandes' })).not.toBeInTheDocument()
     expect(nav.queryByRole('link', { name: 'Profil' })).not.toBeInTheDocument()
+    expect(nav.queryByRole('link', { name: 'Mes favoris' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Se déconnecter' })).toBeInTheDocument()
   })
 
-  it("client : rien ne change (Mes commandes, Profil, pas d'Administration)", async () => {
+  it("client : rien ne change (Mes commandes, Mes favoris, Profil, pas d'Administration)", async () => {
     const nav = await openMenu(client)
 
     expect(nav.getByRole('link', { name: 'Mes commandes' })).toHaveAttribute('href', '/commandes')
+    expect(nav.getByRole('link', { name: 'Mes favoris' })).toHaveAttribute('href', '/favoris')
     expect(nav.getByRole('link', { name: 'Profil' })).toHaveAttribute('href', '/profil')
     expect(nav.queryByRole('link', { name: 'Administration' })).not.toBeInTheDocument()
   })
@@ -197,7 +199,6 @@ describe('« Nouvel article » avec les catégories indisponibles', () => {
                 {
                   id: 1,
                   nomFr: 'Entrées',
-                  nomAr: 'مقبلات',
                   ordre: 1,
                   estActive: true,
                   nombreArticlesActifs: 0,

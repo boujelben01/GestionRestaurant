@@ -43,7 +43,6 @@ tabouna, cornets, lablabi et boissons.
 4. Le client voit l'avancement sur son téléphone.
 5. Le serveur encaisse la table depuis le plan de salle, puis la libère pour les clients suivants.
 
-<!-- captures d'écran à ajouter dans docs/screenshots/ -->
 
 ## Technologies
 
@@ -72,12 +71,9 @@ cd backend/src/Resto.Api; dotnet run                           # API sur http://
 cd frontend; npm install; npm run dev                          # site sur http://localhost:5173
 ```
 
-Chaque commande part de la racine du dépôt. Les comptes de démonstration sont créés par une commande dédiée, avec un mot de passe défini dans une variable de configuration (jamais écrit dans le dépôt).
-Tout le détail (configuration, démonstration, tests, déploiement) : [docs/TECHNIQUE.md](docs/TECHNIQUE.md).
-
 ## Crédits
 
 - Photos des plats : Unsplash (licence Unsplash), sauf une photo fournie par le propriétaire du projet dont la source reste à confirmer ; auteurs et sources dans [docs/images-credits.md](docs/images-credits.md).
 - Polices : Fraunces et Inter, auto-hébergées via Fontsource.
 
-Projet réalisé dans le cadre de mon portfolio.
+

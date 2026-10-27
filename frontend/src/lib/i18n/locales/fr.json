@@ -1,14 +1,12 @@
 {
   "brand": {
     "name": "El Resto",
-    "tagline": "Cuisine tunisienne, faite maison",
-    "description": "Brik, lablabi, makloub, chawarma et plats tounsi : commandez en ligne auprès de votre restaurant tunisien."
+    "tagline": "Pizzas, makloub, lablabi et gourmandises",
+    "description": "Pizzas, plats, sandwichs, makloub, baguettes farcies, tabouna, cornets, lablabi et boissons : commandez en ligne chez El Resto, du fait maison."
   },
   "lang": {
     "fr": "Français",
-    "ar": "العربية",
-    "frShort": "FR",
-    "arShort": "عربي"
+    "frShort": "FR"
   },
   "nav": {
     "home": "Accueil",
@@ -25,7 +23,8 @@
     "orders": "Mes commandes",
     "cart": "Panier",
     "profile": "Profil",
-    "admin": "Administration"
+    "admin": "Administration",
+    "favorites": "Mes favoris"
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal",
@@ -546,7 +545,6 @@
       "articles": "Articles",
       "categories": "Catégories",
       "nameFr": "Nom (français)",
-      "nameAr": "Nom (arabe)",
       "moveUp": "Monter {{name}}",
       "moveDown": "Descendre {{name}}",
       "activeArticles_one": "{{count}} article actif",
@@ -576,7 +574,6 @@
         "category": "Catégorie",
         "chooseCategory": "Choisir une catégorie",
         "descriptionFr": "Description (français)",
-        "descriptionAr": "Description (arabe)",
         "price": "Prix (DT)",
         "priceHint": "Virgule ou point acceptés, deux décimales au maximum.",
         "imageUrl": "Image",
@@ -820,5 +817,64 @@
       "categorySummary": "{{name}} en tête : {{amount}}",
       "category": "Catégorie"
     }
+  },
+  "favorites": {
+    "title": "Mes favoris",
+    "subtitle": "Les plats que vous aimez, à portée de main.",
+    "add": "Ajouter aux favoris : {{name}}",
+    "remove": "Retirer des favoris : {{name}}",
+    "added": "{{name}} ajouté aux favoris",
+    "removed": "{{name}} retiré des favoris",
+    "loadError": "Impossible de charger vos favoris.",
+    "count_one": "{{count}} plat favori",
+    "count_other": "{{count}} plats favoris",
+    "emptyTitle": "Aucun favori pour l’instant",
+    "emptyText": "Touchez le cœur d’un plat sur le menu pour le retrouver ici.",
+    "unlisted": "Plus disponible au menu",
+    "unlistedHint": "Ce plat n’est plus au menu : vous pouvez le retirer de vos favoris.",
+    "homeEyebrow": "Pour vous",
+    "homeTitle": "Vos plats favoris",
+    "seeAll": "Voir tous mes favoris"
+  },
+  "addresses": {
+    "title": "Mes adresses",
+    "count_one": "{{count}} / {{max}} adresse",
+    "count_other": "{{count}} / {{max}} adresses",
+    "add": "Ajouter une adresse",
+    "limitReached": "Vous avez atteint la limite de {{max}} adresses : supprimez-en une pour en ajouter.",
+    "emptyTitle": "Aucune adresse enregistrée",
+    "emptyText": "Enregistrez vos adresses pour commander en livraison en un geste.",
+    "default": "Par défaut",
+    "setDefault": "Définir par défaut",
+    "defaultSet": "Adresse par défaut mise à jour.",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer cette adresse ?",
+    "deleteText": "L’adresse sera définitivement supprimée de votre carnet.",
+    "deleteDefaultNote": "L’adresse sera définitivement supprimée. C’est votre adresse par défaut : la plus ancienne des autres adresses la remplacera.",
+    "deleteConfirm": "Supprimer",
+    "deleted": "Adresse supprimée.",
+    "saved": "Adresse enregistrée.",
+    "createTitle": "Nouvelle adresse",
+    "editTitle": "Modifier l’adresse",
+    "label": "Libellé",
+    "labelHint": "Par exemple : Maison, Bureau.",
+    "line": "Adresse",
+    "city": "Ville",
+    "details": "Détails",
+    "detailsHint": "Étage, code, repère…",
+    "phone": "Téléphone",
+    "makeDefault": "Adresse par défaut",
+    "save": "Enregistrer",
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "tooLong": "{{max}} caractères maximum.",
+      "phone": "Saisissez un numéro de téléphone valide.",
+      "limit": "Vous avez atteint la limite de {{max}} adresses."
+    },
+    "checkoutTitle": "Mes adresses",
+    "checkoutLoading": "Chargement de vos adresses…",
+    "checkoutUnavailable": "Vos adresses ne sont pas disponibles : saisissez l’adresse librement.",
+    "other": "Autre adresse"
   }
 }

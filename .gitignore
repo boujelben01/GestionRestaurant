@@ -1,22 +1,35 @@
-.vs/
+# Dossiers générés par la compilation
 bin/
 obj/
-node_modules/
 dist/
-*.user
-secrets.json
-.env
-.omc/
+node_modules/
+TestResults/
+publish/
 coverage/
-*.log
+
+# Éditeur et système
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+Thumbs.db
+.DS_Store
+
+# Secrets et configuration locale
+.env
 .env.*
 !.env.example
+secrets.json
 appsettings.*.local.json
 *.pfx
 *.key
+
+# Journaux et fichiers temporaires
+*.log
 scratchpad/
+.omc/
 backend/demo-out/
-Thumbs.db
-.DS_Store
-.vscode/
+
+# Fichier généré, régénérable
 docs/planche-contact.html

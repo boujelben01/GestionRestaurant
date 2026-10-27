@@ -7,6 +7,7 @@ export const NAV_ITEMS = [
 /** Liens du compte (menu utilisateur et menu mobile) ; pages protégées. */
 export const ACCOUNT_LINKS = [
   { to: '/commandes', key: 'nav.orders' },
+  { to: '/favoris', key: 'nav.favorites' },
   { to: '/profil', key: 'nav.profile' },
 ] as const
 

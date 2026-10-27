@@ -12,6 +12,7 @@ export const Checkout = lazy(() => import('@/pages/Checkout'))
 export const OrderConfirmation = lazy(() => import('@/pages/OrderConfirmation'))
 export const TableEntry = lazy(() => import('@/pages/TableEntry'))
 
+export const Favorites = lazy(() => import('@/pages/Favorites'))
 export const Orders = lazy(() => import('@/pages/Orders'))
 export const OrderDetail = lazy(() => import('@/pages/OrderDetail'))
 export const Profile = lazy(() => import('@/pages/Profile'))

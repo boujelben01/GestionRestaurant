@@ -17,7 +17,10 @@ import {
   TableIcon,
   useToast,
 } from '@/components/ui'
+import { useAddresses } from '@/features/addresses/api'
+import { checkoutPrefill, defaultAddress } from '@/features/addresses/rules'
 import { useAuth } from '@/features/auth/AuthContext'
+import { useCustomerFeatures } from '@/features/favorites/api'
 import { usePanier } from '@/features/cart/api'
 import { blockedLines } from '@/features/cart/cartMath'
 import { useCreateOrder } from '@/features/orders/api'
@@ -106,17 +109,52 @@ export default function Checkout() {
   const createOrder = useCreateOrder()
   const table = useTableSession()
   const formRef = useRef<HTMLFormElement>(null)
+  const customer = useCustomerFeatures()
+  const addressesQuery = useAddresses()
+  const savedAddresses = addressesQuery.data ?? []
 
   const [chosenType, setChosenType] = useState<TypeCommande>(table ? 'SurPlace' : 'ARemporter')
   const [telephone, setTelephone] = useState(user?.telephone ?? '')
   const [note, setNote] = useState('')
   const [adresse, setAdresse] = useState('')
+  // Adresse du carnet choisie ('other' = saisie libre, null = pas encore de choix).
+  const [addressChoice, setAddressChoice] = useState<number | 'other' | null>(null)
   const [codeErrors, setCodeErrors] = useState<CheckoutFieldErrors>({})
   const [serverFields, setServerFields] = useState<Partial<Record<CheckoutField, string>>>({})
   const [failure, setFailure] = useState<OrderFailure | null>(null)
 
   const types = availableTypes(table !== null)
   const type: TypeCommande = types.includes(chosenType) ? chosenType : 'ARemporter'
+  // Livraison : l'adresse par défaut est présélectionnée tant que le champ adresse est vide.
+  if (
+    type === 'Livraison' &&
+    addressChoice === null &&
+    savedAddresses.length > 0 &&
+    adresse.trim() === ''
+  ) {
+    const preset = defaultAddress(savedAddresses)
+    if (preset) {
+      const prefill = checkoutPrefill(preset)
+      setAddressChoice(preset.id)
+      setAdresse(prefill.adresse)
+      setTelephone(prefill.telephone)
+    }
+  }
+  const chooseAddress = (choice: number | 'other') => {
+    setAddressChoice(choice)
+    clearField('adresseLivraison')
+    if (choice === 'other') {
+      setAdresse('')
+      return
+    }
+    const picked = savedAddresses.find((a) => a.id === choice)
+    if (picked) {
+      const prefill = checkoutPrefill(picked)
+      setAdresse(prefill.adresse)
+      setTelephone(prefill.telephone)
+      clearField('telephone')
+    }
+  }
   const hasLines = (cart?.lignes.length ?? 0) > 0
   const blocked = blockedLines(cart)
   const sousTotal = cart?.sousTotal ?? 0
@@ -331,6 +369,67 @@ export default function Checkout() {
               {type === 'Livraison' && (
                 <Section n={3} title={t('checkout.stepDelivery')}>
                   <div className="flex flex-col gap-5">
+                    {customer && (
+                      <fieldset>
+                        <legend className="mb-2 text-sm font-semibold text-ink-800">
+                          {t('addresses.checkoutTitle')}
+                        </legend>
+                        {addressesQuery.isPending && (
+                          <p role="status" className="text-sm text-ink-500">
+                            {t('addresses.checkoutLoading')}
+                          </p>
+                        )}
+                        {addressesQuery.isError && (
+                          <p role="status" className="text-sm text-ink-500">
+                            {t('addresses.checkoutUnavailable')}
+                          </p>
+                        )}
+                        {savedAddresses.length > 0 && (
+                          <div role="radiogroup" className="grid gap-2 sm:grid-cols-2">
+                            {[
+                              ...savedAddresses.map((a) => ({
+                                id: a.id as number | 'other',
+                                address: a,
+                              })),
+                              { id: 'other' as const, address: null },
+                            ].map(({ id, address }) => (
+                              <div key={String(id)} className="relative">
+                                <input
+                                  type="radio"
+                                  name="savedAddress"
+                                  id={`saved-${id}`}
+                                  checked={addressChoice === id}
+                                  onChange={() => chooseAddress(id)}
+                                  className="peer sr-only"
+                                />
+                                <label
+                                  htmlFor={`saved-${id}`}
+                                  className="flex h-full min-h-14 cursor-pointer flex-col justify-center rounded-lg border-[1.5px] border-sand-400 bg-white p-3 text-sm transition-colors peer-checked:border-terracotta-600 peer-checked:bg-terracotta-100/50 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-sidi-600 hover:border-ink-500"
+                                >
+                                  {address ? (
+                                    <>
+                                      <span className="font-semibold">
+                                        {address.libelle}
+                                        {address.estParDefaut && (
+                                          <span className="ms-2 text-xs font-normal text-olive-700">
+                                            ({t('addresses.default')})
+                                          </span>
+                                        )}
+                                      </span>
+                                      <span className="text-ink-700">
+                                        {address.ligne}, {address.ville}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <span className="font-semibold">{t('addresses.other')}</span>
+                                  )}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </fieldset>
+                    )}
                     <Field
                       label={t('order.address')}
                       required

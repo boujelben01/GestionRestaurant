@@ -108,7 +108,6 @@ export interface CreerCommandeRequest {
 export interface CommandeLigne {
   articleId: number | null
   nomFr: string
-  nomAr: string
   prixUnitaire: number
   quantite: number
   totalLigne: number
@@ -177,7 +176,6 @@ export interface AdminOrderSummary {
 
 export interface ActiveOrderLine {
   nomFr: string
-  nomAr: string
   quantite: number
 }
 
@@ -200,7 +198,6 @@ export interface ActiveOrder {
 export interface AdminOrderLine {
   articleId: number | null
   nomFr: string
-  nomAr: string
   prixUnitaire: number
   quantite: number
   totalLigne: number
@@ -247,7 +244,6 @@ export interface OrderCounters {
 export interface AdminCategory {
   id: number
   nomFr: string
-  nomAr: string
   ordre: number
   estActive: boolean
   nombreArticlesActifs: number
@@ -257,9 +253,7 @@ export interface AdminArticle {
   id: number
   categorieId: number
   nomFr: string
-  nomAr: string
   descriptionFr: string | null
-  descriptionAr: string | null
   prix: number
   imageUrl: string | null
   estDisponible: boolean
@@ -371,4 +365,29 @@ export interface Breakdown {
     quantite: number
     chiffreAffaires: number
   }>
+}
+
+// --- Favoris et adresses du client (Features/Favoris, Features/Adresses) ---
+
+export interface FavoriteArticle {
+  id: number
+  categorieId: number
+  nom: string
+  description: string | null
+  prix: number
+  imageUrl: string | null
+  estPopulaire: boolean
+  disponible: boolean
+  /** Faux si l'article (ou sa catégorie) a été désactivé : il reste listé mais ne peut plus être commandé. */
+  actif: boolean
+}
+
+export interface Address {
+  id: number
+  libelle: string
+  ligne: string
+  ville: string
+  details: string | null
+  telephone: string
+  estParDefaut: boolean
 }

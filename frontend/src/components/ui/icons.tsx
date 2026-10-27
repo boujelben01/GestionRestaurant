@@ -207,3 +207,8 @@ export const RefreshIcon = (p: IconProps) => (
     <path d="M20 11a8 8 0 0 0-14.5-4M4 13a8 8 0 0 0 14.5 4M5 3v4h4M19 21v-4h-4" />
   </Base>
 )
+export const HeartIcon = ({ filled = false, ...p }: IconProps & { filled?: boolean }) => (
+  <Base {...p} fill={filled ? 'currentColor' : 'none'}>
+    <path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2Z" />
+  </Base>
+)
