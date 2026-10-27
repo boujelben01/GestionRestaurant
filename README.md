@@ -37,7 +37,7 @@ dotnet run
 ```
 
 - API : http://localhost:5118 (Swagger sur `/swagger`, santé sur `/health`).
-- En Development, le seed (rôles, admin, paramètres, horaires, tables, catalogue) s'exécute au démarrage ; les données ne sont insérées que si les tables sont vides.
+- En Development, le seed (rôles, admin, paramètres, horaires, tables) s'exécute au démarrage ; les données ne sont insérées que si les tables sont vides. Il ne touche pas au catalogue (voir « Catalogue » plus bas).
 - Hors Development, le seed ne tourne que sur demande : `dotnet run -- --seed` (il s'arrête ensuite).
 - Aucune migration n'est appliquée automatiquement.
 
@@ -250,13 +250,33 @@ Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est tou
 - **Isolation :** l'adresse d'un autre utilisateur donne **404** (jamais 403).
 - **Limite connue :** sans contrainte SQL (pas de migration), deux requêtes simultanées du même utilisateur pourraient dépasser 10 adresses ou créer deux défauts ; ajouter un index unique partiel (`UserId` où `EstParDefaut`) demanderait une migration.
 
-## Catalogue international
+## Catalogue
 
-`docs/catalogue.json` décrit 5 catégories de 5 plats chacune (structure `{ categories: [ { nomFr, nomAr, ordre, articles: [...] } ] }`, `ordre` 1 à 5 dans la catégorie, prix en DT ; l'`ordre` des catégories est croissant, Boissons = 9) : Entrées et salades, Burgers et sandwichs, Pizzas et pâtes, Desserts, Boissons. Chaque article a `nomFr`, `nomAr`, `descriptionFr`, `descriptionAr`, `prix`, `populaire`, `disponible` et `image`. C'est une source de données documentaire : le seed (`DbSeeder`) ne la lit pas et garde son propre catalogue.
+Un seul fichier décrit la carte : `backend/src/Resto.Api/Data/catalogue.json` (copié dans le dossier de sortie du build). Il alimente la base via la commande `--seed-catalog` et le faux serveur du front (`frontend/dev-mocks/server.mjs`). Il n'existe plus d'autre liste de plats (ni dans `DbSeeder`, ni dans `docs/`, ni dans les fixtures du mock).
 
-- Images : 25 photos WebP (hors milkshake.webp, conservé mais non référencé) (800 px, moins de 150 Ko) dans `frontend/public/images/menu/`, une par plat, toutes issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Un champ `image` peut valoir `null` (l'interface affiche alors `/images/default.svg`).
-- Vérification visuelle : ouvrir `docs/planche-contact.html`.
-- Validation : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (structure, 25 articles, noms uniques, prix >= 0, textes FR/AR, existence et poids des images non nulles).
+Structure : `{ "categories": [ { nomFr, nomAr, ordre, articles: [ { ordre, nomFr, nomAr, descriptionFr, descriptionAr, prix, populaire, disponible, image } ] } ] }`. Prix en DT à 2 décimales au plus, `image` = chemin `/images/...` ou URL https (règles d'`ImageUrlRules`) ou `null` (l'interface affiche alors `/images/default.svg`). Pour l'instant le fichier ne contient que la catégorie « Boissons » (5 articles) ; les autres catégories seront ajoutées plus tard.
+
+Procédure : modifier le fichier, puis **toujours simuler avant d'appliquer**.
+
+```powershell
+cd backend/src/Resto.Api
+dotnet run -- --seed-catalog                                  # simulation : n'écrit rien
+dotnet run -- --seed-catalog --apply                          # upsert en une transaction
+dotnet run -- --seed-catalog --apply --deactivate-missing     # + désactive ce qui n'est plus dans le fichier
+```
+
+- La simulation (par défaut) affiche ce qui serait créé, modifié, inchangé, et ce qui est présent en base mais absent du fichier. Elle lit la base (la chaîne de connexion est requise) mais n'écrit rien.
+- `--apply` : catégorie retrouvée par `NomFr`, article par (catégorie, `NomFr`), sans tenir compte de la casse. Relancer deux fois ne crée aucun doublon. Aucune suppression. Un article ou une catégorie trouvés sont alignés sur le fichier (textes, prix, image, ordre, `populaire`, `disponible`) et **réactivés** s'ils étaient inactifs : le fichier fait foi pour ce qu'il contient.
+- `--deactivate-missing` (uniquement avec `--apply`) : catégories et articles absents du fichier passent à inactif (les articles d'une catégorie absente aussi). Jamais de suppression.
+- Le fichier est validé en entier avant toute écriture : noms FR/AR non vides (≤ 100 pour une catégorie, ≤ 150 pour un article), noms uniques (catégories, et articles par catégorie), prix de 0 à 99 999 999,99 avec 2 décimales au plus, `ordre` de 0 à 10 000, descriptions ≤ 1000 caractères, image conforme ou `null`, au moins une catégorie. En cas d'erreur, la commande les liste et s'arrête avec le code 1.
+- L'application s'arrête après la commande. Code de sortie : 0 succès, 1 catalogue invalide, 2 arguments incorrects.
+- Le code est dans `backend/src/Resto.Api/Data/Catalogue/` (lecture, validation, plan, application, commande), testé par `CatalogueTests` et `SeedTests`.
+
+Le menu public met jusqu'à 60 s à refléter un changement (cache de `/api/menu`).
+
+- Images : les photos WebP (800 px, moins de 150 Ko) sont dans `frontend/public/images/menu/`, issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Les photos des catégories pas encore ajoutées au fichier restent dans le dépôt ; elles seront référencées quand leurs catégories reviendront.
+- Validation du fichier côté front : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (structure, noms uniques par catégorie, ordres, prix >= 0, textes FR/AR, existence et poids des images non nulles).
+- Faux serveur : `cd frontend; npm run mock:api` lit ce même fichier (voir `frontend/dev-mocks/README.md`).
 
 ## Tests
 

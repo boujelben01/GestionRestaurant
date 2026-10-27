@@ -31,4 +31,4 @@ Photos téléchargées via l'API officielle d'Unsplash (site : unsplash.com), co
 | frontend/public/images/menu/boisson-gazeuse.webp | Boisson gazeuse | K8 | https://unsplash.com/photos/clear-drinking-glass-with-brown-liquid-hJJAyrscf_A | Unsplash | Unsplash License |
 | frontend/public/images/menu/eau-minerale.webp | Eau minérale 0,5 L | Steve A Johnson | https://unsplash.com/photos/clear-drinking-bottle-filled-with-water-N-MqWXXZvNY | Unsplash | Unsplash License |
 
-Les images issues des catalogues précédents (baklawa, cafés, jus de fruits, salade de fruits) ont été supprimées avec leurs articles. L'image du thé à la menthe a été restaurée depuis l'historique git (commit f17b12c).
+Le catalogue (`backend/src/Resto.Api/Data/catalogue.json`) ne référence pour l'instant que les 5 boissons ; les autres photos restent dans le dépôt pour les catégories qui seront rajoutées, et `milkshake.webp` n'est plus référencée. Les images issues des catalogues précédents (baklawa, cafés, jus de fruits, salade de fruits) ont été supprimées avec leurs articles. L'image du thé à la menthe a été restaurée depuis l'historique git (commit f17b12c).

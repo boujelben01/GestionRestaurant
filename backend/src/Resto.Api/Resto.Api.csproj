@@ -20,6 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Source unique du catalogue, lue par la commande seed-catalog. -->
+    <Content Update="Data\catalogue.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Les tests de traduction SQL (SqlTranslationTests) appellent les requêtes internal des services. -->
     <InternalsVisibleTo Include="Resto.Tests" />
   </ItemGroup>

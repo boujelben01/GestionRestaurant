@@ -2,40 +2,46 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
+// Source unique du catalogue, lue par le back-end (--seed-catalog) et par le faux serveur.
 const root = resolve(process.cwd(), '..') + '/'
-const { categories } = JSON.parse(readFileSync(`${root}docs/catalogue.json`, 'utf8'))
+const { categories } = JSON.parse(
+  readFileSync(`${root}backend/src/Resto.Api/Data/catalogue.json`, 'utf8'),
+)
 const articles = categories.flatMap((c) => c.articles)
 const seq = (n) => Array.from({ length: n }, (_, i) => i + 1)
+const unique = (values) => new Set(values).size === values.length
 
-describe('docs/catalogue.json', () => {
-  it('contient 5 catégories à ordre croissant et unique (Boissons = 9), avec noms FR et AR', () => {
-    expect(categories.map((c) => c.nomFr)).toEqual([
-      'Entrées et salades',
-      'Burgers et sandwichs',
-      'Pizzas et pâtes',
-      'Desserts',
-      'Boissons',
-    ])
-    expect(categories.map((c) => c.ordre)).toEqual([1, 2, 3, 4, 9])
-    for (const c of categories) expect(c.nomAr?.trim(), c.nomFr).toBeTruthy()
+describe('backend/src/Resto.Api/Data/catalogue.json', () => {
+  it('contient au moins une catégorie, avec noms FR et AR et un ordre unique', () => {
+    expect(categories.length).toBeGreaterThan(0)
+    for (const c of categories) {
+      expect(c.nomFr?.trim(), 'nomFr').toBeTruthy()
+      expect(c.nomAr?.trim(), c.nomFr).toBeTruthy()
+      expect(c.nomAr, c.nomFr).toMatch(/[؀-ۿ]/)
+      expect(Number.isInteger(c.ordre) && c.ordre >= 0, c.nomFr).toBe(true)
+    }
+    expect(unique(categories.map((c) => c.nomFr.toLowerCase()))).toBe(true)
+    expect(unique(categories.map((c) => c.ordre))).toBe(true)
   })
 
-  it('a 5 articles par catégorie, ordonnés de 1 à 5, soit 25 au total', () => {
-    for (const c of categories)
+  it('a des articles ordonnés de façon consécutive à partir de 1 dans chaque catégorie', () => {
+    for (const c of categories) {
+      expect(c.articles.length, c.nomFr).toBeGreaterThan(0)
       expect(
         c.articles.map((a) => a.ordre),
         c.nomFr,
-      ).toEqual(seq(5))
-    expect(articles).toHaveLength(25)
+      ).toEqual(seq(c.articles.length))
+    }
   })
 
-  it('a des noms uniques, des prix >= 0 et des textes FR/AR non vides', () => {
-    for (const key of ['nomFr', 'nomAr']) {
-      expect(new Set(articles.map((a) => a[key])).size).toBe(articles.length)
+  it('a des noms uniques par catégorie, des prix >= 0 à 2 décimales et des textes FR/AR non vides', () => {
+    for (const c of categories) {
+      expect(unique(c.articles.map((a) => a.nomFr.toLowerCase())), c.nomFr).toBe(true)
     }
     for (const a of articles) {
       expect(typeof a.prix, a.nomFr).toBe('number')
       expect(a.prix, a.nomFr).toBeGreaterThanOrEqual(0)
+      expect(Math.round(a.prix * 100) / 100, a.nomFr).toBe(a.prix)
       expect(typeof a.populaire, a.nomFr).toBe('boolean')
       expect(typeof a.disponible, a.nomFr).toBe('boolean')
       for (const key of ['nomFr', 'nomAr', 'descriptionFr', 'descriptionAr']) {
@@ -45,15 +51,6 @@ describe('docs/catalogue.json', () => {
       expect(a.nomAr, a.nomFr).toMatch(/[؀-ۿ]/)
       expect(a.descriptionAr, a.nomFr).toMatch(/[؀-ۿ]/)
     }
-  })
-
-  it('a des noms uniques par catégorie', () => {
-    for (const c of categories)
-      expect(new Set(c.articles.map((a) => a.nomFr)).size, c.nomFr).toBe(c.articles.length)
-  })
-
-  it('marque seules les lasagnes indisponibles', () => {
-    expect(articles.filter((a) => !a.disponible).map((a) => a.nomFr)).toEqual(['Lasagnes'])
   })
 
   it('référence des images existantes de moins de 150 Ko (images non nulles seulement)', () => {

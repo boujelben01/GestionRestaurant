@@ -12,6 +12,10 @@ const PORT = Number(process.env.PORT ?? 5118)
 const ORIGIN = process.env.ALLOWED_ORIGIN ?? 'http://localhost:5173'
 const load = (name) =>
   JSON.parse(readFileSync(fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url)), 'utf8'))
+// Catalogue du vrai back-end (source unique, lue aussi par `dotnet run -- --seed-catalog`).
+const CATALOGUE_PATH = fileURLToPath(
+  new URL('../../backend/src/Resto.Api/Data/catalogue.json', import.meta.url),
+)
 
 const TOKEN_TTL_MS = Number(process.env.TOKEN_TTL_MS ?? 3_600_000)
 const MAX_QTY = 20
@@ -40,7 +44,7 @@ const NEXT_STATUTS = {
 }
 
 // ---------------------------------------------------------------------------------------------
-// État en mémoire (menu et restaurant sont rechargés depuis fixtures/ à chaque reset)
+// État en mémoire (menu rechargé depuis le catalogue du back-end, restaurant depuis fixtures/, à chaque reset)
 // ---------------------------------------------------------------------------------------------
 let categories // [{ id, nomFr, nomAr, ordre, estActive }]
 let articles // [{ id, categorieId, nomFr, nomAr, descriptionFr, descriptionAr, prix, imageUrl,
@@ -50,31 +54,33 @@ let db
 
 const toIso = (d) => new Date(d).toISOString()
 
-/** Les fixtures n'ont pas estActive/estActif : ajoutés ici (true par défaut) et structure aplatie. */
+/** Le catalogue n'a pas d'ids ni d'état actif : ids attribués ici, tout est actif, structure aplatie. */
 function loadFixtures() {
   const stamp = toIso(Date.now())
-  const menu = load('menu.json')
-  categories = menu.map((c) => ({
-    id: c.id,
-    nomFr: c.nom.fr,
-    nomAr: c.nom.ar,
+  // Source unique du catalogue : le fichier du back-end. Les ids sont attribués dans l'ordre du fichier.
+  const { categories: source } = JSON.parse(readFileSync(CATALOGUE_PATH, 'utf8'))
+  let nextArticleId = 1
+  categories = source.map((c, i) => ({
+    id: i + 1,
+    nomFr: c.nomFr,
+    nomAr: c.nomAr,
     ordre: c.ordre,
-    estActive: c.estActive ?? true,
+    estActive: true,
   }))
-  articles = menu.flatMap((c) =>
-    c.articles.map((a, index) => ({
-      id: a.id,
-      categorieId: c.id,
-      nomFr: a.nom.fr,
-      nomAr: a.nom.ar,
-      descriptionFr: a.description?.fr ?? null,
-      descriptionAr: a.description?.ar ?? null,
+  articles = source.flatMap((c, i) =>
+    c.articles.map((a) => ({
+      id: nextArticleId++,
+      categorieId: i + 1,
+      nomFr: a.nomFr,
+      nomAr: a.nomAr,
+      descriptionFr: a.descriptionFr ?? null,
+      descriptionAr: a.descriptionAr ?? null,
       prix: a.prix,
-      imageUrl: a.imageUrl ?? null,
+      imageUrl: a.image ?? null,
       estDisponible: a.disponible,
-      estActif: a.estActif ?? true,
-      estPopulaire: a.estPopulaire,
-      ordre: index + 1,
+      estActif: true,
+      estPopulaire: a.populaire,
+      ordre: a.ordre,
       dateCreation: stamp,
       dateMiseAJour: stamp,
     })),

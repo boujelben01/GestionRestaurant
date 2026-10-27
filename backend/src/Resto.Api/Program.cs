@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Resto.Api.Common;
 using Resto.Api.Data;
+using Resto.Api.Data.Catalogue;
 using Resto.Api.Domain;
 using Resto.Api.Features.Auth;
 using Resto.Api.Features.Adresses;
@@ -86,6 +87,14 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+if (CatalogueCommand.IsRequested(args))
+{
+    using var catalogueScope = app.Services.CreateScope();
+    Environment.ExitCode = await CatalogueCommand.RunAsync(
+        args, catalogueScope.ServiceProvider.GetRequiredService<AppDbContext>(), CatalogueReader.DefaultPath, Console.Out);
+    return;
+}
 
 var seedRequested = args.Contains("--seed");
 if (app.Environment.IsDevelopment() || seedRequested)

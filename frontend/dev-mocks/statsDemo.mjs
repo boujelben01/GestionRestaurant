@@ -39,20 +39,9 @@ const HOUR_WEIGHTS = [
   [22, 4],
   [23, 1],
 ]
-// Plats plus fréquents (brik, lablabi, makloub, chawarma...) ; les autres pèsent 1.5.
-const ARTICLE_WEIGHTS = {
-  101: 8,
-  102: 5,
-  201: 7,
-  202: 4,
-  401: 7,
-  402: 7,
-  403: 3,
-  404: 5,
-  501: 3,
-  702: 3,
-  701: 2,
-}
+// Les plats populaires du catalogue pèsent plus lourd ; les autres pèsent 1.5 (aucun id en dur).
+const POPULAR_WEIGHT = 5
+const DEFAULT_WEIGHT = 1.5
 const GHOST_NAMES = [
   'Ancien plat Mloukhia',
   'Ancien plat Spaghetti',
@@ -109,7 +98,7 @@ export function generateHistory({ articles, fraisLivraison, nowMs }) {
   const today = tunisDay(nowMs)
   const todayMidnightUtc = Date.parse(`${today}T00:00:00+01:00`)
   const orderable = articles.filter((a) => a.estActif && a.estDisponible)
-  const articlePool = orderable.map((a) => [a, ARTICLE_WEIGHTS[a.id] ?? 1.5])
+  const articlePool = orderable.map((a) => [a, a.estPopulaire ? POPULAR_WEIGHT : DEFAULT_WEIGHT])
   const orders = []
   let nextId = 1
 

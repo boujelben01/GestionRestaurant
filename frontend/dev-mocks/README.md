@@ -119,12 +119,12 @@ curl -X POST localhost:5118/__mock/commandes/1/avancer                     # EnA
 curl -X POST localhost:5118/__mock/commandes/1/statut -H 'Content-Type: application/json' \
      -d '{"statut":"Annulee"}'
 curl -X POST localhost:5118/__mock/articles/disponibilite -H 'Content-Type: application/json' \
-     -d '{"id":101,"disponible":false}'                                    # rend un plat indisponible
+     -d '{"id":1,"disponible":false}'                                      # rend un plat indisponible
 ```
 
 - `/__mock/reset` remet à l'état initial : utilisateurs (dont `estActif`), sessions (tous les jetons
   sont invalidés : se reconnecter), paniers, commandes, **menu** (catégories, articles,
-  disponibilités, ordre, rechargés depuis `fixtures/menu.json`), **restaurant** (rechargé depuis
+  disponibilités, ordre, rechargés depuis `backend/src/Resto.Api/Data/catalogue.json`), **restaurant** (rechargé depuis
   `fixtures/restaurant.json`) et réglages (`commandesOuvertes`, `forceClosed`).
 - `/__mock/seed` (`count` 4 par défaut, 50 max) crée des commandes EnAttente / EnPreparation /
   Prete / Terminee, types variés (dont Livraison et SurPlace table 1), une partie avec note, dates
@@ -136,9 +136,12 @@ curl -X POST localhost:5118/__mock/articles/disponibilite -H 'Content-Type: appl
 
 ## Données
 
-`fixtures/menu.json` : 7 catégories, 24 plats (ids 101…703), 1 indisponible (303), 6 populaires,
-2 plats dont l'image lourde est volontairement remplacée par `default.svg`, 3 sans image. Les
-champs `estActive`/`estActif` n'y figurent pas : ils valent `true` au chargement.
+Le menu vient du fichier unique `backend/src/Resto.Api/Data/catalogue.json`, le même que celui que
+`dotnet run -- --seed-catalog` charge en base : il n'y a plus de `fixtures/menu.json`. Au chargement
+(et à chaque `/__mock/reset`), le mock le transforme : ids de catégories et d'articles attribués dans
+l'ordre du fichier (à partir de 1), `estActive`/`estActif` à `true`, `imageUrl` = `image`. Ajouter ou
+modifier un plat dans ce fichier suffit ; redémarrer le mock. Aucune donnée du mock (statistiques de
+démo, commandes de démo, favoris) ne dépend d'un id d'article précis.
 `fixtures/restaurant.json` : dimanche fermé, samedi jusqu'à 02:00 (« après minuit »), frais de
 livraison 3 DT, minimum de livraison 20 DT. `commandesOuvertes` y est la valeur initiale ;
 ensuite la source de vérité est le réglage en mémoire.
