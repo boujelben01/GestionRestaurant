@@ -7,3 +7,16 @@ dist/
 secrets.json
 .env
 .omc/
+coverage/
+*.log
+.env.*
+!.env.example
+appsettings.*.local.json
+*.pfx
+*.key
+scratchpad/
+backend/demo-out/
+Thumbs.db
+.DS_Store
+.vscode/
+docs/planche-contact.html
