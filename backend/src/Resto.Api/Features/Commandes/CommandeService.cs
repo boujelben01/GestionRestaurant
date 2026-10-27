@@ -104,7 +104,6 @@ public class CommandeService(AppDbContext db, TimeProvider time)
                 {
                     ArticleId = i.ArticleId,
                     NomFr = i.Article.NomFr,
-                    NomAr = i.Article.NomAr,
                     PrixUnitaire = i.Article.Prix,
                     Quantite = i.Quantite
                 }).ToList(),
@@ -210,7 +209,7 @@ public class CommandeService(AppDbContext db, TimeProvider time)
         AsUtc(c.DateCommande),
         c.Items.OrderBy(i => i.Id)
             .Select(i => new CommandeLigneResponse(
-                i.ArticleId, i.NomFr, i.NomAr, i.PrixUnitaire, i.Quantite, CommandeRules.Round(i.PrixUnitaire * i.Quantite)))
+                i.ArticleId, i.NomFr, i.PrixUnitaire, i.Quantite, CommandeRules.Round(i.PrixUnitaire * i.Quantite)))
             .ToList(),
         c.Historique.OrderBy(h => h.Date).ThenBy(h => h.Id)
             .Select(h => new HistoriqueStatutResponse(h.Statut, AsUtc(h.Date)))

@@ -10,7 +10,6 @@ public class CategorieConfiguration : IEntityTypeConfiguration<Categorie>
     {
         builder.ToTable("Categories");
         builder.Property(c => c.NomFr).HasMaxLength(100).IsRequired();
-        builder.Property(c => c.NomAr).HasMaxLength(100).IsRequired();
         builder.HasIndex(c => c.NomFr).IsUnique();
     }
 }

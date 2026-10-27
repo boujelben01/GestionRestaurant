@@ -10,7 +10,6 @@ import {
 } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { api, setUnauthorizedHandler } from '@/lib/api'
-import { applyFavoriteLang } from '@/lib/i18n'
 import { tokenStore } from '@/lib/tokenStore'
 import type { LoginRequest, LoginResponse, RegisterRequest, User } from '@/lib/types'
 
@@ -83,7 +82,6 @@ export function AuthProvider({ children, onSessionEnded }: AuthProviderProps) {
       tokenStore.set(response.token, response.expiresAtUtc)
       scheduleExpiry(new Date(response.expiresAtUtc))
       setUser(response.user)
-      applyFavoriteLang(response.user.langueFavorite)
       setStatus('authenticated')
       return response.user
     },
@@ -110,7 +108,6 @@ export function AuthProvider({ children, onSessionEnded }: AuthProviderProps) {
       .then(({ data }) => {
         if (cancelled) return
         setUser(data)
-        applyFavoriteLang(data.langueFavorite)
         setStatus('authenticated')
       })
       .catch((error: { status?: number | null }) => {

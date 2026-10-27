@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { PageFallback } from '@/components/layout/Layout'
 import { Seo } from '@/components/Seo'
 import {
@@ -187,7 +186,6 @@ export function AdminLayout() {
             >
               {t('admin.nav.viewSite')}
             </Link>
-            <LanguageSwitcher />
             <div className="flex items-center gap-2">
               <span className="hidden max-w-36 truncate text-sm font-semibold sm:inline">
                 {user?.nom?.trim() || user?.userName}

@@ -79,7 +79,7 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
             new CommandeAdminClientResponse(c.UserId, c.NomClient, c.Telephone),
             AsUtc(c.DateCommande), AsUtc(c.DateMiseAJour),
             lignes.Select(l => new CommandeAdminLigneResponse(
-                l.ArticleId, l.NomFr, l.NomAr, l.PrixUnitaire, l.Quantite, CommandeRules.Round(l.PrixUnitaire * l.Quantite))).ToList(),
+                l.ArticleId, l.NomFr, l.PrixUnitaire, l.Quantite, CommandeRules.Round(l.PrixUnitaire * l.Quantite))).ToList(),
             historique.Select(h => new CommandeAdminHistoriqueResponse(h.Statut, AsUtc(h.Date), h.ParUserId, h.ParNom)).ToList(),
             c.Version);
     }
@@ -91,7 +91,7 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
         return rows.Select(c => new CommandeActiveResponse(
             c.Id, c.Numero, c.Statut, c.TypeCommande, c.NomClient, c.TableNumero, c.Note,
             AsUtc(c.DateCommande), AsUtc(c.DateMiseAJour),
-            c.Lignes.Select(l => new CommandeActiveLigneResponse(l.NomFr, l.NomAr, l.Quantite)).ToList(),
+            c.Lignes.Select(l => new CommandeActiveLigneResponse(l.NomFr, l.Quantite)).ToList(),
             c.Version)).ToList();
     }
 
@@ -219,7 +219,6 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
     {
         public int? ArticleId { get; init; }
         public string NomFr { get; init; } = string.Empty;
-        public string NomAr { get; init; } = string.Empty;
         public decimal PrixUnitaire { get; init; }
         public int Quantite { get; init; }
     }
@@ -235,7 +234,6 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
     internal sealed record ActiveLigneRow
     {
         public string NomFr { get; init; } = string.Empty;
-        public string NomAr { get; init; } = string.Empty;
         public int Quantite { get; init; }
     }
 
@@ -358,7 +356,6 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
             {
                 ArticleId = i.ArticleId,
                 NomFr = i.NomFr,
-                NomAr = i.NomAr,
                 PrixUnitaire = i.PrixUnitaire,
                 Quantite = i.Quantite
             });
@@ -395,7 +392,7 @@ public class CommandeAdminService(AppDbContext db, TimeProvider time)
                 DateMiseAJour = c.DateMiseAJour,
                 Version = c.Version,
                 Lignes = c.Items.OrderBy(i => i.Id)
-                    .Select(i => new ActiveLigneRow { NomFr = i.NomFr, NomAr = i.NomAr, Quantite = i.Quantite })
+                    .Select(i => new ActiveLigneRow { NomFr = i.NomFr, Quantite = i.Quantite })
                     .ToList()
             });
 

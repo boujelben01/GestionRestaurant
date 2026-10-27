@@ -46,7 +46,7 @@ public class ArticleAdminService(AppDbContext db, TimeProvider time)
         if (!string.IsNullOrWhiteSpace(recherche))
         {
             var term = recherche.Trim().ToLower();
-            query = query.Where(a => a.NomFr.ToLower().Contains(term) || a.NomAr.ToLower().Contains(term));
+            query = query.Where(a => a.NomFr.ToLower().Contains(term));
         }
 
         return query;
@@ -157,9 +157,7 @@ public class ArticleAdminService(AppDbContext db, TimeProvider time)
     {
         article.CategorieId = request.CategorieId;
         article.NomFr = request.NomFr.Trim();
-        article.NomAr = request.NomAr.Trim();
         article.DescriptionFr = NullIfBlank(request.DescriptionFr);
-        article.DescriptionAr = NullIfBlank(request.DescriptionAr);
         article.Prix = request.Prix;
         article.ImageUrl = request.ImageUrl;
         article.EstDisponible = request.EstDisponible;
@@ -182,6 +180,6 @@ public class ArticleAdminService(AppDbContext db, TimeProvider time)
     }
 
     private static ArticleAdminResponse ToResponse(Article a) => new(
-        a.Id, a.CategorieId, a.NomFr, a.NomAr, a.DescriptionFr, a.DescriptionAr, a.Prix, a.ImageUrl,
+        a.Id, a.CategorieId, a.NomFr, a.DescriptionFr, a.Prix, a.ImageUrl,
         a.EstDisponible, a.EstActif, a.EstPopulaire, a.Ordre, a.DateCreation, a.DateMiseAJour);
 }

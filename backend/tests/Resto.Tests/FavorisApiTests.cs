@@ -100,17 +100,15 @@ public class FavorisApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     // ---------- Liste ----------
 
     [Fact]
-    public async Task The_list_returns_articles_in_the_requested_language_with_all_fields()
+    public async Task The_list_returns_articles_with_all_fields()
     {
         var client = await factory.CreateClientForNewUserAsync();
         var brik = await factory.ArticleIdAsync("Brik");
         await Put(client, brik);
 
-        var fr = (await Json(await client.GetAsync("api/favoris?lang=fr"))).EnumerateArray().Single();
-        var ar = (await Json(await client.GetAsync("api/favoris?lang=ar"))).EnumerateArray().Single();
+        var fr = (await Json(await client.GetAsync("api/favoris"))).EnumerateArray().Single();
 
         Assert.Equal("Brik", fr.GetProperty("nom").GetString());
-        Assert.Equal("بريك", ar.GetProperty("nom").GetString());
         foreach (var field in new[] { "id", "categorieId", "nom", "description", "prix", "imageUrl", "estPopulaire", "disponible", "actif" })
         {
             Assert.True(fr.TryGetProperty(field, out _), field);
@@ -152,11 +150,13 @@ public class FavorisApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task An_invalid_language_returns_400()
+    public async Task A_legacy_lang_parameter_is_ignored()
     {
         var client = await factory.CreateClientForNewUserAsync();
+        await Put(client, await factory.ArticleIdAsync("Brik"));
 
-        Assert.Equal(HttpStatusCode.BadRequest, (await client.GetAsync("api/favoris?lang=de")).StatusCode);
+        var item = (await Json(await client.GetAsync("api/favoris?lang=ar"))).EnumerateArray().Single();
+        Assert.Equal("Brik", item.GetProperty("nom").GetString());
     }
 
     // ---------- Isolation ----------

@@ -15,9 +15,9 @@ public class MenuEmptyCategoryTests(ApiFactory factory) : IClassFixture<ApiFacto
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            db.Categories.Add(new Categorie { NomFr = "Vide", NomAr = "فارغة", Ordre = 50 });
-            var inactiveOnly = new Categorie { NomFr = "Seulement inactifs", NomAr = "x", Ordre = 51 };
-            inactiveOnly.Articles.Add(new Article { NomFr = "Ancien", NomAr = "قديم", Prix = 1m, EstActif = false });
+            db.Categories.Add(new Categorie { NomFr = "Vide", Ordre = 50 });
+            var inactiveOnly = new Categorie { NomFr = "Seulement inactifs", Ordre = 51 };
+            inactiveOnly.Articles.Add(new Article { NomFr = "Ancien", Prix = 1m, EstActif = false });
             db.Categories.Add(inactiveOnly);
             await db.SaveChangesAsync();
         }

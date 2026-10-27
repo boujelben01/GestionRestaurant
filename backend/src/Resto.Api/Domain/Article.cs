@@ -5,9 +5,7 @@ public class Article
     public int Id { get; set; }
     public int CategorieId { get; set; }
     public string NomFr { get; set; } = string.Empty;
-    public string NomAr { get; set; } = string.Empty;
     public string? DescriptionFr { get; set; }
-    public string? DescriptionAr { get; set; }
     public decimal Prix { get; set; }
     public string? ImageUrl { get; set; }
     public bool EstDisponible { get; set; } = true;

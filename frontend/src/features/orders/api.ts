@@ -5,7 +5,7 @@ import {
   useQueryClient,
   type QueryClient,
 } from '@tanstack/react-query'
-import { fetchCart } from '@/features/cart/api'
+import { cartKey, fetchCart } from '@/features/cart/api'
 import { fetchRestaurant } from '@/features/restaurant/api'
 import { api } from '@/lib/api'
 import { toAppError } from '@/lib/errors'
@@ -13,11 +13,9 @@ import type {
   Commande,
   CommandeResume,
   CreerCommandeRequest,
-  Lang,
   PagedResult,
   TableResponse,
 } from '@/lib/types'
-import { useLang } from '@/lib/useLang'
 import { useAuth } from '@/features/auth/AuthContext'
 import { OrderError, classifyOrderError } from './checkout'
 import { reorder, type ReorderResult } from './reorder'
@@ -31,7 +29,6 @@ export const orderKey = (id: number) => ['private', 'order', id] as const
 
 async function createOrder(
   queryClient: QueryClient,
-  lang: Lang,
   request: CreerCommandeRequest,
 ): Promise<Commande> {
   try {
@@ -43,8 +40,8 @@ async function createOrder(
     const [cart, restaurant] = await Promise.all([
       queryClient
         .fetchQuery({
-          queryKey: ['private', 'cart', lang],
-          queryFn: () => fetchCart(lang),
+          queryKey: cartKey(),
+          queryFn: () => fetchCart(),
           staleTime: 0,
         })
         .catch(() => null),
@@ -62,9 +59,8 @@ async function createOrder(
  */
 export function useCreateOrder() {
   const queryClient = useQueryClient()
-  const lang = useLang()
   return useMutation<Commande, Error, CreerCommandeRequest>({
-    mutationFn: (request) => createOrder(queryClient, lang, request),
+    mutationFn: (request) => createOrder(queryClient, request),
     onSuccess: (order) => {
       queryClient.setQueryData(orderKey(order.id), order)
       void queryClient.invalidateQueries({ queryKey: ['private', 'cart'] })
@@ -128,9 +124,8 @@ export function useCancelOrder() {
 
 export function useReorder() {
   const queryClient = useQueryClient()
-  const lang = useLang()
   return useMutation<ReorderResult, Error, Commande>({
-    mutationFn: (order) => reorder(queryClient, order, lang),
+    mutationFn: (order) => reorder(queryClient, order),
     onSettled: () => void queryClient.invalidateQueries({ queryKey: ['private', 'cart'] }),
   })
 }

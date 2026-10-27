@@ -11,7 +11,7 @@ public class MenuService(AppDbContext db)
 {
     public const int MaxPageSize = 50;
 
-    public async Task<IReadOnlyList<MenuCategorieResponse>> GetMenuAsync(string lang, CancellationToken ct)
+    public async Task<IReadOnlyList<MenuCategorieResponse>> GetMenuAsync(CancellationToken ct)
     {
         var categories = await db.Categories.AsNoTracking()
             .Where(c => c.EstActive && c.Articles.Any(a => a.EstActif))
@@ -22,24 +22,24 @@ public class MenuService(AppDbContext db)
         return categories
             .Select(c => new MenuCategorieResponse(
                 c.Id,
-                Langue.Pick(c.NomFr, c.NomAr, lang),
+                c.NomFr,
                 c.Ordre,
-                c.Articles.Select(a => ToResponse(a, lang)).ToList()))
+                c.Articles.Select(a => ToResponse(a)).ToList()))
             .ToList();
     }
 
-    public async Task<IReadOnlyList<CategorieResponse>> GetCategoriesAsync(string lang, CancellationToken ct)
+    public async Task<IReadOnlyList<CategorieResponse>> GetCategoriesAsync(CancellationToken ct)
     {
         var categories = await db.Categories.AsNoTracking()
             .Where(c => c.EstActive && c.Articles.Any(a => a.EstActif))
             .OrderBy(c => c.Ordre).ThenBy(c => c.Id)
             .ToListAsync(ct);
 
-        return categories.Select(c => new CategorieResponse(c.Id, Langue.Pick(c.NomFr, c.NomAr, lang), c.Ordre)).ToList();
+        return categories.Select(c => new CategorieResponse(c.Id, c.NomFr, c.Ordre)).ToList();
     }
 
     public async Task<PagedResult<MenuArticleResponse>> GetArticlesAsync(
-        string lang, int? categorieId, bool? populaire, string? recherche, int page, int pageSize, CancellationToken ct)
+        int? categorieId, bool? populaire, string? recherche, int page, int pageSize, CancellationToken ct)
     {
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, MaxPageSize);
@@ -56,7 +56,7 @@ public class MenuService(AppDbContext db)
         if (!string.IsNullOrWhiteSpace(recherche))
         {
             var term = recherche.Trim().ToLower();
-            query = query.Where(a => a.NomFr.ToLower().Contains(term) || a.NomAr.ToLower().Contains(term));
+            query = query.Where(a => a.NomFr.ToLower().Contains(term));
         }
 
         var total = await query.CountAsync(ct);
@@ -66,21 +66,21 @@ public class MenuService(AppDbContext db)
             .Take(pageSize)
             .ToListAsync(ct);
 
-        return new PagedResult<MenuArticleResponse>(articles.Select(a => ToResponse(a, lang)).ToList(), page, pageSize, total);
+        return new PagedResult<MenuArticleResponse>(articles.Select(a => ToResponse(a)).ToList(), page, pageSize, total);
     }
 
-    public async Task<MenuArticleResponse> GetArticleAsync(int id, string lang, CancellationToken ct)
+    public async Task<MenuArticleResponse> GetArticleAsync(int id, CancellationToken ct)
     {
         var article = await VisibleArticles().FirstOrDefaultAsync(a => a.Id == id, ct)
             ?? throw AppException.NotFound("Article introuvable.");
-        return ToResponse(article, lang);
+        return ToResponse(article);
     }
 
-    public static MenuArticleResponse ToResponse(Article a, string lang) => new(
+    public static MenuArticleResponse ToResponse(Article a) => new(
         a.Id,
         a.CategorieId,
-        Langue.Pick(a.NomFr, a.NomAr, lang),
-        Langue.PickOptional(a.DescriptionFr, a.DescriptionAr, lang),
+        a.NomFr,
+        a.DescriptionFr,
         a.Prix,
         a.ImageUrl,
         a.EstPopulaire,

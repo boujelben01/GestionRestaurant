@@ -22,7 +22,7 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
 
     private static string Period(int year) => $"du={year}-06-01&au={year}-06-10";
 
-    private sealed record Line(int? ArticleId, string NomFr, string NomAr, decimal Prix, int Quantite);
+    private sealed record Line(int? ArticleId, string NomFr, decimal Prix, int Quantite);
 
     private async Task SeedAsync(
         DateTime utc,
@@ -52,7 +52,6 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
             {
                 ArticleId = l.ArticleId,
                 NomFr = l.NomFr,
-                NomAr = l.NomAr,
                 PrixUnitaire = l.Prix,
                 Quantite = l.Quantite
             }).ToList()
@@ -150,7 +149,7 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     {
         const int year = 2001;
         var admin = await factory.CreateClientAsync("admin");
-        var line = new Line(null, "Plat", "طبق", 10m, 1);
+        var line = new Line(null, "Plat", 10m, 1);
         await SeedAsync(At(year, 5, 31, 22, 59), [line]);   // 23:59 le 31 mai à Tunis : avant la période
         await SeedAsync(At(year, 5, 31, 23, 0), [line]);    // 00:00 le 1er juin à Tunis : PREMIÈRE minute incluse
         await SeedAsync(At(year, 6, 10, 22, 59), [line]);   // 23:59 le 10 juin à Tunis : DERNIÈRE minute incluse
@@ -172,7 +171,7 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     {
         const int year = 2002;
         var admin = await factory.CreateClientAsync("admin");
-        await SeedAsync(At(year, 6, 3, 23, 30), [new Line(null, "Plat", "طبق", 12m, 1)]);
+        await SeedAsync(At(year, 6, 3, 23, 30), [new Line(null, "Plat", 12m, 1)]);
 
         var days = (await Json(await admin.GetAsync($"api/admin/statistiques/ventes-par-jour?{Period(year)}"))).EnumerateArray().ToList();
 
@@ -187,7 +186,7 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     {
         const int year = 2003;
         var admin = await factory.CreateClientAsync("admin");
-        await SeedAsync(At(year, 6, 5), [new Line(null, "Plat", "طبق", 9m, 2)]);
+        await SeedAsync(At(year, 6, 5), [new Line(null, "Plat", 9m, 2)]);
 
         var days = (await Json(await admin.GetAsync($"api/admin/statistiques/ventes-par-jour?{Period(year)}"))).EnumerateArray().ToList();
 
@@ -205,9 +204,9 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     {
         const int year = 2004;
         var admin = await factory.CreateClientAsync("admin");
-        var line = new Line(null, "Plat", "طبق", 10m, 1);
+        var line = new Line(null, "Plat", 10m, 1);
         await SeedAsync(At(year, 6, 2), [line]);
-        await SeedAsync(At(year, 6, 2), [new Line(null, "Annulé", "ملغى", 500m, 3)], statut: StatutCommande.Annulee);
+        await SeedAsync(At(year, 6, 2), [new Line(null, "Annulé", 500m, 3)], statut: StatutCommande.Annulee);
 
         var resume = await Json(await admin.GetAsync($"api/admin/statistiques/resume?{Period(year)}"));
         var periode = resume.GetProperty("periode");
@@ -229,10 +228,10 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
         const int year = 2005;
         var admin = await factory.CreateClientAsync("admin");
         // Période courante (1-10 juin) : 2 commandes, CA 30, une non payée de 23 (20 + 3 de livraison).
-        await SeedAsync(At(year, 6, 2), [new Line(null, "A", "أ", 10m, 1)]);
-        await SeedAsync(At(year, 6, 5), [new Line(null, "B", "ب", 10m, 2)], statut: StatutCommande.EnPreparation, type: TypeCommande.Livraison, paid: false, total: 23m);
+        await SeedAsync(At(year, 6, 2), [new Line(null, "A", 10m, 1)]);
+        await SeedAsync(At(year, 6, 5), [new Line(null, "B", 10m, 2)], statut: StatutCommande.EnPreparation, type: TypeCommande.Livraison, paid: false, total: 23m);
         // Période précédente (22-31 mai) : 1 commande de 15.
-        await SeedAsync(At(year, 5, 25), [new Line(null, "A", "أ", 15m, 1)]);
+        await SeedAsync(At(year, 5, 25), [new Line(null, "A", 15m, 1)]);
 
         var resume = await Json(await admin.GetAsync($"api/admin/statistiques/resume?{Period(year)}"));
 
@@ -259,7 +258,7 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     {
         const int year = 2006;
         var admin = await factory.CreateClientAsync("admin");
-        await SeedAsync(At(year, 6, 2), [new Line(null, "A", "أ", 10m, 1)]);
+        await SeedAsync(At(year, 6, 2), [new Line(null, "A", 10m, 1)]);
 
         var resume = await Json(await admin.GetAsync($"api/admin/statistiques/resume?{Period(year)}"));
 
@@ -311,17 +310,16 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     // ---------- Top articles ----------
 
     [Fact]
-    public async Task Top_articles_are_sorted_by_quantity_in_the_requested_language_and_limited()
+    public async Task Top_articles_are_sorted_by_quantity_and_limited()
     {
         const int year = 2008;
         var admin = await factory.CreateClientAsync("admin");
         var brik = await factory.ArticleIdAsync("Brik");
-        await SeedAsync(At(year, 6, 2), [new Line(brik, "Brik", "بريك", 3.5m, 5), new Line(null, "Ancien plat", "قديم", 6m, 2)]);
-        await SeedAsync(At(year, 6, 3), [new Line(brik, "Brik", "بريك", 3.5m, 4), new Line(null, "Ancien plat", "قديم", 6m, 1)]);
-        await SeedAsync(At(year, 6, 4), [new Line(null, "Thé", "شاي", 1.5m, 1)]);
+        await SeedAsync(At(year, 6, 2), [new Line(brik, "Brik", 3.5m, 5), new Line(null, "Ancien plat", 6m, 2)]);
+        await SeedAsync(At(year, 6, 3), [new Line(brik, "Brik", 3.5m, 4), new Line(null, "Ancien plat", 6m, 1)]);
+        await SeedAsync(At(year, 6, 4), [new Line(null, "Thé", 1.5m, 1)]);
 
         var fr = (await Json(await admin.GetAsync($"api/admin/statistiques/top-articles?{Period(year)}"))).EnumerateArray().ToList();
-        var ar = (await Json(await admin.GetAsync($"api/admin/statistiques/top-articles?{Period(year)}&lang=ar"))).EnumerateArray().ToList();
         var one = await Json(await admin.GetAsync($"api/admin/statistiques/top-articles?{Period(year)}&limite=1"));
 
         Assert.Equal(["Brik", "Ancien plat", "Thé"], fr.Select(t => t.GetProperty("nom").GetString()!).ToArray());
@@ -329,7 +327,6 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
         Assert.Equal(31.5m, fr[0].GetProperty("chiffreAffaires").GetDecimal());
         Assert.Equal(brik, fr[0].GetProperty("articleId").GetInt32());
         Assert.Equal(JsonValueKind.Null, fr[1].GetProperty("articleId").ValueKind); // article supprimé : regroupé par nom copié
-        Assert.Equal("بريك", ar[0].GetProperty("nom").GetString());
         Assert.Equal(1, one.GetArrayLength());
     }
 
@@ -352,7 +349,7 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     {
         const int year = 2009;
         var admin = await factory.CreateClientAsync("admin");
-        await SeedAsync(At(year, 6, 2), Enumerable.Range(1, 25).Select(i => new Line(null, $"Plat {i:D2}", "طبق", 2m, 1)).ToArray());
+        await SeedAsync(At(year, 6, 2), Enumerable.Range(1, 25).Select(i => new Line(null, $"Plat {i:D2}", 2m, 1)).ToArray());
 
         var all = await Json(await admin.GetAsync($"api/admin/statistiques/top-articles?{Period(year)}&limite=999"));
 
@@ -366,10 +363,10 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
     {
         const int year = 2010;
         var admin = await factory.CreateClientAsync("admin");
-        await SeedAsync(At(year, 6, 2, 11, 10), [new Line(null, "A", "أ", 5m, 1)]);          // 12h à Tunis
-        await SeedAsync(At(year, 6, 3, 11, 50), [new Line(null, "A", "أ", 5m, 2)]);          // 12h
-        await SeedAsync(At(year, 6, 4, 23, 30), [new Line(null, "A", "أ", 4m, 1)]);          // 00h (jour suivant)
-        await SeedAsync(At(year, 6, 4, 11, 0), [new Line(null, "A", "أ", 99m, 1)], statut: StatutCommande.Annulee);
+        await SeedAsync(At(year, 6, 2, 11, 10), [new Line(null, "A", 5m, 1)]);          // 12h à Tunis
+        await SeedAsync(At(year, 6, 3, 11, 50), [new Line(null, "A", 5m, 2)]);          // 12h
+        await SeedAsync(At(year, 6, 4, 23, 30), [new Line(null, "A", 4m, 1)]);          // 00h (jour suivant)
+        await SeedAsync(At(year, 6, 4, 11, 0), [new Line(null, "A", 99m, 1)], statut: StatutCommande.Annulee);
 
         var hours = (await Json(await admin.GetAsync($"api/admin/statistiques/heures-de-pointe?{Period(year)}"))).EnumerateArray().ToList();
 
@@ -390,12 +387,11 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
         var admin = await factory.CreateClientAsync("admin");
         var brik = await factory.ArticleIdAsync("Brik");   // catégorie « Entrées »
         var cache = await factory.ArticleIdAsync("Caché"); // catégorie « Archive »
-        await SeedAsync(At(year, 6, 2), [new Line(brik, "Brik", "بريك", 4m, 3), new Line(null, "Supprimé", "محذوف", 2m, 5)], type: TypeCommande.SurPlace);
-        await SeedAsync(At(year, 6, 3), [new Line(cache, "Caché", "مخفي", 10m, 1)], type: TypeCommande.Livraison);
-        await SeedAsync(At(year, 6, 4), [new Line(brik, "Brik", "بريك", 4m, 50)], statut: StatutCommande.Annulee, type: TypeCommande.Livraison);
+        await SeedAsync(At(year, 6, 2), [new Line(brik, "Brik", 4m, 3), new Line(null, "Supprimé", 2m, 5)], type: TypeCommande.SurPlace);
+        await SeedAsync(At(year, 6, 3), [new Line(cache, "Caché", 10m, 1)], type: TypeCommande.Livraison);
+        await SeedAsync(At(year, 6, 4), [new Line(brik, "Brik", 4m, 50)], statut: StatutCommande.Annulee, type: TypeCommande.Livraison);
 
         var fr = await Json(await admin.GetAsync($"api/admin/statistiques/repartition?{Period(year)}"));
-        var ar = await Json(await admin.GetAsync($"api/admin/statistiques/repartition?{Period(year)}&lang=ar"));
 
         var types = fr.GetProperty("parType").EnumerateArray().ToList();
         Assert.Equal(3, types.Count);
@@ -414,6 +410,5 @@ public class AdminStatistiquesApiTests(ApiFactory factory) : IClassFixture<ApiFa
         Assert.Equal(12m, categories[0].GetProperty("chiffreAffaires").GetDecimal());
         Assert.Equal(JsonValueKind.Null, categories[2].GetProperty("categorieId").ValueKind);
         Assert.Equal(5, categories[2].GetProperty("quantite").GetInt32());
-        Assert.Equal(["المقبلات", "أرشيف", "أخرى"], ar.GetProperty("parCategorie").EnumerateArray().Select(c => c.GetProperty("nom").GetString()!).ToArray());
     }
 }

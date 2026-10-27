@@ -8,7 +8,7 @@ const ROOT = ['private', 'admin', 'menu'] as const
 export const categoriesKey = [...ROOT, 'categories'] as const
 export const articlesKey = [...ROOT, 'articles'] as const
 
-/** Le menu public (['menu', lang]) est mis en cache 60 s côté serveur ; on invalide aussi le cache local. */
+/** Le menu public (['menu']) est mis en cache 60 s côté serveur ; on invalide aussi le cache local. */
 function useRefreshPublicMenu() {
   const queryClient = useQueryClient()
   return () => void queryClient.invalidateQueries({ queryKey: ['menu'] })
@@ -33,7 +33,6 @@ export function useAdminCategories() {
 
 export interface CategoryInput {
   nomFr: string
-  nomAr: string
 }
 
 export function useSaveCategory() {
@@ -41,7 +40,7 @@ export function useSaveCategory() {
   const refreshPublic = useRefreshPublicMenu()
   return useMutation<AdminCategory, Error, { id?: number; values: CategoryInput }>({
     mutationFn: async ({ id, values }) => {
-      const body = { nomFr: values.nomFr.trim(), nomAr: values.nomAr.trim() }
+      const body = { nomFr: values.nomFr.trim() }
       const { data } =
         id === undefined
           ? await api.post<AdminCategory>('/api/admin/categories', body)

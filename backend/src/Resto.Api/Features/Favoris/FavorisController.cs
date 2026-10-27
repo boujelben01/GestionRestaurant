@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Resto.Api.Common;
@@ -11,11 +10,10 @@ namespace Resto.Api.Features.Favoris;
 [Authorize]
 public class FavorisController(FavoriService service) : ControllerBase
 {
-    /// <summary>Articles favoris dans la langue demandée (`lang=fr|ar`) ; un article désactivé reste listé avec `actif=false`.</summary>
+    /// <summary>Articles favoris ; un article désactivé reste listé avec `actif=false`.</summary>
     [HttpGet]
-    public async Task<IReadOnlyList<FavoriResponse>> List(
-        [FromQuery, RegularExpression(Langue.Pattern)] string? lang, CancellationToken ct) =>
-        await service.ListAsync(User.GetUserId(), lang, ct);
+    public async Task<IReadOnlyList<FavoriResponse>> List(CancellationToken ct) =>
+        await service.ListAsync(User.GetUserId(), ct);
 
     /// <summary>Identifiants seulement, pour afficher les cœurs sans charger les articles.</summary>
     [HttpGet("ids")]

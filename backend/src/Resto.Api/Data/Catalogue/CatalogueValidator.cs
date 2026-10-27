@@ -27,7 +27,6 @@ public static class CatalogueValidator
             var where = $"Catégorie n°{i + 1}" + (Blank(categorie.NomFr) ? "" : $" « {categorie.NomFr!.Trim()} »");
 
             CheckName(errors, where, "nomFr", categorie.NomFr, CategorieNomMax, categorieNames);
-            CheckName(errors, where, "nomAr", categorie.NomAr, CategorieNomMax, null);
             CheckOrdre(errors, where, categorie.Ordre);
 
             if (categorie.Articles is null)
@@ -50,7 +49,6 @@ public static class CatalogueValidator
     private static void CheckArticle(List<string> errors, string where, CatalogueArticle article, HashSet<string> names)
     {
         CheckName(errors, where, "nomFr", article.NomFr, ArticleNomMax, names);
-        CheckName(errors, where, "nomAr", article.NomAr, ArticleNomMax, null);
         CheckOrdre(errors, where, article.Ordre);
 
         if (article.Prix is not { } prix)
@@ -69,7 +67,7 @@ public static class CatalogueValidator
         if (article.Populaire is null) errors.Add($"{where} : « populaire » absent.");
         if (article.Disponible is null) errors.Add($"{where} : « disponible » absent.");
 
-        foreach (var (key, value) in new[] { ("descriptionFr", article.DescriptionFr), ("descriptionAr", article.DescriptionAr) })
+        foreach (var (key, value) in new[] { ("descriptionFr", article.DescriptionFr) })
         {
             if (value is not null && value.Length > DescriptionMax)
             {

@@ -16,7 +16,6 @@ internal sealed record StatItem(
     TypeCommande Type,
     int? ArticleId,
     string NomFr,
-    string NomAr,
     decimal PrixUnitaire,
     int Quantite)
 {
@@ -24,7 +23,7 @@ internal sealed record StatItem(
     public decimal Montant => CommandeRules.Round(PrixUnitaire * Quantite);
 }
 
-internal sealed record StatCategory(int Id, string NomFr, string NomAr);
+internal sealed record StatCategory(int Id, string NomFr);
 
 /// <summary>
 /// Agrégation des statistiques EN MÉMOIRE sur une période bornée. Les jours et heures sont ceux de Tunis (UTC+1,
@@ -102,7 +101,7 @@ internal static class StatsMath
 
     // --- Top articles ---
 
-    public static IReadOnlyList<TopArticleResponse> TopArticles(IEnumerable<StatItem> items, int limit, string lang)
+    public static IReadOnlyList<TopArticleResponse> TopArticles(IEnumerable<StatItem> items, int limit)
     {
         return items.Where(i => IsSale(i.Statut))
             // Une ligne dont l'article a été supprimé n'a plus d'identifiant : on regroupe alors sur le nom copié.
@@ -112,7 +111,7 @@ internal static class StatsMath
                 var latest = g.OrderByDescending(i => i.DateCommande).First();
                 return new TopArticleResponse(
                     latest.ArticleId,
-                    Langue.Pick(latest.NomFr, latest.NomAr, lang),
+                    latest.NomFr,
                     g.Sum(i => i.Quantite),
                     Sum(g.Select(i => i.Montant)));
             })
@@ -143,8 +142,7 @@ internal static class StatsMath
         IEnumerable<StatOrder> orders,
         IEnumerable<StatItem> items,
         IReadOnlyDictionary<int, int> categoryOfArticle,
-        IReadOnlyDictionary<int, StatCategory> categories,
-        string lang)
+        IReadOnlyDictionary<int, StatCategory> categories)
     {
         var orderList = orders.ToList();
         var allItems = items.ToList();
@@ -167,7 +165,7 @@ internal static class StatsMath
                 : null)
             .Select(g => new RepartitionCategorieResponse(
                 g.Key,
-                g.Key is { } id ? Langue.Pick(categories[id].NomFr, categories[id].NomAr, lang) : Other(lang),
+                g.Key is { } id ? categories[id].NomFr : Other,
                 g.Sum(i => i.Quantite),
                 Sum(g.Select(i => i.Montant))))
             .OrderBy(c => c.CategorieId is null) // « Autres » en dernier
@@ -177,5 +175,5 @@ internal static class StatsMath
         return new RepartitionResponse(parType, parStatut, parCategorie);
     }
 
-    public static string Other(string lang) => Langue.Normalize(lang) == Langue.Arabe ? "أخرى" : "Autres";
+    public const string Other = "Autres";
 }

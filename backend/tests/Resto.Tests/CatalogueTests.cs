@@ -9,10 +9,10 @@ namespace Resto.Tests;
 public class CatalogueTests
 {
     private const string Valid = """
-        { "categories": [ { "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 1, "articles": [
-          { "ordre": 1, "nomFr": "Citronnade", "nomAr": "ليمونادة", "descriptionFr": "Frais.", "descriptionAr": "منعش",
+        { "categories": [ { "nomFr": "Boissons", "ordre": 1, "articles": [
+          { "ordre": 1, "nomFr": "Citronnade", "descriptionFr": "Frais.",
             "prix": 4, "populaire": false, "disponible": true, "image": "/images/menu/citronnade.webp" },
-          { "ordre": 2, "nomFr": "Eau", "nomAr": "ماء", "descriptionFr": null, "descriptionAr": null,
+          { "ordre": 2, "nomFr": "Eau", "descriptionFr": null,
             "prix": 1.5, "populaire": true, "disponible": true, "image": null }
         ] } ] }
         """;
@@ -70,7 +70,7 @@ public class CatalogueTests
     [InlineData("\"prix\": 4,", "\"prix\": -1,", "prix")]
     [InlineData("\"prix\": 4,", "\"prix\": 4.123,", "décimales")]
     [InlineData("\"prix\": 4,", "", "prix absent")]
-    [InlineData("\"nomAr\": \"ليمونادة\"", "\"nomAr\": \"  \"", "nomAr")]
+    [InlineData("\"nomFr\": \"Citronnade\"", "\"nomFr\": \"  \"", "nomFr")]
     [InlineData("\"nomFr\": \"Citronnade\"", "\"nomFr\": \"Eau\"", "en double")]
     [InlineData("/images/menu/citronnade.webp", "/images/../secret.png", "image")]
     [InlineData("/images/menu/citronnade.webp", "http://exemple.com/a.png", "image")]
@@ -90,17 +90,17 @@ public class CatalogueTests
 
         var twice = Parse("""
             { "categories": [
-              { "nomFr": "A", "nomAr": "أ", "ordre": 1, "articles": [] },
-              { "nomFr": "a", "nomAr": "ب", "ordre": 2, "articles": [] } ] }
+              { "nomFr": "A", "ordre": 1, "articles": [] },
+              { "nomFr": "a", "ordre": 2, "articles": [] } ] }
             """);
         Assert.Contains(CatalogueValidator.Validate(twice), e => e.Contains("en double"));
     }
 
     private const string WithEmptyCategory = """
         { "categories": [
-          { "nomFr": "Pizza", "nomAr": "بيتزا", "ordre": 1, "articles": [] },
-          { "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 2, "articles": [
-            { "ordre": 1, "nomFr": "Eau", "nomAr": "ماء", "prix": 1.5, "populaire": false, "disponible": true, "image": null } ] } ] }
+          { "nomFr": "Pizza", "ordre": 1, "articles": [] },
+          { "nomFr": "Boissons", "ordre": 2, "articles": [
+            { "ordre": 1, "nomFr": "Eau", "prix": 1.5, "populaire": false, "disponible": true, "image": null } ] } ] }
         """;
 
     [Fact]
@@ -108,7 +108,7 @@ public class CatalogueTests
     {
         Assert.Empty(CatalogueValidator.Validate(Parse(WithEmptyCategory)));
 
-        var missingList = Parse("""{ "categories": [ { "nomFr": "A", "nomAr": "أ", "ordre": 1 } ] }""");
+        var missingList = Parse("""{ "categories": [ { "nomFr": "A", "ordre": 1 } ] }""");
         Assert.Contains(CatalogueValidator.Validate(missingList), e => e.Contains("articles"));
     }
 
@@ -204,8 +204,8 @@ public class CatalogueTests
     {
         await using var db = NewDb();
         await CatalogueSync.ApplyAsync(db, Parse(), false);
-        var ancienne = new Api.Domain.Categorie { NomFr = "Ancienne", NomAr = "قديمة", Ordre = 5 };
-        ancienne.Articles.Add(new Api.Domain.Article { NomFr = "Vieux plat", NomAr = "قديم", Prix = 3m });
+        var ancienne = new Api.Domain.Categorie { NomFr = "Ancienne", Ordre = 5 };
+        ancienne.Articles.Add(new Api.Domain.Article { NomFr = "Vieux plat", Prix = 3m });
         db.Categories.Add(ancienne);
         await db.SaveChangesAsync();
         var withoutCitronnade = Parse(Valid[..Valid.IndexOf("{ \"ordre\": 1", StringComparison.Ordinal)]

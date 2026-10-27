@@ -117,8 +117,7 @@ export function OrderCard({
       <ul className="flex flex-col gap-0.5 border-y border-sand-200 py-2 text-base">
         {order.lignes.map((line, index) => (
           <li key={index}>
-            <span className="tabular font-bold">{line.quantite} ×</span>{' '}
-            {lang === 'ar' ? line.nomAr : line.nomFr}
+            <span className="tabular font-bold">{line.quantite} ×</span> {line.nomFr}
           </li>
         ))}
       </ul>

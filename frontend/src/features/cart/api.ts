@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient, type QueryKey } from '@tanstack/
 import { useRef } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { api } from '@/lib/api'
-import type { Lang, Panier } from '@/lib/types'
-import { useLang } from '@/lib/useLang'
+import type { Panier } from '@/lib/types'
 import {
   EMPTY_CART,
   applyAdd,
@@ -14,21 +13,20 @@ import {
 } from './cartMath'
 
 /** Préfixe « private » : vidé à la déconnexion (AuthContext). */
-export const cartKey = (lang: Lang) => ['private', 'cart', lang] as const
+export const cartKey = () => ['private', 'cart'] as const
 const CART_ROOT = ['private', 'cart'] as const
 
-export async function fetchCart(lang: Lang): Promise<Panier> {
-  const { data } = await api.get<Panier>('/api/panier', { params: { lang } })
+export async function fetchCart(): Promise<Panier> {
+  const { data } = await api.get<Panier>('/api/panier')
   return data
 }
 
 /** Panier du client connecté (désactivé pour un invité). */
 export function usePanier() {
-  const lang = useLang()
   const { isAuthenticated } = useAuth()
   return useQuery({
-    queryKey: cartKey(lang),
-    queryFn: () => fetchCart(lang),
+    queryKey: cartKey(),
+    queryFn: () => fetchCart(),
     enabled: isAuthenticated,
     staleTime: 15_000,
   })
@@ -47,15 +45,14 @@ export function useCartCount(): number {
  * puis invalide pour resynchroniser.
  */
 function useCartMutation<TVars>(
-  request: (vars: TVars, lang: Lang) => Promise<Panier>,
+  request: (vars: TVars) => Promise<Panier>,
   optimistic: (cart: Panier, vars: TVars) => Panier,
 ) {
   const queryClient = useQueryClient()
-  const lang = useLang()
   return useMutation<Panier, Error, TVars, { previous: Panier | undefined; key: QueryKey }>({
-    mutationFn: (vars) => request(vars, lang),
+    mutationFn: (vars) => request(vars),
     onMutate: async (vars) => {
-      const key = cartKey(lang)
+      const key = cartKey()
       await queryClient.cancelQueries({ queryKey: CART_ROOT })
       const previous = queryClient.getQueryData<Panier>(key)
       queryClient.setQueryData<Panier>(key, optimistic(previous ?? EMPTY_CART, vars))
@@ -82,12 +79,11 @@ export interface AddToCartVars {
  */
 export function useAddToCart() {
   const mutation = useCartMutation<AddToCartVars>(
-    async ({ article, quantite = 1 }, lang) => {
-      const { data } = await api.post<Panier>(
-        '/api/panier/items',
-        { articleId: article.id, quantite },
-        { params: { lang } },
-      )
+    async ({ article, quantite = 1 }) => {
+      const { data } = await api.post<Panier>('/api/panier/items', {
+        articleId: article.id,
+        quantite,
+      })
       return data
     },
     (cart, { article, quantite = 1 }) => applyAdd(cart, article, quantite),
@@ -109,12 +105,8 @@ export function useAddToCart() {
 
 export function useSetQuantity() {
   return useCartMutation<{ articleId: number; quantite: number }>(
-    async ({ articleId, quantite }, lang) => {
-      const { data } = await api.put<Panier>(
-        `/api/panier/items/${articleId}`,
-        { quantite },
-        { params: { lang } },
-      )
+    async ({ articleId, quantite }) => {
+      const { data } = await api.put<Panier>(`/api/panier/items/${articleId}`, { quantite })
       return data
     },
     (cart, { articleId, quantite }) => applySetQuantity(cart, articleId, quantite),
@@ -123,10 +115,8 @@ export function useSetQuantity() {
 
 export function useRemoveItem() {
   return useCartMutation<{ articleId: number }>(
-    async ({ articleId }, lang) => {
-      const { data } = await api.delete<Panier>(`/api/panier/items/${articleId}`, {
-        params: { lang },
-      })
+    async ({ articleId }) => {
+      const { data } = await api.delete<Panier>(`/api/panier/items/${articleId}`)
       return data
     },
     (cart, { articleId }) => applyRemove(cart, articleId),

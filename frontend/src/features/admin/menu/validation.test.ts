@@ -15,7 +15,6 @@ const valid: ArticleFormValues = {
   ...EMPTY_ARTICLE,
   categorieId: 1,
   nomFr: 'Brik',
-  nomAr: 'بريك',
   prix: '4,50',
 }
 
@@ -71,12 +70,11 @@ describe('formulaire article', () => {
     expect(validateArticle(valid)).toEqual({})
   })
 
-  it('exige catégorie, noms FR et AR et prix', () => {
+  it('exige catégorie, nom et prix', () => {
     const errors = validateArticle(EMPTY_ARTICLE)
     expect(errors).toMatchObject({
       categorieId: 'category',
       nomFr: 'required',
-      nomAr: 'required',
       prix: 'required',
     })
   })
@@ -85,10 +83,10 @@ describe('formulaire article', () => {
     const errors = validateArticle({
       ...valid,
       nomFr: 'x'.repeat(151),
-      descriptionAr: 'y'.repeat(1001),
+      descriptionFr: 'y'.repeat(1001),
     })
     expect(errors.nomFr).toBe('tooLong')
-    expect(errors.descriptionAr).toBe('tooLong')
+    expect(errors.descriptionFr).toBe('tooLong')
     expect(validateArticle({ ...valid, nomFr: 'x'.repeat(150) }).nomFr).toBeUndefined()
   })
 
@@ -102,10 +100,8 @@ describe('formulaire article', () => {
     expect(buildArticleRequest({ ...valid, nomFr: '  Brik  ', imageUrl: '' })).toEqual({
       categorieId: 1,
       nomFr: 'Brik',
-      nomAr: 'بريك',
       prix: 4.5,
       descriptionFr: null,
-      descriptionAr: null,
       imageUrl: null,
       estDisponible: true,
       estPopulaire: false,
@@ -114,13 +110,12 @@ describe('formulaire article', () => {
 })
 
 describe('formulaire catégorie', () => {
-  it('exige les deux noms, 100 caractères au plus', () => {
-    expect(validateCategory({ nomFr: '', nomAr: ' ' })).toEqual({
+  it('exige le nom, 100 caractères au plus', () => {
+    expect(validateCategory({ nomFr: ' ' })).toEqual({
       nomFr: 'required',
-      nomAr: 'required',
     })
-    expect(validateCategory({ nomFr: 'x'.repeat(101), nomAr: 'ok' })).toEqual({ nomFr: 'tooLong' })
-    expect(validateCategory({ nomFr: 'Entrées', nomAr: 'مقبلات' })).toEqual({})
+    expect(validateCategory({ nomFr: 'x'.repeat(101) })).toEqual({ nomFr: 'tooLong' })
+    expect(validateCategory({ nomFr: 'Entrées' })).toEqual({})
   })
 })
 

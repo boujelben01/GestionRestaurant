@@ -113,14 +113,14 @@ public class ApiFactory : WebApplicationFactory<Program>
 
     private static async Task SeedCatalogAsync(AppDbContext db)
     {
-        var entrees = new Categorie { NomFr = "Entrées", NomAr = "المقبلات", Ordre = 1 };
-        var archive = new Categorie { NomFr = "Archive", NomAr = "أرشيف", Ordre = 2, EstActive = false };
+        var entrees = new Categorie { NomFr = "Entrées", Ordre = 1 };
+        var archive = new Categorie { NomFr = "Archive", Ordre = 2, EstActive = false };
         db.Categories.AddRange(entrees, archive);
         db.Articles.AddRange(
-            new Article { Categorie = entrees, NomFr = "Brik", NomAr = "بريك", Prix = 3.5m, Ordre = 1, EstPopulaire = true, ImageUrl = "/images/brik.jpg" },
-            new Article { Categorie = entrees, NomFr = "Soupe", NomAr = "", Prix = 4m, Ordre = 2, EstDisponible = false },
-            new Article { Categorie = entrees, NomFr = "Ancien plat", NomAr = "قديم", Prix = 5m, Ordre = 3, EstActif = false },
-            new Article { Categorie = archive, NomFr = "Caché", NomAr = "مخفي", Prix = 6m, Ordre = 1 });
+            new Article { Categorie = entrees, NomFr = "Brik", Prix = 3.5m, Ordre = 1, EstPopulaire = true, ImageUrl = "/images/brik.jpg" },
+            new Article { Categorie = entrees, NomFr = "Soupe", Prix = 4m, Ordre = 2, EstDisponible = false },
+            new Article { Categorie = entrees, NomFr = "Ancien plat", Prix = 5m, Ordre = 3, EstActif = false },
+            new Article { Categorie = archive, NomFr = "Caché", Prix = 6m, Ordre = 1 });
 
         db.ParametresRestaurant.Add(new ParametresRestaurant
         {
@@ -182,7 +182,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var categorie = await db.Categories.SingleAsync(c => c.NomFr == "Entrées");
-        var article = new Article { CategorieId = categorie.Id, NomFr = nomFr, NomAr = nomFr, Prix = prix, Ordre = 99 };
+        var article = new Article { CategorieId = categorie.Id, NomFr = nomFr, Prix = prix, Ordre = 99 };
         db.Articles.Add(article);
         await db.SaveChangesAsync();
         return article.Id;

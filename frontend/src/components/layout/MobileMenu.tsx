@@ -15,7 +15,6 @@ import {
   useScrollLock,
 } from '@/components/ui'
 import { ZelligePattern } from '@/components/ui'
-import { LanguageSwitcher } from './LanguageSwitcher'
 import { NAV_ITEMS, accountLinksFor } from './nav'
 
 interface MobileMenuProps {
@@ -122,9 +121,6 @@ function MobilePanel({ onClose, user, onLogout }: Omit<MobileMenuProps, 'open'>)
             </Button>
           </div>
         )}
-        <div className="flex justify-center">
-          <LanguageSwitcher />
-        </div>
       </motion.div>
     </motion.div>
   )

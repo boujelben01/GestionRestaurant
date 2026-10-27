@@ -108,8 +108,8 @@ public class StatsMathTests
         TypeCommande type = TypeCommande.ARemporter) => new(date, statut, type, paid, total);
 
     private static StatItem Item(DateTime date, decimal price, int qty, StatutCommande statut = StatutCommande.Terminee,
-        int? articleId = 1, string nomFr = "Brik", string nomAr = "بريك", TypeCommande type = TypeCommande.ARemporter, int commande = 1) =>
-        new(commande, date, statut, type, articleId, nomFr, nomAr, price, qty);
+        int? articleId = 1, string nomFr = "Brik", TypeCommande type = TypeCommande.ARemporter, int commande = 1) =>
+        new(commande, date, statut, type, articleId, nomFr, price, qty);
 
     // ---------- Fuseau ----------
 
@@ -303,7 +303,7 @@ public class StatsMathTests
             Item(Utc(1, 13), 2m, 1, articleId: 4, nomFr: "Thé"),
         };
 
-        var top = StatsMath.TopArticles(items, 3, "fr");
+        var top = StatsMath.TopArticles(items, 3);
 
         Assert.Equal(["Makloub", "Brik", "Plat tounsi"], top.Select(t => t.Nom).ToArray());
         Assert.Equal([10, 10, 3], top.Select(t => t.Quantite).ToArray());
@@ -312,17 +312,14 @@ public class StatsMathTests
     }
 
     [Fact]
-    public void Top_articles_use_the_copied_name_in_the_requested_language_and_exclude_cancelled_orders()
+    public void Top_articles_use_the_copied_name_and_exclude_cancelled_orders()
     {
         var items = new[]
         {
-            Item(Utc(1, 10), 4m, 2, articleId: 1, nomFr: "Brik", nomAr: "بريك"),
-            Item(Utc(1, 11), 4m, 99, StatutCommande.Annulee, articleId: 2, nomFr: "Fantôme", nomAr: "شبح"),
+            Item(Utc(1, 10), 4m, 2, articleId: 1, nomFr: "Brik"),
+            Item(Utc(1, 11), 4m, 99, StatutCommande.Annulee, articleId: 2, nomFr: "Fantôme"),
         };
-
-        Assert.Equal("بريك", Assert.Single(StatsMath.TopArticles(items, 10, "ar")).Nom);
-        Assert.Equal("Brik", Assert.Single(StatsMath.TopArticles(items, 10, "fr")).Nom);
-        Assert.Equal("Brik", Assert.Single(StatsMath.TopArticles(items, 10, "de")).Nom); // langue inconnue : français
+        Assert.Equal("Brik", Assert.Single(StatsMath.TopArticles(items, 10)).Nom);
     }
 
     [Fact]
@@ -335,7 +332,7 @@ public class StatsMathTests
             Item(Utc(2, 11), 3m, 1, articleId: null, nomFr: "Autre ancien"),
         };
 
-        var top = StatsMath.TopArticles(items, 10, "fr");
+        var top = StatsMath.TopArticles(items, 10);
 
         Assert.Equal(2, top.Count);
         Assert.Equal(("Ancien plat", 3, null), (top[0].Nom, top[0].Quantite, top[0].ArticleId));
@@ -387,11 +384,11 @@ public class StatsMathTests
         var articleCategory = new Dictionary<int, int> { [1] = 10, [2] = 20 };
         var categories = new Dictionary<int, StatCategory>
         {
-            [10] = new(10, "Entrées", "المقبلات"),
-            [20] = new(20, "Plats", "الأطباق"),
+            [10] = new(10, "Entrées"),
+            [20] = new(20, "Plats"),
         };
 
-        var result = StatsMath.Breakdown(orders, items, articleCategory, categories, "fr");
+        var result = StatsMath.Breakdown(orders, items, articleCategory, categories);
 
         Assert.Equal(3, result.ParType.Count);
         Assert.Equal((1, 10m), (result.ParType.Single(t => t.Type == TypeCommande.SurPlace).Commandes, result.ParType.Single(t => t.Type == TypeCommande.SurPlace).ChiffreAffaires));
@@ -410,24 +407,12 @@ public class StatsMathTests
     }
 
     [Fact]
-    public void Category_names_follow_the_requested_language_and_others_is_translated()
-    {
-        var items = new[] { Item(Utc(1, 10), 5m, 1, articleId: 1), Item(Utc(1, 10), 5m, 1, articleId: null) };
-
-        var result = StatsMath.Breakdown(
-            [Order(Utc(1, 10))], items, new Dictionary<int, int> { [1] = 10 },
-            new Dictionary<int, StatCategory> { [10] = new(10, "Entrées", "المقبلات") }, "ar");
-
-        Assert.Equal(["المقبلات", "أخرى"], result.ParCategorie.Select(c => c.Nom).ToArray());
-    }
-
-    [Fact]
     public void An_article_whose_category_is_unknown_falls_into_others()
     {
         var items = new[] { Item(Utc(1, 10), 5m, 1, articleId: 7) };
 
         var result = StatsMath.Breakdown([Order(Utc(1, 10))], items, new Dictionary<int, int> { [7] = 99 },
-            new Dictionary<int, StatCategory>(), "fr");
+            new Dictionary<int, StatCategory>());
 
         Assert.Equal("Autres", Assert.Single(result.ParCategorie).Nom);
     }

@@ -68,9 +68,7 @@ export function priceError(text: string): MenuErrorCode | undefined {
 export interface ArticleFormValues {
   categorieId: number | null
   nomFr: string
-  nomAr: string
   descriptionFr: string
-  descriptionAr: string
   prix: string
   imageUrl: string
   estPopulaire: boolean
@@ -80,17 +78,14 @@ export interface ArticleFormValues {
 export const EMPTY_ARTICLE: ArticleFormValues = {
   categorieId: null,
   nomFr: '',
-  nomAr: '',
   descriptionFr: '',
-  descriptionAr: '',
   prix: '',
   imageUrl: '',
   estPopulaire: false,
   estDisponible: true,
 }
 
-export type ArticleField =
-  'categorieId' | 'nomFr' | 'nomAr' | 'descriptionFr' | 'descriptionAr' | 'prix' | 'imageUrl'
+export type ArticleField = 'categorieId' | 'nomFr' | 'descriptionFr' | 'prix' | 'imageUrl'
 
 export function validateArticle(
   values: ArticleFormValues,
@@ -99,10 +94,7 @@ export function validateArticle(
   if (values.categorieId === null) errors.categorieId = 'category'
   if (!values.nomFr.trim()) errors.nomFr = 'required'
   else if (values.nomFr.trim().length > NAME_MAX) errors.nomFr = 'tooLong'
-  if (!values.nomAr.trim()) errors.nomAr = 'required'
-  else if (values.nomAr.trim().length > NAME_MAX) errors.nomAr = 'tooLong'
   if (values.descriptionFr.length > DESCRIPTION_MAX) errors.descriptionFr = 'tooLong'
-  if (values.descriptionAr.length > DESCRIPTION_MAX) errors.descriptionAr = 'tooLong'
   const price = priceError(values.prix)
   if (price) errors.prix = price
   if (values.imageUrl.trim() && !isValidImageUrl(values.imageUrl.trim()))
@@ -115,10 +107,8 @@ export function buildArticleRequest(values: ArticleFormValues) {
   return {
     categorieId: values.categorieId as number,
     nomFr: values.nomFr.trim(),
-    nomAr: values.nomAr.trim(),
     prix: parsePrice(values.prix) as number,
     descriptionFr: values.descriptionFr.trim() || null,
-    descriptionAr: values.descriptionAr.trim() || null,
     imageUrl: values.imageUrl.trim() || null,
     estDisponible: values.estDisponible,
     estPopulaire: values.estPopulaire,
@@ -129,18 +119,15 @@ export function buildArticleRequest(values: ArticleFormValues) {
 
 export interface CategoryFormValues {
   nomFr: string
-  nomAr: string
 }
 
 export function validateCategory(
   values: CategoryFormValues,
-): Partial<Record<'nomFr' | 'nomAr', MenuErrorCode>> {
-  const errors: Partial<Record<'nomFr' | 'nomAr', MenuErrorCode>> = {}
-  for (const field of ['nomFr', 'nomAr'] as const) {
-    const value = values[field].trim()
-    if (!value) errors[field] = 'required'
-    else if (value.length > CATEGORY_NAME_MAX) errors[field] = 'tooLong'
-  }
+): Partial<Record<'nomFr', MenuErrorCode>> {
+  const errors: Partial<Record<'nomFr', MenuErrorCode>> = {}
+  const value = values.nomFr.trim()
+  if (!value) errors.nomFr = 'required'
+  else if (value.length > CATEGORY_NAME_MAX) errors.nomFr = 'tooLong'
   return errors
 }
 

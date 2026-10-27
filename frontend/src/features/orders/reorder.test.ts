@@ -27,7 +27,6 @@ const menu: MenuCategorie[] = [
 const ligne = (articleId: number | null, nomFr: string, quantite: number) => ({
   articleId,
   nomFr,
-  nomAr: `${nomFr}-ar`,
   prixUnitaire: 1,
   quantite,
   totalLigne: quantite,
@@ -55,7 +54,7 @@ describe('reorder (« Commander à nouveau »)', () => {
       'GET /api/menu': () => ({ data: menu }),
       'POST /api/panier/items': () => ({ data: cart }),
     })
-    const result = await reorder(new QueryClient(), order, 'fr')
+    const result = await reorder(new QueryClient(), order)
 
     expect(result.added.map((a) => a.nom)).toEqual(['Brik', 'Makloub'])
     expect(result.skipped).toEqual([
@@ -79,7 +78,7 @@ describe('reorder (« Commander à nouveau »)', () => {
       'POST /api/panier/items': () =>
         ++n === 1 ? { status: 409, data: { title: 'indispo' } } : { data: cart },
     })
-    const result = await reorder(new QueryClient(), order, 'fr')
+    const result = await reorder(new QueryClient(), order)
     expect(result.skipped[0]).toEqual({ nom: 'Brik', reason: 'error' })
     expect(result.added.map((a) => a.nom)).toEqual(['Makloub'])
   })

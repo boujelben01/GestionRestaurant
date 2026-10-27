@@ -10,9 +10,7 @@ public class ArticleConfiguration : IEntityTypeConfiguration<Article>
     {
         builder.ToTable("Articles", t => t.HasCheckConstraint("CK_Articles_Prix", "\"Prix\" >= 0"));
         builder.Property(a => a.NomFr).HasMaxLength(150).IsRequired();
-        builder.Property(a => a.NomAr).HasMaxLength(150).IsRequired();
         builder.Property(a => a.DescriptionFr).HasMaxLength(1000);
-        builder.Property(a => a.DescriptionAr).HasMaxLength(1000);
         builder.Property(a => a.Prix).HasColumnType("numeric(10,2)");
         builder.Property(a => a.ImageUrl).HasMaxLength(500);
         builder.Property(a => a.DateCreation).HasColumnType("timestamp with time zone").HasDefaultValueSql("now()");

@@ -305,10 +305,6 @@ namespace Resto.Api.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<string>("DescriptionAr")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
                     b.Property<string>("DescriptionFr")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -325,11 +321,6 @@ namespace Resto.Api.Data.Migrations
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
-
-                    b.Property<string>("NomAr")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("NomFr")
                         .IsRequired()
@@ -362,11 +353,6 @@ namespace Resto.Api.Data.Migrations
 
                     b.Property<bool>("EstActive")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("NomAr")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("NomFr")
                         .IsRequired()
@@ -502,11 +488,6 @@ namespace Resto.Api.Data.Migrations
 
                     b.Property<int>("CommandeId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("NomAr")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("NomFr")
                         .IsRequired()

@@ -63,14 +63,14 @@ Content-Type: application/json
 ### Santé (anonyme)
 GET {{host}}/health
 
-### Menu public (fr ou ar)
-GET {{host}}/api/menu?lang=ar
+### Menu public
+GET {{host}}/api/menu
 
 ### Articles : filtres et pagination
 GET {{host}}/api/menu/articles?populaire=true&recherche=brik&page=1&pageSize=20
 
 ### Détail d'un article
-GET {{host}}/api/menu/articles/1?lang=fr
+GET {{host}}/api/menu/articles/1
 
 ### Restaurant : infos, horaires, ouvertMaintenant
 GET {{host}}/api/restaurant
@@ -80,7 +80,7 @@ POST {{host}}/api/admin/categories
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
-{ "nomFr": "Spécialités", "nomAr": "تخصصات" }
+{ "nomFr": "Spécialités" }
 
 ### Admin : désactiver une catégorie (409 si elle a des articles actifs)
 PATCH {{host}}/api/admin/categories/1/active
@@ -108,9 +108,7 @@ Content-Type: application/json
 {
   "categorieId": 1,
   "nomFr": "Brik au fromage",
-  "nomAr": "بريك بالجبن",
   "descriptionFr": "Brik croustillant au fromage.",
-  "descriptionAr": "بريك مقرمش بالجبن.",
   "prix": 3.5,
   "imageUrl": "/images/default.svg",
   "estPopulaire": false
@@ -168,8 +166,8 @@ Content-Type: application/json
 
 { "commandesOuvertes": false }
 
-### Panier : lire (lang=fr|ar)
-GET {{host}}/api/panier?lang=fr
+### Panier : lire
+GET {{host}}/api/panier
 Authorization: Bearer {{token}}
 
 ### Panier : ajouter un article (cumule, plafond 20)
@@ -311,8 +309,8 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/admin/statistiques/ventes-par-jour?du=2024-06-01&au=2024-06-30
 Authorization: Bearer {{token}}
 
-### Statistiques : top articles (limite 1 à 20 ; lang=fr|ar)
-GET {{host}}/api/admin/statistiques/top-articles?du=2024-06-01&au=2024-06-30&limite=10&lang=ar
+### Statistiques : top articles (limite 1 à 20)
+GET {{host}}/api/admin/statistiques/top-articles?du=2024-06-01&au=2024-06-30&limite=10
 Authorization: Bearer {{token}}
 
 ### Statistiques : heures de pointe (24 entrées, heure de Tunis)
@@ -320,7 +318,7 @@ GET {{host}}/api/admin/statistiques/heures-de-pointe?du=2024-06-01&au=2024-06-30
 Authorization: Bearer {{token}}
 
 ### Statistiques : répartition par type, statut et catégorie
-GET {{host}}/api/admin/statistiques/repartition?du=2024-06-01&au=2024-06-30&lang=fr
+GET {{host}}/api/admin/statistiques/repartition?du=2024-06-01&au=2024-06-30
 Authorization: Bearer {{token}}
 
 ### Plan de salle : état de chaque table, encaisser, libérer
@@ -335,8 +333,8 @@ Authorization: Bearer {{token}}
 POST {{host}}/api/admin/tables/1/liberer
 Authorization: Bearer {{token}}
 
-### Favoris : liste (lang=fr|ar), ids, ajout, retrait
-GET {{host}}/api/favoris?lang=fr
+### Favoris : liste, ids, ajout, retrait
+GET {{host}}/api/favoris
 Authorization: Bearer {{token}}
 
 ###

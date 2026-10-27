@@ -43,12 +43,12 @@ let mock: ReturnType<typeof mockApi> | undefined
 afterEach(() => mock?.restore())
 
 describe('hooks du panier', () => {
-  it('charge le panier avec ?lang=', async () => {
+  it('charge le panier sans paramètre de langue', async () => {
     mock = mockApi({ 'GET /api/panier': () => ({ data: serverCart(2) }) })
     const { wrapper } = setup()
     const { result } = renderHook(() => usePanier(), { wrapper })
     await waitFor(() => expect(result.current.data?.nombreArticles).toBe(2))
-    expect(mock.calls[0]?.params).toEqual({ lang: 'fr' })
+    expect(mock.calls[0]?.params).toBeUndefined()
   })
 
   it('ajout : affichage optimiste immédiat puis valeurs du serveur', async () => {
@@ -62,19 +62,19 @@ describe('hooks du panier', () => {
       'GET /api/panier': () => ({ data: serverCart(1) }),
     })
     const { client, wrapper } = setup()
-    client.setQueryData(cartKey('fr'), { ...serverCart(0), lignes: [], nombreArticles: 0 })
+    client.setQueryData(cartKey(), { ...serverCart(0), lignes: [], nombreArticles: 0 })
     const { result } = renderHook(() => useAddToCart(), { wrapper })
 
     let pending: Promise<boolean> = Promise.resolve(false)
     act(() => {
       pending = result.current.add({ article })
     })
-    await waitFor(() => expect(client.getQueryData<Panier>(cartKey('fr'))?.nombreArticles).toBe(1))
+    await waitFor(() => expect(client.getQueryData<Panier>(cartKey())?.nombreArticles).toBe(1))
     release()
     await act(async () => {
       await pending
     })
-    expect(client.getQueryData<Panier>(cartKey('fr'))?.sousTotal).toBe(4.5)
+    expect(client.getQueryData<Panier>(cartKey())?.sousTotal).toBe(4.5)
   })
 
   it('ajout : plafond 20 appliqué de façon optimiste', async () => {
@@ -88,13 +88,13 @@ describe('hooks du panier', () => {
       'GET /api/panier': () => ({ data: serverCart(20) }),
     })
     const { client, wrapper } = setup()
-    client.setQueryData(cartKey('fr'), serverCart(19))
+    client.setQueryData(cartKey(), serverCart(19))
     const { result } = renderHook(() => useAddToCart(), { wrapper })
     let pending: Promise<boolean> = Promise.resolve(false)
     act(() => {
       pending = result.current.add({ article, quantite: 5 })
     })
-    await waitFor(() => expect(client.getQueryData<Panier>(cartKey('fr'))?.nombreArticles).toBe(20))
+    await waitFor(() => expect(client.getQueryData<Panier>(cartKey())?.nombreArticles).toBe(20))
     release()
     await act(async () => {
       await pending
@@ -107,12 +107,12 @@ describe('hooks du panier', () => {
       'GET /api/panier': () => ({ data: serverCart(2) }),
     })
     const { client, wrapper } = setup()
-    client.setQueryData(cartKey('fr'), serverCart(2))
+    client.setQueryData(cartKey(), serverCart(2))
     const { result } = renderHook(() => useAddToCart(), { wrapper })
     await act(async () => {
       await expect(result.current.add({ article })).rejects.toMatchObject({ status: 409 })
     })
-    expect(client.getQueryData<Panier>(cartKey('fr'))?.nombreArticles).toBe(2)
+    expect(client.getQueryData<Panier>(cartKey())?.nombreArticles).toBe(2)
   })
 
   it('anti double-clic : un deuxième ajout du même article en vol est ignoré', async () => {
@@ -149,14 +149,14 @@ describe('hooks du panier', () => {
       'GET /api/panier': () => ({ data: serverCart(3) }),
     })
     const { client, wrapper } = setup()
-    client.setQueryData(cartKey('fr'), serverCart(1))
+    client.setQueryData(cartKey(), serverCart(1))
     const { result } = renderHook(() => useSetQuantity(), { wrapper })
     await act(async () => {
       await result.current.mutateAsync({ articleId: 7, quantite: 3 })
     })
     const put = mock.calls.find((c) => c.method === 'put')
     expect(JSON.parse(String(put?.data))).toEqual({ quantite: 3 })
-    expect(client.getQueryData<Panier>(cartKey('fr'))?.nombreArticles).toBe(3)
+    expect(client.getQueryData<Panier>(cartKey())?.nombreArticles).toBe(3)
   })
 
   it("suppression : retour arrière en cas d'erreur réseau", async () => {
@@ -165,11 +165,11 @@ describe('hooks du panier', () => {
       'GET /api/panier': () => ({ data: serverCart(2) }),
     })
     const { client, wrapper } = setup()
-    client.setQueryData(cartKey('fr'), serverCart(2))
+    client.setQueryData(cartKey(), serverCart(2))
     const { result } = renderHook(() => useRemoveItem(), { wrapper })
     await act(async () => {
       await expect(result.current.mutateAsync({ articleId: 7 })).rejects.toBeTruthy()
     })
-    expect(client.getQueryData<Panier>(cartKey('fr'))?.lignes).toHaveLength(1)
+    expect(client.getQueryData<Panier>(cartKey())?.lignes).toHaveLength(1)
   })
 })

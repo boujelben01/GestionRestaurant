@@ -64,7 +64,7 @@ public class SqlTranslationTests
         // Contrôle négatif : prouve que ce garde-fou attrape bien la forme qui causait le 500.
         using var db = NpgsqlContext();
         IQueryable<CategorieAdminResponse> Projected() => db.Categories.AsNoTracking().Select(c => new CategorieAdminResponse(
-            c.Id, c.NomFr, c.NomAr, c.Ordre, c.EstActive, c.Articles.Count(a => a.EstActif)));
+            c.Id, c.NomFr, c.Ordre, c.EstActive, c.Articles.Count(a => a.EstActif)));
 
         Assert.Throws<InvalidOperationException>(() => Projected().OrderBy(c => c.Ordre).ThenBy(c => c.Id).ToQueryString());
         Assert.Throws<InvalidOperationException>(() => Projected().Where(c => c.Id == 1).ToQueryString());

@@ -52,7 +52,6 @@ public static class CataloguePlanner
         var categorie = new Categorie
         {
             NomFr = wanted.NomFr!.Trim(),
-            NomAr = wanted.NomAr!.Trim(),
             Ordre = wanted.Ordre!.Value,
             EstActive = true
         };
@@ -66,10 +65,8 @@ public static class CataloguePlanner
 
     private static void PlanCategorie(List<PlannedChange> changes, Categorie current, CatalogueCategorie wanted)
     {
-        var nomAr = wanted.NomAr!.Trim();
         var ordre = wanted.Ordre!.Value;
         var diffs = new List<string>();
-        Diff(diffs, "nomAr", current.NomAr, nomAr);
         Diff(diffs, "ordre", current.Ordre, ordre);
         if (!current.EstActive) diffs.Add("réactivée");
 
@@ -80,7 +77,6 @@ public static class CataloguePlanner
         }
         changes.Add(new("Catégorie", ChangeType.Update, current.NomFr, string.Join(", ", diffs), _ =>
         {
-            current.NomAr = nomAr;
             current.Ordre = ordre;
             current.EstActive = true;
         }));
@@ -104,9 +100,7 @@ public static class CataloguePlanner
 
             matched.Add(existing);
             var diffs = new List<string>();
-            Diff(diffs, "nomAr", existing.NomAr, article.NomAr!.Trim());
             Diff(diffs, "descriptionFr", existing.DescriptionFr, article.DescriptionFr);
-            Diff(diffs, "descriptionAr", existing.DescriptionAr, article.DescriptionAr);
             Diff(diffs, "prix", existing.Prix, article.Prix!.Value);
             Diff(diffs, "populaire", existing.EstPopulaire, article.Populaire!.Value);
             Diff(diffs, "disponible", existing.EstDisponible, article.Disponible!.Value);
@@ -121,9 +115,7 @@ public static class CataloguePlanner
             }
             changes.Add(new("Article", ChangeType.Update, name, string.Join(", ", diffs), _ =>
             {
-                existing.NomAr = article.NomAr!.Trim();
                 existing.DescriptionFr = article.DescriptionFr;
-                existing.DescriptionAr = article.DescriptionAr;
                 existing.Prix = article.Prix!.Value;
                 existing.EstPopulaire = article.Populaire!.Value;
                 existing.EstDisponible = article.Disponible!.Value;
@@ -179,9 +171,7 @@ public static class CataloguePlanner
     {
         Categorie = categorie,
         NomFr = a.NomFr!.Trim(),
-        NomAr = a.NomAr!.Trim(),
         DescriptionFr = a.DescriptionFr,
-        DescriptionAr = a.DescriptionAr,
         Prix = a.Prix!.Value,
         ImageUrl = a.Image,
         EstPopulaire = a.Populaire!.Value,

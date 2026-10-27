@@ -2,7 +2,6 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/features/auth/AuthContext'
 import { api } from '@/lib/api'
 import type { Breakdown, PeakHour, SalesDay, StatsResume, TopArticle } from '@/lib/types'
-import { useLang } from '@/lib/useLang'
 import type { Period } from './period'
 
 export const STATS_POLL_MS = 60_000
@@ -32,11 +31,11 @@ export const useStatsResume = (period: Period) => useStats<StatsResume>('resume'
 export const useSalesByDay = (period: Period) => useStats<SalesDay[]>('ventes-par-jour', period)
 export const usePeakHours = (period: Period) => useStats<PeakHour[]>('heures-de-pointe', period)
 
-/** Top des articles (noms dans la langue active), 10 par défaut, 20 au plus. */
+/** Top des articles (noms copiés sur les lignes), 10 par défaut, 20 au plus. */
 export function useTopArticles(period: Period, limite = 10) {
-  return useStats<TopArticle[]>('top-articles', period, { limite, lang: useLang() })
+  return useStats<TopArticle[]>('top-articles', period, { limite })
 }
 
 export function useBreakdown(period: Period) {
-  return useStats<Breakdown>('repartition', period, { lang: useLang() })
+  return useStats<Breakdown>('repartition', period)
 }

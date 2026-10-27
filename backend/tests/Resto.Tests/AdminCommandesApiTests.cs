@@ -67,7 +67,7 @@ public class AdminCommandesApiTests(ApiFactory factory) : IClassFixture<ApiFacto
             Total = 7m,
             DateCommande = when,
             DateMiseAJour = when,
-            Items = [new CommandeItem { NomFr = "Brik", NomAr = "بريك", PrixUnitaire = 3.5m, Quantite = 2 }],
+            Items = [new CommandeItem { NomFr = "Brik", PrixUnitaire = 3.5m, Quantite = 2 }],
             Historique = [new HistoriqueStatut { Statut = statut, Date = when }]
         };
         db.Commandes.Add(commande);
@@ -167,7 +167,7 @@ public class AdminCommandesApiTests(ApiFactory factory) : IClassFixture<ApiFacto
         Assert.False(string.IsNullOrEmpty(detail.GetProperty("client").GetProperty("nom").GetString()));
         var ligne = Assert.Single(detail.GetProperty("lignes").EnumerateArray());
         Assert.Equal("Brik", ligne.GetProperty("nomFr").GetString());
-        Assert.Equal("بريك", ligne.GetProperty("nomAr").GetString());
+        Assert.False(ligne.TryGetProperty("nomAr", out _));
         Assert.Equal(7m, detail.GetProperty("sousTotal").GetDecimal());
         Assert.Equal("sans harissa", detail.GetProperty("note").GetString());
         Assert.Equal(["EnPreparation", "Annulee"], detail.GetProperty("statutsSuivants").EnumerateArray().Select(s => s.GetString()!).ToArray());

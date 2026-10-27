@@ -71,7 +71,7 @@ export function KpiCards({ resume }: { resume: StatsResume }) {
         const raw = resume.periode[kpi.key]
         const value = kpi.money
           ? formatPrice(raw, lang)
-          : new Intl.NumberFormat(lang === 'ar' ? 'ar-TN' : 'fr-TN').format(raw)
+          : new Intl.NumberFormat('fr-TN').format(raw)
         const variation = resume.variation[kpi.key]
         const direction = variationDirection(variation)
         const tone = variationTone(variation, kpi.higherIsBetter)

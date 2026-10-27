@@ -37,23 +37,15 @@ public class MenuApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Menu_in_arabic_falls_back_to_french_when_translation_is_empty()
+    public async Task A_legacy_lang_parameter_is_ignored_and_the_menu_stays_french()
     {
         var client = await factory.CreateClientAsync();
 
         var menu = await Json(await client.GetAsync("api/menu?lang=ar"));
 
         var categorie = menu[0];
-        Assert.Equal("المقبلات", categorie.GetProperty("nom").GetString());
-        Assert.Equal(["بريك", "Soupe"], Names(categorie.GetProperty("articles")));
-    }
-
-    [Fact]
-    public async Task Unknown_language_is_rejected()
-    {
-        var client = await factory.CreateClientAsync();
-
-        Assert.Equal(HttpStatusCode.BadRequest, (await client.GetAsync("api/menu?lang=de")).StatusCode);
+        Assert.Equal("Entrées", categorie.GetProperty("nom").GetString());
+        Assert.Equal(["Brik", "Soupe"], Names(categorie.GetProperty("articles")));
     }
 
     [Fact]
@@ -133,10 +125,10 @@ public class MenuApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var client = await factory.CreateClientAsync("admin");
 
-        var duplicate = await client.PostAsJsonAsync("api/admin/categories", new { nomFr = "entrées", nomAr = "x" });
+        var duplicate = await client.PostAsJsonAsync("api/admin/categories", new { nomFr = "entrées" });
         Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode);
 
-        var created = await client.PostAsJsonAsync("api/admin/categories", new { nomFr = "Boissons test", nomAr = "مشروبات" });
+        var created = await client.PostAsJsonAsync("api/admin/categories", new { nomFr = "Boissons test" });
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var id = (await Json(created)).GetProperty("id").GetInt32();
 
@@ -152,14 +144,14 @@ public class MenuApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var categorieId = await factory.CategorieIdAsync("Entrées");
 
         object Body(int cat, decimal prix, string? image) =>
-            new { categorieId = cat, nomFr = "Test", nomAr = "اختبار", prix, imageUrl = image };
+            new { categorieId = cat, nomFr = "Test", prix, imageUrl = image };
 
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("api/admin/articles", Body(99999, 3m, null))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("api/admin/articles", Body(categorieId, -1m, null))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("api/admin/articles", Body(categorieId, 1.234m, null))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("api/admin/articles", Body(categorieId, 3m, "javascript:alert(1)"))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("api/admin/articles", Body(categorieId, 3m, "http://exemple.com/a.png"))).StatusCode);
-        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("api/admin/articles", new { categorieId, nomFr = "", nomAr = "", prix = 3m })).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("api/admin/articles", new { categorieId, nomFr = "", prix = 3m })).StatusCode);
     }
 
     [Fact]
@@ -169,7 +161,7 @@ public class MenuApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var categorieId = await factory.CategorieIdAsync("Entrées");
 
         var created = await client.PostAsJsonAsync("api/admin/articles",
-            new { categorieId, nomFr = "Lablabi test", nomAr = "لبلابي", prix = 5.5m, imageUrl = "/images/lablabi.webp" });
+            new { categorieId, nomFr = "Lablabi test", prix = 5.5m, imageUrl = "/images/lablabi.webp" });
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var article = await Json(created);
         var id = article.GetProperty("id").GetInt32();
@@ -177,7 +169,7 @@ public class MenuApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         await Task.Delay(20);
         var updated = await Json(await client.PutAsJsonAsync($"api/admin/articles/{id}",
-            new { categorieId, nomFr = "Lablabi test", nomAr = "لبلابي", prix = 6m, estDisponible = true }));
+            new { categorieId, nomFr = "Lablabi test", prix = 6m, estDisponible = true }));
         Assert.True(updated.GetProperty("dateMiseAJour").GetDateTime() > firstUpdate);
         Assert.Equal(6m, updated.GetProperty("prix").GetDecimal());
 

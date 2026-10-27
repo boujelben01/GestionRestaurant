@@ -32,7 +32,6 @@ public class CategorieAdminService(AppDbContext db)
         var categorie = new Categorie
         {
             NomFr = nomFr,
-            NomAr = request.NomAr.Trim(),
             Ordre = request.Ordre ?? (await db.Categories.MaxAsync(c => (int?)c.Ordre, ct) ?? 0) + 1,
             EstActive = true
         };
@@ -48,7 +47,6 @@ public class CategorieAdminService(AppDbContext db)
         await EnsureNameAvailableAsync(nomFr, id, ct);
 
         categorie.NomFr = nomFr;
-        categorie.NomAr = request.NomAr.Trim();
         categorie.Ordre = request.Ordre ?? categorie.Ordre;
         await db.SaveChangesAsync(ct);
         return await GetAsync(id, ct);
@@ -101,7 +99,7 @@ public class CategorieAdminService(AppDbContext db)
 
     private static IQueryable<CategorieAdminResponse> Project(IQueryable<Categorie> categories) =>
         categories.Select(c => new CategorieAdminResponse(
-            c.Id, c.NomFr, c.NomAr, c.Ordre, c.EstActive, c.Articles.Count(a => a.EstActif)));
+            c.Id, c.NomFr, c.Ordre, c.EstActive, c.Articles.Count(a => a.EstActif)));
 
     private async Task<Categorie> FindAsync(int id, CancellationToken ct) =>
         await db.Categories.FirstOrDefaultAsync(c => c.Id == id, ct)

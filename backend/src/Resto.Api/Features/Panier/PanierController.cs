@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Resto.Api.Common;
@@ -12,23 +11,23 @@ namespace Resto.Api.Features.Panier;
 public class PanierController(PanierService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<PanierResponse> Get([FromQuery, RegularExpression(Langue.Pattern)] string? lang, CancellationToken ct) =>
-        await service.GetAsync(User.GetUserId(), Langue.Normalize(lang), ct);
+    public async Task<PanierResponse> Get(CancellationToken ct) =>
+        await service.GetAsync(User.GetUserId(), ct);
 
     [HttpPost("items")]
     public async Task<PanierResponse> AddItem(
-        AddPanierItemRequest request, [FromQuery, RegularExpression(Langue.Pattern)] string? lang, CancellationToken ct) =>
-        await service.AddItemAsync(User.GetUserId(), request.ArticleId, request.Quantite, Langue.Normalize(lang), ct);
+        AddPanierItemRequest request, CancellationToken ct) =>
+        await service.AddItemAsync(User.GetUserId(), request.ArticleId, request.Quantite, ct);
 
     [HttpPut("items/{articleId:int}")]
     public async Task<PanierResponse> SetQuantite(
-        int articleId, SetQuantiteRequest request, [FromQuery, RegularExpression(Langue.Pattern)] string? lang, CancellationToken ct) =>
-        await service.SetQuantiteAsync(User.GetUserId(), articleId, request.Quantite, Langue.Normalize(lang), ct);
+        int articleId, SetQuantiteRequest request, CancellationToken ct) =>
+        await service.SetQuantiteAsync(User.GetUserId(), articleId, request.Quantite, ct);
 
     [HttpDelete("items/{articleId:int}")]
     public async Task<PanierResponse> RemoveItem(
-        int articleId, [FromQuery, RegularExpression(Langue.Pattern)] string? lang, CancellationToken ct) =>
-        await service.RemoveItemAsync(User.GetUserId(), articleId, Langue.Normalize(lang), ct);
+        int articleId, CancellationToken ct) =>
+        await service.RemoveItemAsync(User.GetUserId(), articleId, ct);
 
     [HttpDelete]
     public async Task<PanierResponse> Clear(CancellationToken ct) =>

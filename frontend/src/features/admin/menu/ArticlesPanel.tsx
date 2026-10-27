@@ -85,9 +85,9 @@ export function ArticlesPanel() {
 
   const categoryName = (id: number) => {
     const c = categories?.find((x) => x.id === id)
-    return c ? (lang === 'ar' ? c.nomAr : c.nomFr) : ''
+    return c ? c.nomFr : ''
   }
-  const articleName = (a: AdminArticle) => (lang === 'ar' ? a.nomAr : a.nomFr)
+  const articleName = (a: AdminArticle) => a.nomFr
   const tooMany = reorderMode && (data?.total ?? 0) > REORDER_PAGE_SIZE
   const canReorder = reorderMode && !tooMany
 
@@ -151,7 +151,7 @@ export function ArticlesPanel() {
             <option value="">{t('admin.common.all')}</option>
             {categories?.map((c) => (
               <option key={c.id} value={c.id}>
-                {lang === 'ar' ? c.nomAr : c.nomFr}
+                {c.nomFr}
               </option>
             ))}
           </SelectField>
@@ -252,9 +252,6 @@ export function ArticlesPanel() {
             />
             <div className="min-w-48 flex-1">
               <p className="font-display text-lg leading-tight font-semibold">{article.nomFr}</p>
-              <p dir="rtl" className="text-sm text-ink-700">
-                {article.nomAr}
-              </p>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink-500">
                 <span>{categoryName(article.categorieId)}</span>
                 <span className="tabular text-sm font-bold text-terracotta-700">

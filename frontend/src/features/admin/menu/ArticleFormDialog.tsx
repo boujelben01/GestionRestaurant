@@ -35,9 +35,7 @@ function toValues(article: AdminArticle | null, defaultCategory: number | null):
   return {
     categorieId: article.categorieId,
     nomFr: article.nomFr,
-    nomAr: article.nomAr,
     descriptionFr: article.descriptionFr ?? '',
-    descriptionAr: article.descriptionAr ?? '',
     prix: String(article.prix).replace('.', ','),
     imageUrl: article.imageUrl ?? '',
     estPopulaire: article.estPopulaire,
@@ -116,15 +114,7 @@ export function ArticleFormDialog({
     } catch (error) {
       const e = toAppError(error)
       const fields: Partial<Record<ArticleField, string>> = {}
-      for (const key of [
-        'categorieId',
-        'nomFr',
-        'nomAr',
-        'prix',
-        'imageUrl',
-        'descriptionFr',
-        'descriptionAr',
-      ] as const) {
+      for (const key of ['categorieId', 'nomFr', 'prix', 'imageUrl', 'descriptionFr'] as const) {
         const message = e.fieldError(key)
         if (message) fields[key] = message
       }
@@ -221,22 +211,13 @@ export function ArticleFormDialog({
             )}
           </div>
         )}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           <Input
             name="nomFr"
             label={t('admin.menu.nameFr')}
             value={values.nomFr}
             onChange={(event) => set('nomFr', event.target.value)}
             error={errors.nomFr}
-            required
-          />
-          <Input
-            name="nomAr"
-            label={t('admin.menu.nameAr')}
-            value={values.nomAr}
-            onChange={(event) => set('nomAr', event.target.value)}
-            error={errors.nomAr}
-            dir="rtl"
             required
           />
           <Field
@@ -250,23 +231,6 @@ export function ArticleFormDialog({
                 rows={3}
                 value={values.descriptionFr}
                 onChange={(event) => set('descriptionFr', event.target.value)}
-                className={cn(control, c['aria-invalid'] ? 'border-danger-600' : 'border-sand-400')}
-                {...c}
-              />
-            )}
-          </Field>
-          <Field
-            label={t('admin.menu.article.descriptionAr')}
-            error={errors.descriptionAr}
-            optional
-          >
-            {(c) => (
-              <textarea
-                name="descriptionAr"
-                rows={3}
-                dir="rtl"
-                value={values.descriptionAr}
-                onChange={(event) => set('descriptionAr', event.target.value)}
                 className={cn(control, c['aria-invalid'] ? 'border-danger-600' : 'border-sand-400')}
                 {...c}
               />

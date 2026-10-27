@@ -175,7 +175,7 @@ export default function OrderDetail() {
                   {order.lignes.map((line, index) => (
                     <li key={index} className="flex items-baseline justify-between gap-4 py-3">
                       <div>
-                        <p className="font-semibold">{lang === 'ar' ? line.nomAr : line.nomFr}</p>
+                        <p className="font-semibold">{line.nomFr}</p>
                         <p className="tabular text-sm text-ink-500">
                           {line.quantite} × {formatPrice(line.prixUnitaire, lang)}
                         </p>

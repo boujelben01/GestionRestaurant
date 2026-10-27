@@ -9,13 +9,13 @@ namespace Resto.Api.Features.Panier;
 
 public class PanierService(AppDbContext db, TimeProvider time)
 {
-    public async Task<PanierResponse> GetAsync(string userId, string lang, CancellationToken ct)
+    public async Task<PanierResponse> GetAsync(string userId, CancellationToken ct)
     {
         var panier = await GetOrCreateAsync(userId, ct);
-        return await BuildAsync(panier.Id, lang, ct);
+        return await BuildAsync(panier.Id, ct);
     }
 
-    public async Task<PanierResponse> AddItemAsync(string userId, int articleId, int quantite, string lang, CancellationToken ct)
+    public async Task<PanierResponse> AddItemAsync(string userId, int articleId, int quantite, CancellationToken ct)
     {
         await EnsureOrderableAsync(articleId, ct);
         var panier = await GetOrCreateAsync(userId, ct);
@@ -32,10 +32,10 @@ public class PanierService(AppDbContext db, TimeProvider time)
 
         panier.DateMiseAJour = Now();
         await db.SaveChangesAsync(ct);
-        return await BuildAsync(panier.Id, lang, ct);
+        return await BuildAsync(panier.Id, ct);
     }
 
-    public async Task<PanierResponse> SetQuantiteAsync(string userId, int articleId, int quantite, string lang, CancellationToken ct)
+    public async Task<PanierResponse> SetQuantiteAsync(string userId, int articleId, int quantite, CancellationToken ct)
     {
         var panier = await GetOrCreateAsync(userId, ct);
         var item = await FindItemAsync(panier.Id, articleId, ct);
@@ -56,10 +56,10 @@ public class PanierService(AppDbContext db, TimeProvider time)
 
         panier.DateMiseAJour = Now();
         await db.SaveChangesAsync(ct);
-        return await BuildAsync(panier.Id, lang, ct);
+        return await BuildAsync(panier.Id, ct);
     }
 
-    public async Task<PanierResponse> RemoveItemAsync(string userId, int articleId, string lang, CancellationToken ct)
+    public async Task<PanierResponse> RemoveItemAsync(string userId, int articleId, CancellationToken ct)
     {
         var panier = await db.Paniers.FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (panier is null)
@@ -75,7 +75,7 @@ public class PanierService(AppDbContext db, TimeProvider time)
             await db.SaveChangesAsync(ct);
         }
 
-        return await BuildAsync(panier.Id, lang, ct);
+        return await BuildAsync(panier.Id, ct);
     }
 
     public async Task<PanierResponse> ClearAsync(string userId, CancellationToken ct)
@@ -89,7 +89,7 @@ public class PanierService(AppDbContext db, TimeProvider time)
         db.PanierItems.RemoveRange(await db.PanierItems.Where(i => i.PanierId == panier.Id).ToListAsync(ct));
         panier.DateMiseAJour = Now();
         await db.SaveChangesAsync(ct);
-        return await BuildAsync(panier.Id, Langue.Francais, ct);
+        return await BuildAsync(panier.Id, ct);
     }
 
     private async Task<Domain.Panier> GetOrCreateAsync(string userId, CancellationToken ct)
@@ -132,7 +132,7 @@ public class PanierService(AppDbContext db, TimeProvider time)
         }
     }
 
-    private async Task<PanierResponse> BuildAsync(int panierId, string lang, CancellationToken ct)
+    private async Task<PanierResponse> BuildAsync(int panierId, CancellationToken ct)
     {
         var items = await db.PanierItems.AsNoTracking()
             .Include(i => i.Article).ThenInclude(a => a.Categorie)
@@ -147,7 +147,7 @@ public class PanierService(AppDbContext db, TimeProvider time)
             var status = ArticleAvailability.Of(a);
             return new PanierLigneResponse(
                 a.Id,
-                Langue.Pick(a.NomFr, a.NomAr, lang),
+                a.NomFr,
                 a.Prix,
                 a.ImageUrl,
                 status == ArticleStatus.Ok,

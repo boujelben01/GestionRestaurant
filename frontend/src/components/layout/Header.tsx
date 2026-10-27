@@ -15,7 +15,6 @@ import {
   UserIcon,
   useToast,
 } from '@/components/ui'
-import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
 import { NAV_ITEMS, accountLinksFor } from './nav'
 
@@ -198,7 +197,6 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <LanguageSwitcher />
           <CartLink />
           <div className="hidden md:block">
             {status === 'authenticated' && user ? (

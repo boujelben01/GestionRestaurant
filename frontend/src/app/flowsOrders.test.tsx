@@ -37,7 +37,6 @@ const order = (over: Partial<Commande> = {}): Commande => ({
     {
       articleId: 101,
       nomFr: 'Brik à l’œuf',
-      nomAr: 'بريك بالبيض',
       prixUnitaire: 4.5,
       quantite: 2,
       totalLigne: 9,
@@ -45,7 +44,6 @@ const order = (over: Partial<Commande> = {}): Commande => ({
     {
       articleId: 102,
       nomFr: 'Salade épuisée',
-      nomAr: 'سلاطة',
       prixUnitaire: 4,
       quantite: 1,
       totalLigne: 4,

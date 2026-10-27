@@ -27,8 +27,8 @@ public class AdminStatistiquesController(StatistiquesService service) : Controll
     /// <summary>Articles les plus vendus (noms copiés sur les lignes), triés par quantité ; `limite` de 1 à 20.</summary>
     [HttpGet("top-articles")]
     public async Task<IReadOnlyList<TopArticleResponse>> TopArticles(
-        [FromQuery] string? du, [FromQuery] string? au, [FromQuery] int? limite, [FromQuery] string? lang, CancellationToken ct) =>
-        await service.TopArticlesAsync(du, au, limite, lang, ct);
+        [FromQuery] string? du, [FromQuery] string? au, [FromQuery] int? limite, CancellationToken ct) =>
+        await service.TopArticlesAsync(du, au, limite, ct);
 
     /// <summary>24 entrées (heure locale de Tunis).</summary>
     [HttpGet("heures-de-pointe")]
@@ -39,6 +39,6 @@ public class AdminStatistiquesController(StatistiquesService service) : Controll
     /// <summary>Répartition par type de commande, par statut et par catégorie (« Autres » : article supprimé).</summary>
     [HttpGet("repartition")]
     public async Task<RepartitionResponse> Repartition(
-        [FromQuery] string? du, [FromQuery] string? au, [FromQuery] string? lang, CancellationToken ct) =>
-        await service.RepartitionAsync(du, au, lang, ct);
+        [FromQuery] string? du, [FromQuery] string? au, CancellationToken ct) =>
+        await service.RepartitionAsync(du, au, ct);
 }

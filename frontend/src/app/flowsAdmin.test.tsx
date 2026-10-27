@@ -37,7 +37,7 @@ const active = (id: number, statut: ActiveOrder['statut'], version = 1): ActiveO
   note: null,
   dateCommande: new Date().toISOString(),
   dateMiseAJour: new Date().toISOString(),
-  lignes: [{ nomFr: 'Brik', nomAr: 'بريك', quantite: 2 }],
+  lignes: [{ nomFr: 'Brik', quantite: 2 }],
   version,
 })
 
@@ -58,9 +58,7 @@ const detail = (o: ActiveOrder): AdminOrder => ({
   client: { userId: 'u1', nom: o.nomClient, telephone: '+21620123456' },
   dateCommande: o.dateCommande,
   dateMiseAJour: o.dateMiseAJour,
-  lignes: [
-    { articleId: 1, nomFr: 'Brik', nomAr: 'بريك', prixUnitaire: 4.5, quantite: 2, totalLigne: 9 },
-  ],
+  lignes: [{ articleId: 1, nomFr: 'Brik', prixUnitaire: 4.5, quantite: 2, totalLigne: 9 }],
   historique: [],
   version: o.version,
 })
@@ -421,7 +419,6 @@ describe("formulaire d'article", () => {
     {
       id: 1,
       nomFr: 'Entrées',
-      nomAr: 'مقبلات',
       ordre: 1,
       estActive: true,
       nombreArticlesActifs: 2,
@@ -468,7 +465,6 @@ describe("formulaire d'article", () => {
     const dialog = await screen.findByRole('dialog')
     await userEvent.selectOptions(within(dialog).getByLabelText(/^Catégorie/), '1')
     await userEvent.type(within(dialog).getByLabelText(/Nom.*français|^Nom \(fr/i), 'Brik au thon')
-    await userEvent.type(within(dialog).getByLabelText(/Nom.*arabe|^Nom \(ar/i), 'بريك بالتن')
     await userEvent.type(within(dialog).getByLabelText(/^Prix/), '4,5')
     await userEvent.type(within(dialog).getByLabelText(/^Image/), '/images/default.svg')
     await userEvent.click(within(dialog).getByRole('button', { name: /Enregistrer|Créer/ }))

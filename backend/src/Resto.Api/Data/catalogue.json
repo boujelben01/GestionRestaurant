@@ -1,97 +1,97 @@
 {
   "categories": [
     {
-      "nomFr": "Pizza", "nomAr": "بيتزا", "ordre": 1,
+      "nomFr": "Pizza", "ordre": 1,
       "articles": [
-        {"ordre": 1, "nomFr": "Pizza Margherita", "nomAr": "بيتزا مارغريتا", "descriptionFr": "Sauce tomate, mozzarella fondante et basilic frais sur une pâte dorée. 30 cm.", "descriptionAr": "صلصة طماطم وموزاريلا ذايبة وريحان طازج على عجينة مدهّبة. 30 سم.", "prix": 9, "populaire": true, "disponible": true, "image": "/images/menu/pizza-margherita.webp"},
-        {"ordre": 2, "nomFr": "Pizza thon-olives", "nomAr": "بيتزا تون وزيتون", "descriptionFr": "Thon, olives noires, oignon et mozzarella sur sauce tomate. 30 cm.", "descriptionAr": "تون وزيتون كحل وبصل وموزاريلا على صلصة طماطم. 30 سم.", "prix": 12, "populaire": false, "disponible": true, "image": "/images/menu/pizza-thon-olives.webp"},
-        {"ordre": 3, "nomFr": "Pizza pepperoni", "nomAr": "بيتزا بيبروني", "descriptionFr": "Rondelles de pepperoni de bœuf, mozzarella fondante et sauce tomate. 30 cm.", "descriptionAr": "شرائح بيبروني بقري وموزاريلا ذايبة وصلصة طماطم. 30 سم.", "prix": 13, "populaire": false, "disponible": true, "image": "/images/menu/pizza-pepperoni.webp"},
-        {"ordre": 4, "nomFr": "Pizza 4 saisons", "nomAr": "بيتزا 4 فصول", "descriptionFr": "Quatre garnitures : champignons, poivron, olives et jambon de dinde. 30 cm.", "descriptionAr": "أربع تشكيلات: فطر وفلفل وزيتون وجامبون ديك رومي. 30 سم.", "prix": 13.5, "populaire": false, "disponible": true, "image": "/images/menu/pizza-4-saisons.webp"},
-        {"ordre": 5, "nomFr": "Pizza mexicaine", "nomAr": "بيتزا مكسيكية", "descriptionFr": "Viande hachée épicée, poivron, oignon et piment sur sauce tomate et mozzarella. 30 cm.", "descriptionAr": "لحم مفروم متبّل وفلفل وبصل وفلفل حار على صلصة طماطم وموزاريلا. 30 سم.", "prix": 13.5, "populaire": false, "disponible": true, "image": "/images/menu/pizza-mexicaine.webp"},
-        {"ordre": 6, "nomFr": "Pizza 4 fromages", "nomAr": "بيتزا 4 أجبان", "descriptionFr": "Quatre fromages fondus : mozzarella, emmental, chèvre et gorgonzola. 30 cm.", "descriptionAr": "أربعة أنواع جبن ذايبة: موزاريلا وإمنتال وجبن الماعز وغورغونزولا. 30 سم.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/pizza-4-fromages.webp"}
+        {"ordre": 1, "nomFr": "Pizza Margherita", "descriptionFr": "Sauce tomate, mozzarella fondante et basilic frais sur une pâte dorée. 30 cm.", "prix": 9, "populaire": true, "disponible": true, "image": "/images/menu/pizza-margherita.webp"},
+        {"ordre": 2, "nomFr": "Pizza thon-olives", "descriptionFr": "Thon, olives noires, oignon et mozzarella sur sauce tomate. 30 cm.", "prix": 12, "populaire": false, "disponible": true, "image": "/images/menu/pizza-thon-olives.webp"},
+        {"ordre": 3, "nomFr": "Pizza pepperoni", "descriptionFr": "Rondelles de pepperoni de bœuf, mozzarella fondante et sauce tomate. 30 cm.", "prix": 13, "populaire": false, "disponible": true, "image": "/images/menu/pizza-pepperoni.webp"},
+        {"ordre": 4, "nomFr": "Pizza 4 saisons", "descriptionFr": "Quatre garnitures : champignons, poivron, olives et jambon de dinde. 30 cm.", "prix": 13.5, "populaire": false, "disponible": true, "image": "/images/menu/pizza-4-saisons.webp"},
+        {"ordre": 5, "nomFr": "Pizza mexicaine", "descriptionFr": "Viande hachée épicée, poivron, oignon et piment sur sauce tomate et mozzarella. 30 cm.", "prix": 13.5, "populaire": false, "disponible": true, "image": "/images/menu/pizza-mexicaine.webp"},
+        {"ordre": 6, "nomFr": "Pizza 4 fromages", "descriptionFr": "Quatre fromages fondus : mozzarella, emmental, chèvre et gorgonzola. 30 cm.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/pizza-4-fromages.webp"}
       ]
     },
     {
-      "nomFr": "Plats", "nomAr": "أطباق", "ordre": 2,
+      "nomFr": "Plats", "ordre": 2,
       "articles": [
-        {"ordre": 1, "nomFr": "Escalope panée", "nomAr": "إسكالوب بانيه", "descriptionFr": "Escalope de poulet panée et dorée, servie avec frites et salade.", "descriptionAr": "إسكالوب دجاج بانيه مقرمش، مع بطاطا مقلية وسلاطة.", "prix": 13, "populaire": true, "disponible": true, "image": "/images/menu/escalope-panee.webp"},
-        {"ordre": 2, "nomFr": "Poulet grillé", "nomAr": "دجاج مشوي", "descriptionFr": "Poulet mariné et grillé, servi avec frites et salade.", "descriptionAr": "دجاج متبّل ومشوي، مع بطاطا مقلية وسلاطة.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/poulet-grille.webp"},
-        {"ordre": 3, "nomFr": "Assiette chawarma", "nomAr": "صحن شاورما", "descriptionFr": "Chawarma de poulet, frites, salade et sauce, servis dans une assiette.", "descriptionAr": "شاورما دجاج مع بطاطا مقلية وسلاطة وصلصة في صحن.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/assiette-chawarma.webp"},
-        {"ordre": 4, "nomFr": "Kebab", "nomAr": "كباب", "descriptionFr": "Brochettes de viande hachée grillées, servies avec frites et salade.", "descriptionAr": "كباب لحم مفروم مشوي، مع بطاطا مقلية وسلاطة.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/kebab.webp"},
-        {"ordre": 5, "nomFr": "Ojja merguez", "nomAr": "عجّة مرقاز", "descriptionFr": "Merguez mijotée dans une sauce tomate épicée avec des œufs, servie avec du pain.", "descriptionAr": "عجّة مرقاز مطيّبة بالطماطم الحارة والبيض، مع الخبز.", "prix": 12, "populaire": false, "disponible": true, "image": "/images/menu/ojja-merguez.webp"},
-        {"ordre": 6, "nomFr": "Sahn tounsi", "nomAr": "صحن تونسي", "descriptionFr": "Assiette tunisienne : salade méchouia, brik, merguez grillée, frites et pain.", "descriptionAr": "صحن تونسي: سلاطة مشوية، بريك، مرقاز مشوي، بطاطا مقلية وخبز.", "prix": 15, "populaire": false, "disponible": true, "image": "/images/menu/sahn-tounsi.webp"}
+        {"ordre": 1, "nomFr": "Escalope panée", "descriptionFr": "Escalope de poulet panée et dorée, servie avec frites et salade.", "prix": 13, "populaire": true, "disponible": true, "image": "/images/menu/escalope-panee.webp"},
+        {"ordre": 2, "nomFr": "Poulet grillé", "descriptionFr": "Poulet mariné et grillé, servi avec frites et salade.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/poulet-grille.webp"},
+        {"ordre": 3, "nomFr": "Assiette chawarma", "descriptionFr": "Chawarma de poulet, frites, salade et sauce, servis dans une assiette.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/assiette-chawarma.webp"},
+        {"ordre": 4, "nomFr": "Kebab", "descriptionFr": "Brochettes de viande hachée grillées, servies avec frites et salade.", "prix": 14, "populaire": false, "disponible": true, "image": "/images/menu/kebab.webp"},
+        {"ordre": 5, "nomFr": "Ojja merguez", "descriptionFr": "Merguez mijotée dans une sauce tomate épicée avec des œufs, servie avec du pain.", "prix": 12, "populaire": false, "disponible": true, "image": "/images/menu/ojja-merguez.webp"},
+        {"ordre": 6, "nomFr": "Sahn tounsi", "descriptionFr": "Assiette tunisienne : salade méchouia, brik, merguez grillée, frites et pain.", "prix": 15, "populaire": false, "disponible": true, "image": "/images/menu/sahn-tounsi.webp"}
       ]
     },
     {
-      "nomFr": "Sandwich", "nomAr": "ساندويتشات", "ordre": 3,
+      "nomFr": "Sandwich", "ordre": 3,
       "articles": [
-        {"ordre": 1, "nomFr": "Sandwich œuf", "nomAr": "ساندويتش عظمة", "descriptionFr": "Sandwich à l'œuf dans un pain frais, préparé à la commande.", "descriptionAr": "ساندويتش بيض في خبز طازج، يتحضّر في الحين.", "prix": 3.5, "populaire": false, "disponible": true, "image": "/images/menu/sandwich-oeuf.webp"},
-        {"ordre": 2, "nomFr": "Sandwich Kwika", "nomAr": "ساندويتش كويكة", "descriptionFr": "Sandwich Kwika dans un pain frais, préparé à la commande.", "descriptionAr": "ساندويتش كويكة في خبز طازج، يتحضّر في الحين.", "prix": 4.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 3, "nomFr": "Sandwich thon", "nomAr": "ساندويتش تون", "descriptionFr": "Thon, salade, olives, œuf et harissa dans un pain frais.", "descriptionAr": "تون وسلاطة وزيتون وبيض وهريسة في خبز طازج.", "prix": 5, "populaire": false, "disponible": true, "image": "/images/menu/sandwich-thon.webp"},
-        {"ordre": 4, "nomFr": "Sandwich œuf + Kwika", "nomAr": "ساندويتش عظمة وكويكة", "descriptionFr": "Sandwich à l'œuf et à la Kwika dans un pain frais, préparé à la commande.", "descriptionAr": "ساندويتش بيض وكويكة في خبز طازج، يتحضّر في الحين.", "prix": 5.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 5, "nomFr": "Sandwich merguez", "nomAr": "ساندويتش مرقاز", "descriptionFr": "Merguez grillée, salade et harissa dans un pain frais.", "descriptionAr": "مرقاز مشوي وسلاطة وهريسة في خبز طازج.", "prix": 7, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 6, "nomFr": "Sandwich escalope", "nomAr": "ساندويتش إسكالوب", "descriptionFr": "Escalope de poulet panée, salade et sauce dans un pain frais.", "descriptionAr": "إسكالوب دجاج بانيه وسلاطة وصلصة في خبز طازج.", "prix": 8, "populaire": false, "disponible": true, "image": "/images/menu/sandwich-escalope.webp"},
-        {"ordre": 7, "nomFr": "Sandwich chawarma", "nomAr": "ساندويتش شاورما", "descriptionFr": "Chawarma de poulet, salade, frites et sauce dans un pain frais.", "descriptionAr": "شاورما دجاج وسلاطة وبطاطا مقلية وصلصة في خبز طازج.", "prix": 8.5, "populaire": true, "disponible": true, "image": "/images/menu/sandwich-chawarma.webp"}
+        {"ordre": 1, "nomFr": "Sandwich œuf", "descriptionFr": "Sandwich à l'œuf dans un pain frais, préparé à la commande.", "prix": 3.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 2, "nomFr": "Sandwich Kwika", "descriptionFr": "Sandwich Kwika dans un pain frais, préparé à la commande.", "prix": 4.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Sandwich thon", "descriptionFr": "Thon, salade, olives, œuf et harissa dans un pain frais.", "prix": 5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Sandwich œuf + Kwika", "descriptionFr": "Sandwich à l'œuf et à la Kwika dans un pain frais, préparé à la commande.", "prix": 5.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Sandwich merguez", "descriptionFr": "Merguez grillée, salade et harissa dans un pain frais.", "prix": 7, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 6, "nomFr": "Sandwich escalope", "descriptionFr": "Escalope de poulet panée, salade et sauce dans un pain frais.", "prix": 8, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 7, "nomFr": "Sandwich chawarma", "descriptionFr": "Chawarma de poulet, salade, frites et sauce dans un pain frais.", "prix": 8.5, "populaire": true, "disponible": true, "image": null}
       ]
     },
     {
-      "nomFr": "Makloub", "nomAr": "مقلوب", "ordre": 4,
+      "nomFr": "Makloub", "ordre": 4,
       "articles": [
-        {"ordre": 1, "nomFr": "Makloub poulet", "nomAr": "مقلوب دجاج", "descriptionFr": "Pain makloub grillé garni de poulet, fromage, frites, salade et sauce.", "descriptionAr": "خبز مقلوب مشوي بالدجاج والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 9.5, "populaire": true, "disponible": true, "image": "/images/menu/makloub-poulet.webp"},
-        {"ordre": 2, "nomFr": "Makloub escalope", "nomAr": "مقلوب إسكالوب", "descriptionFr": "Pain makloub grillé garni d'escalope de poulet panée, fromage, frites et salade.", "descriptionAr": "خبز مقلوب مشوي بإسكالوب دجاج بانيه والجبن والبطاطا المقلية والسلاطة.", "prix": 10, "populaire": false, "disponible": true, "image": "/images/menu/makloub-escalope.webp"},
-        {"ordre": 3, "nomFr": "Makloub cordon bleu", "nomAr": "مقلوب كوردون بلو", "descriptionFr": "Pain makloub grillé garni de cordon bleu, fromage, frites, salade et sauce.", "descriptionAr": "خبز مقلوب مشوي بكوردون بلو والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 10.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 4, "nomFr": "Makloub viande hachée", "nomAr": "مقلوب لحم مفروم", "descriptionFr": "Pain makloub grillé garni de viande hachée, fromage, frites, salade et sauce.", "descriptionAr": "خبز مقلوب مشوي باللحم المفروم والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 10, "populaire": false, "disponible": true, "image": "/images/menu/makloub-viande-hachee.webp"},
-        {"ordre": 5, "nomFr": "Makloub thon", "nomAr": "مقلوب تون", "descriptionFr": "Pain makloub grillé garni de thon, fromage, salade, olives et harissa.", "descriptionAr": "خبز مقلوب مشوي بالتون والجبن والسلاطة والزيتون والهريسة.", "prix": 8, "populaire": false, "disponible": true, "image": null}
+        {"ordre": 1, "nomFr": "Makloub poulet", "descriptionFr": "Pain makloub grillé garni de poulet, fromage, frites, salade et sauce.", "prix": 9.5, "populaire": true, "disponible": true, "image": null},
+        {"ordre": 2, "nomFr": "Makloub escalope", "descriptionFr": "Pain makloub grillé garni d'escalope de poulet panée, fromage, frites et salade.", "prix": 10, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Makloub cordon bleu", "descriptionFr": "Pain makloub grillé garni de cordon bleu, fromage, frites, salade et sauce.", "prix": 10.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Makloub viande hachée", "descriptionFr": "Pain makloub grillé garni de viande hachée, fromage, frites, salade et sauce.", "prix": 10, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Makloub thon", "descriptionFr": "Pain makloub grillé garni de thon, fromage, salade, olives et harissa.", "prix": 8, "populaire": false, "disponible": true, "image": null}
       ]
     },
     {
-      "nomFr": "Baguettes farcies", "nomAr": "باغيت فارسي", "ordre": 5,
+      "nomFr": "Baguettes farcies", "ordre": 5,
       "articles": [
-        {"ordre": 1, "nomFr": "Baguette farcie poulet", "nomAr": "باغيت فارسي دجاج", "descriptionFr": "Baguette farcie de poulet, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بالدجاج والجبن المحمّر والصلصة، سخون.", "prix": 9, "populaire": true, "disponible": true, "image": "/images/menu/baguette-farcie-poulet.webp"},
-        {"ordre": 2, "nomFr": "Baguette farcie escalope", "nomAr": "باغيت فارسي إسكالوب", "descriptionFr": "Baguette farcie d'escalope de poulet panée, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بإسكالوب دجاج بانيه والجبن المحمّر والصلصة، سخون.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 3, "nomFr": "Baguette farcie viande hachée", "nomAr": "باغيت فارسي لحم مفروم", "descriptionFr": "Baguette farcie de viande hachée, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي باللحم المفروم والجبن المحمّر والصلصة، سخون.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 4, "nomFr": "Baguette farcie cordon bleu", "nomAr": "باغيت فارسي كوردون بلو", "descriptionFr": "Baguette farcie de cordon bleu, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بكوردون بلو والجبن المحمّر والصلصة، سخون.", "prix": 10, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 5, "nomFr": "Baguette farcie thon", "nomAr": "باغيت فارسي تون", "descriptionFr": "Baguette farcie de thon, olives, fromage gratiné et sauce, servie chaude.", "descriptionAr": "باغيت فارسي بالتون والزيتون والجبن المحمّر والصلصة، سخون.", "prix": 8, "populaire": false, "disponible": true, "image": null}
+        {"ordre": 1, "nomFr": "Baguette farcie poulet", "descriptionFr": "Baguette farcie de poulet, fromage gratiné et sauce, servie chaude.", "prix": 9, "populaire": true, "disponible": true, "image": null},
+        {"ordre": 2, "nomFr": "Baguette farcie escalope", "descriptionFr": "Baguette farcie d'escalope de poulet panée, fromage gratiné et sauce, servie chaude.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Baguette farcie viande hachée", "descriptionFr": "Baguette farcie de viande hachée, fromage gratiné et sauce, servie chaude.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Baguette farcie cordon bleu", "descriptionFr": "Baguette farcie de cordon bleu, fromage gratiné et sauce, servie chaude.", "prix": 10, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Baguette farcie thon", "descriptionFr": "Baguette farcie de thon, olives, fromage gratiné et sauce, servie chaude.", "prix": 8, "populaire": false, "disponible": true, "image": null}
       ]
     },
     {
-      "nomFr": "Tabouna", "nomAr": "طابونة", "ordre": 6,
+      "nomFr": "Tabouna", "ordre": 6,
       "articles": [
-        {"ordre": 1, "nomFr": "Tabouna poulet", "nomAr": "طابونة دجاج", "descriptionFr": "Pain tabouna cuit au four, garni de poulet, fromage, frites, salade et sauce.", "descriptionAr": "خبز طابونة مخبوز في الفرن بالدجاج والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 8.5, "populaire": true, "disponible": true, "image": "/images/menu/tabouna-poulet.webp"},
-        {"ordre": 2, "nomFr": "Tabouna escalope", "nomAr": "طابونة إسكالوب", "descriptionFr": "Pain tabouna cuit au four, garni d'escalope de poulet panée, fromage, frites et salade.", "descriptionAr": "خبز طابونة مخبوز في الفرن بإسكالوب دجاج بانيه والجبن والبطاطا المقلية والسلاطة.", "prix": 9, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 3, "nomFr": "Tabouna cordon bleu", "nomAr": "طابونة كوردون بلو", "descriptionFr": "Pain tabouna cuit au four, garni de cordon bleu, fromage, frites, salade et sauce.", "descriptionAr": "خبز طابونة مخبوز في الفرن بكوردون بلو والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 4, "nomFr": "Tabouna viande hachée", "nomAr": "طابونة لحم مفروم", "descriptionFr": "Pain tabouna cuit au four, garni de viande hachée, fromage, frites, salade et sauce.", "descriptionAr": "خبز طابونة مخبوز في الفرن باللحم المفروم والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 9, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 5, "nomFr": "Tabouna thon", "nomAr": "طابونة تون", "descriptionFr": "Pain tabouna cuit au four, garni de thon, fromage, salade, olives et harissa.", "descriptionAr": "خبز طابونة مخبوز في الفرن بالتون والجبن والسلاطة والزيتون والهريسة.", "prix": 7.5, "populaire": false, "disponible": true, "image": null}
+        {"ordre": 1, "nomFr": "Tabouna poulet", "descriptionFr": "Pain tabouna cuit au four, garni de poulet, fromage, frites, salade et sauce.", "prix": 8.5, "populaire": true, "disponible": true, "image": null},
+        {"ordre": 2, "nomFr": "Tabouna escalope", "descriptionFr": "Pain tabouna cuit au four, garni d'escalope de poulet panée, fromage, frites et salade.", "prix": 9, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Tabouna cordon bleu", "descriptionFr": "Pain tabouna cuit au four, garni de cordon bleu, fromage, frites, salade et sauce.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Tabouna viande hachée", "descriptionFr": "Pain tabouna cuit au four, garni de viande hachée, fromage, frites, salade et sauce.", "prix": 9, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Tabouna thon", "descriptionFr": "Pain tabouna cuit au four, garni de thon, fromage, salade, olives et harissa.", "prix": 7.5, "populaire": false, "disponible": true, "image": null}
       ]
     },
     {
-      "nomFr": "Cornet", "nomAr": "كورني", "ordre": 7,
+      "nomFr": "Cornet", "ordre": 7,
       "articles": [
-        {"ordre": 1, "nomFr": "Cornet poulet", "nomAr": "كورني دجاج", "descriptionFr": "Cornet garni de poulet, fromage, frites, salade et sauce.", "descriptionAr": "كورني بالدجاج والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 7.5, "populaire": true, "disponible": true, "image": null},
-        {"ordre": 2, "nomFr": "Cornet escalope", "nomAr": "كورني إسكالوب", "descriptionFr": "Cornet garni d'escalope de poulet panée, fromage, frites et salade.", "descriptionAr": "كورني بإسكالوب دجاج بانيه والجبن والبطاطا المقلية والسلاطة.", "prix": 8, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 3, "nomFr": "Cornet cordon bleu", "nomAr": "كورني كوردون بلو", "descriptionFr": "Cornet garni de cordon bleu, fromage, frites, salade et sauce.", "descriptionAr": "كورني بكوردون بلو والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 8.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 4, "nomFr": "Cornet chawarma", "nomAr": "كورني شاورما", "descriptionFr": "Cornet garni de chawarma de poulet, frites, salade et sauce.", "descriptionAr": "كورني بشاورما دجاج والبطاطا المقلية والسلاطة والصلصة.", "prix": 8, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 5, "nomFr": "Cornet thon", "nomAr": "كورني تون", "descriptionFr": "Cornet garni de thon, fromage, salade, olives et harissa.", "descriptionAr": "كورني بالتون والجبن والسلاطة والزيتون والهريسة.", "prix": 6.5, "populaire": false, "disponible": true, "image": null}
+        {"ordre": 1, "nomFr": "Cornet poulet", "descriptionFr": "Cornet garni de poulet, fromage, frites, salade et sauce.", "prix": 7.5, "populaire": true, "disponible": true, "image": null},
+        {"ordre": 2, "nomFr": "Cornet escalope", "descriptionFr": "Cornet garni d'escalope de poulet panée, fromage, frites et salade.", "prix": 8, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Cornet cordon bleu", "descriptionFr": "Cornet garni de cordon bleu, fromage, frites, salade et sauce.", "prix": 8.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Cornet chawarma", "descriptionFr": "Cornet garni de chawarma de poulet, frites, salade et sauce.", "prix": 8, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Cornet thon", "descriptionFr": "Cornet garni de thon, fromage, salade, olives et harissa.", "prix": 6.5, "populaire": false, "disponible": true, "image": null}
       ]
     },
     {
-      "nomFr": "Lablabi", "nomAr": "لبلابي", "ordre": 8,
+      "nomFr": "Lablabi", "ordre": 8,
       "articles": [
-        {"ordre": 1, "nomFr": "Lablabi classique", "nomAr": "لبلابي", "descriptionFr": "Soupe de pois chiches à l'ail, cumin et harissa, servie sur du pain sec avec de l'huile d'olive.", "descriptionAr": "شوربة حمص بالثوم والكمون والهريسة، على خبز يابس وزيت الزيتون.", "prix": 5, "populaire": true, "disponible": true, "image": "/images/menu/lablabi-classique.webp"},
-        {"ordre": 2, "nomFr": "Lablabi œuf", "nomAr": "لبلابي بالعظمة", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec un œuf.", "descriptionAr": "لبلابي بالحمص والثوم والكمون والهريسة، مع العظمة.", "prix": 5.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 3, "nomFr": "Lablabi thon", "nomAr": "لبلابي بالتون", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec du thon.", "descriptionAr": "لبلابي بالحمص والثوم والكمون والهريسة، مع التون.", "prix": 6.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 4, "nomFr": "Lablabi thon-œuf", "nomAr": "لبلابي بالتون والعظمة", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec du thon et un œuf.", "descriptionAr": "لبلابي بالحمص والثوم والكمون والهريسة، مع التون والعظمة.", "prix": 7.5, "populaire": false, "disponible": true, "image": null},
-        {"ordre": 5, "nomFr": "Lablabi hargma", "nomAr": "لبلابي بالهرقمة", "descriptionFr": "Lablabi servi avec de la hargma : pieds d'agneau mijotés dans une sauce épicée.", "descriptionAr": "لبلابي مع الهرقمة: كرعين علوش مطيّبين في صلصة حارة.", "prix": 12, "populaire": false, "disponible": true, "image": null}
+        {"ordre": 1, "nomFr": "Lablabi classique", "descriptionFr": "Soupe de pois chiches à l'ail, cumin et harissa, servie sur du pain sec avec de l'huile d'olive.", "prix": 5, "populaire": true, "disponible": true, "image": null},
+        {"ordre": 2, "nomFr": "Lablabi œuf", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec un œuf.", "prix": 5.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Lablabi thon", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec du thon.", "prix": 6.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Lablabi thon-œuf", "descriptionFr": "Lablabi aux pois chiches, ail, cumin et harissa, avec du thon et un œuf.", "prix": 7.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Lablabi hargma", "descriptionFr": "Lablabi servi avec de la hargma : pieds d'agneau mijotés dans une sauce épicée.", "prix": 12, "populaire": false, "disponible": true, "image": null}
       ]
     },
     {
-      "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 9,
+      "nomFr": "Boissons", "ordre": 9,
       "articles": [
-        {"ordre": 1, "nomFr": "Jus d'orange pressé", "nomAr": "عصير برتقال", "descriptionFr": "Oranges pressées au moment de servir, un jus frais et naturel.", "descriptionAr": "برتقال معصور في الحين، عصير طازج وبارد.", "prix": 5, "populaire": true, "disponible": true, "image": "/images/menu/jus-orange-presse.webp"},
-        {"ordre": 2, "nomFr": "Citronnade", "nomAr": "ليمونادة", "descriptionFr": "Citrons pressés, eau fraîche et sucre pour une boisson désaltérante.", "descriptionAr": "ليمون معصور مع الماء البارد والسكر، منعش.", "prix": 4, "populaire": false, "disponible": true, "image": "/images/menu/citronnade.webp"},
-        {"ordre": 3, "nomFr": "Thé à la menthe", "nomAr": "شاي بالنعناع", "descriptionFr": "Thé infusé à la menthe fraîche, servi bien chaud et parfumé.", "descriptionAr": "شاي بالنعناع الطازج، سخون ومعطّر.", "prix": 2.5, "populaire": false, "disponible": true, "image": "/images/menu/the-a-la-menthe.webp"},
-        {"ordre": 4, "nomFr": "Boisson gazeuse", "nomAr": "مشروب غازي", "descriptionFr": "Boisson pétillante servie bien fraîche.", "descriptionAr": "مشروب غازي بارد.", "prix": 3, "populaire": false, "disponible": true, "image": "/images/menu/boisson-gazeuse.webp"},
-        {"ordre": 5, "nomFr": "Eau minérale 0,5 L", "nomAr": "ماء", "descriptionFr": "Eau minérale en petite bouteille de 0,5 L.", "descriptionAr": "ماء معدني في قارورة صغيرة، نصف لتر.", "prix": 1.5, "populaire": false, "disponible": true, "image": "/images/menu/eau-minerale.webp"}
+        {"ordre": 1, "nomFr": "Jus d'orange pressé", "descriptionFr": "Oranges pressées au moment de servir, un jus frais et naturel.", "prix": 5, "populaire": true, "disponible": true, "image": "/images/menu/jus-orange-presse.webp"},
+        {"ordre": 2, "nomFr": "Citronnade", "descriptionFr": "Citrons pressés, eau fraîche et sucre pour une boisson désaltérante.", "prix": 4, "populaire": false, "disponible": true, "image": "/images/menu/citronnade.webp"},
+        {"ordre": 3, "nomFr": "Thé à la menthe", "descriptionFr": "Thé infusé à la menthe fraîche, servi bien chaud et parfumé.", "prix": 2.5, "populaire": false, "disponible": true, "image": "/images/menu/the-a-la-menthe.webp"},
+        {"ordre": 4, "nomFr": "Boisson gazeuse", "descriptionFr": "Boisson pétillante servie bien fraîche.", "prix": 3, "populaire": false, "disponible": true, "image": "/images/menu/boisson-gazeuse.webp"},
+        {"ordre": 5, "nomFr": "Eau minérale 0,5 L", "descriptionFr": "Eau minérale en petite bouteille de 0,5 L.", "prix": 1.5, "populaire": false, "disponible": true, "image": "/images/menu/eau-minerale.webp"}
       ]
     }
   ]

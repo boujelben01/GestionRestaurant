@@ -45,12 +45,12 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
     }
 
     public async Task<IReadOnlyList<TopArticleResponse>> TopArticlesAsync(
-        string? du, string? au, int? limite, string? lang, CancellationToken ct)
+        string? du, string? au, int? limite, CancellationToken ct)
     {
         var period = Resolve(du, au);
         var limit = Math.Clamp(limite ?? DefaultTopLimit, 1, MaxTopLimit);
         var items = await ItemsQuery(db, period.StartUtc(Zone), period.EndUtcExclusive(Zone)).ToListAsync(ct);
-        return StatsMath.TopArticles(items.Select(ToItem), limit, Langue.Normalize(lang));
+        return StatsMath.TopArticles(items.Select(ToItem), limit);
     }
 
     public async Task<IReadOnlyList<HeurePointeResponse>> HeuresDePointeAsync(string? du, string? au, CancellationToken ct)
@@ -60,7 +60,7 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
         return StatsMath.PeakHours(data.Orders, data.Items, Zone);
     }
 
-    public async Task<RepartitionResponse> RepartitionAsync(string? du, string? au, string? lang, CancellationToken ct)
+    public async Task<RepartitionResponse> RepartitionAsync(string? du, string? au, CancellationToken ct)
     {
         var period = Resolve(du, au);
         var data = await LoadAsync(period.StartUtc(Zone), period.EndUtcExclusive(Zone), includeUsers: false, ct);
@@ -71,8 +71,7 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
             data.Orders,
             data.Items,
             articles.ToDictionary(a => a.Id, a => a.CategorieId),
-            categories.ToDictionary(c => c.Id, c => new StatCategory(c.Id, c.NomFr, c.NomAr)),
-            Langue.Normalize(lang));
+            categories.ToDictionary(c => c.Id, c => new StatCategory(c.Id, c.NomFr)));
     }
 
     private sealed record Loaded(List<StatOrder> Orders, List<StatItem> Items, List<DateTime> NewUsers);
@@ -87,7 +86,7 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
     }
 
     private static StatItem ToItem(ItemRow i) => new(
-        i.CommandeId, i.DateCommande, i.Statut, i.TypeCommande, i.ArticleId, i.NomFr, i.NomAr, i.PrixUnitaire, i.Quantite);
+        i.CommandeId, i.DateCommande, i.Statut, i.TypeCommande, i.ArticleId, i.NomFr, i.PrixUnitaire, i.Quantite);
 
     // ---------------------------------------------------------------------------------------------
     // Requêtes (internal static) : sélections de colonnes filtrées AVANT projection, sans agrégat ni GroupBy,
@@ -111,7 +110,6 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
         public TypeCommande TypeCommande { get; init; }
         public int? ArticleId { get; init; }
         public string NomFr { get; init; } = string.Empty;
-        public string NomAr { get; init; } = string.Empty;
         public decimal PrixUnitaire { get; init; }
         public int Quantite { get; init; }
     }
@@ -126,7 +124,6 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
     {
         public int Id { get; init; }
         public string NomFr { get; init; } = string.Empty;
-        public string NomAr { get; init; } = string.Empty;
     }
 
     internal static IQueryable<OrderRow> OrdersQuery(AppDbContext db, DateTime startUtc, DateTime endUtc) =>
@@ -152,7 +149,6 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
                 TypeCommande = i.Commande.TypeCommande,
                 ArticleId = i.ArticleId,
                 NomFr = i.NomFr,
-                NomAr = i.NomAr,
                 PrixUnitaire = i.PrixUnitaire,
                 Quantite = i.Quantite
             });
@@ -161,7 +157,7 @@ public class StatistiquesService(AppDbContext db, TimeProvider time)
         db.Articles.AsNoTracking().Select(a => new ArticleCategoryRow { Id = a.Id, CategorieId = a.CategorieId });
 
     internal static IQueryable<CategoryRow> CategoriesQuery(AppDbContext db) =>
-        db.Categories.AsNoTracking().Select(c => new CategoryRow { Id = c.Id, NomFr = c.NomFr, NomAr = c.NomAr });
+        db.Categories.AsNoTracking().Select(c => new CategoryRow { Id = c.Id, NomFr = c.NomFr });
 
     /// <summary>Dates de création des comptes Client de la période (rôle Client, jamais les administrateurs).</summary>
     internal static IQueryable<DateTime> NewClientsQuery(AppDbContext db, DateTime startUtc, DateTime endUtc) =>

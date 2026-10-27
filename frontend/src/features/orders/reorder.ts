@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { fetchMenu } from '@/features/menu/api'
 import { api } from '@/lib/api'
-import type { Commande, Lang, MenuArticle, Panier } from '@/lib/types'
+import type { Commande, MenuArticle, Panier } from '@/lib/types'
 import { MAX_QUANTITY } from '@/features/cart/cartMath'
 
 export type SkipReason = 'unavailable' | 'removed' | 'error' | 'noArticle'
@@ -18,14 +18,10 @@ export interface ReorderResult {
  * seulement si l'article est encore au menu ET disponible. Le prix est celui d'aujourd'hui
  * (jamais celui de l'ancienne commande). Les lignes ajoutées une à une s'ajoutent à l'existant.
  */
-export async function reorder(
-  queryClient: QueryClient,
-  order: Commande,
-  lang: Lang,
-): Promise<ReorderResult> {
+export async function reorder(queryClient: QueryClient, order: Commande): Promise<ReorderResult> {
   const menu = await queryClient.fetchQuery({
-    queryKey: ['menu', lang],
-    queryFn: () => fetchMenu(lang),
+    queryKey: ['menu'],
+    queryFn: () => fetchMenu(),
     staleTime: 0,
   })
   const articles = new Map<number, MenuArticle>(
@@ -34,7 +30,7 @@ export async function reorder(
 
   const result: ReorderResult = { added: [], skipped: [], cart: null }
   for (const ligne of order.lignes) {
-    const nom = lang === 'ar' ? ligne.nomAr : ligne.nomFr
+    const nom = ligne.nomFr
     if (ligne.articleId === null) {
       result.skipped.push({ nom, reason: 'noArticle' })
       continue
@@ -49,11 +45,10 @@ export async function reorder(
       continue
     }
     try {
-      const { data } = await api.post<Panier>(
-        '/api/panier/items',
-        { articleId: ligne.articleId, quantite: Math.min(ligne.quantite, MAX_QUANTITY) },
-        { params: { lang } },
-      )
+      const { data } = await api.post<Panier>('/api/panier/items', {
+        articleId: ligne.articleId,
+        quantite: Math.min(ligne.quantite, MAX_QUANTITY),
+      })
       result.cart = data
       result.added.push({ nom: article.nom, quantite: ligne.quantite })
     } catch {

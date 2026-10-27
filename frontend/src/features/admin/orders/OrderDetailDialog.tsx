@@ -143,8 +143,7 @@ export function OrderDetailDialog({ order, onClose }: OrderDetailDialogProps) {
               {data.lignes.map((line, index) => (
                 <li key={index} className="flex items-baseline justify-between gap-3 py-2">
                   <span>
-                    <span className="tabular font-semibold">{line.quantite} ×</span>{' '}
-                    {lang === 'ar' ? line.nomAr : line.nomFr}
+                    <span className="tabular font-semibold">{line.quantite} ×</span> {line.nomFr}
                     <span className="tabular text-ink-500">
                       {' '}
                       ({formatPrice(line.prixUnitaire, lang)})

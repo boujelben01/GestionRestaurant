@@ -17,7 +17,6 @@ import {
   useToast,
 } from '@/components/ui'
 import { toAppError } from '@/lib/errors'
-import { useLang } from '@/lib/useLang'
 import type { AdminCategory } from '@/lib/types'
 import { adminErrorMessage } from '../adminErrors'
 import {
@@ -42,9 +41,8 @@ function CategoryDialog({
   const save = useSaveCategory()
   const [values, setValues] = useState({
     nomFr: category?.nomFr ?? '',
-    nomAr: category?.nomAr ?? '',
   })
-  const [errors, setErrors] = useState<Partial<Record<'nomFr' | 'nomAr', string>>>({})
+  const [errors, setErrors] = useState<Partial<Record<'nomFr', string>>>({})
   const [general, setGeneral] = useState<string>()
 
   const codeMessage = (code: MenuErrorCode) =>
@@ -66,10 +64,8 @@ function CategoryDialog({
     } catch (error) {
       const e = toAppError(error)
       const fields: typeof errors = {}
-      for (const key of ['nomFr', 'nomAr'] as const) {
-        const message = e.fieldError(key)
-        if (message) fields[key] = message
-      }
+      const message = e.fieldError('nomFr')
+      if (message) fields.nomFr = message
       if (e.status === 409) fields.nomFr = t('admin.menu.category.nameTaken')
       setErrors(fields)
       if (Object.keys(fields).length === 0) setGeneral(adminErrorMessage(error, t))
@@ -113,15 +109,6 @@ function CategoryDialog({
           required
           data-autofocus
         />
-        <Input
-          name="nomAr"
-          label={t('admin.menu.nameAr')}
-          value={values.nomAr}
-          onChange={(event) => setValues((v) => ({ ...v, nomAr: event.target.value }))}
-          error={errors.nomAr}
-          dir="rtl"
-          required
-        />
       </form>
     </Dialog>
   )
@@ -129,7 +116,6 @@ function CategoryDialog({
 
 export function CategoriesPanel() {
   const { t } = useTranslation()
-  const lang = useLang()
   const { toast } = useToast()
   const { data, isPending, isError, error, refetch, isFetching } = useAdminCategories()
   const reorder = useReorderCategories()
@@ -138,7 +124,7 @@ export function CategoriesPanel() {
   const [announcement, setAnnouncement] = useState('')
 
   const sorted = [...(data ?? [])].sort((a, b) => a.ordre - b.ordre)
-  const name = (c: AdminCategory) => (lang === 'ar' ? c.nomAr : c.nomFr)
+  const name = (c: AdminCategory) => c.nomFr
 
   const move = (index: number, delta: -1 | 1) => {
     const ids = sorted.map((c) => c.id)
@@ -195,9 +181,6 @@ export function CategoriesPanel() {
           >
             <div className="min-w-0">
               <p className="font-display text-lg font-semibold">{category.nomFr}</p>
-              <p dir="rtl" className="text-ink-700">
-                {category.nomAr}
-              </p>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <Badge tone={category.estActive ? 'olive' : 'neutral'}>
                   {category.estActive ? t('admin.common.active') : t('admin.common.inactive')}

@@ -7,7 +7,6 @@ import { useAuth } from '@/features/auth/AuthContext'
 import { AuthLayout, FormAlert, PasswordInput } from '@/features/auth/AuthLayout'
 import { describeFormError, safeRedirect } from '@/features/auth/authErrors'
 import { validateRegister, type FieldErrors } from '@/features/auth/validation'
-import { useLang } from '@/lib/useLang'
 
 type Field = 'nom' | 'email' | 'password' | 'telephone'
 const FIELDS = ['nom', 'email', 'password', 'telephone'] as const
@@ -15,7 +14,6 @@ const PASSWORD_MIN = 8
 
 export default function Register() {
   const { t } = useTranslation()
-  const lang = useLang()
   const { register, isAuthenticated } = useAuth()
   const { toast } = useToast()
   const location = useLocation()
@@ -57,7 +55,7 @@ export default function Register() {
         email: values.email.trim(),
         password: values.password,
         telephone: values.telephone.trim() || undefined,
-        langueFavorite: lang,
+        langueFavorite: 'fr',
       })
       toast(t('auth.welcome', { name: user.nom?.trim() || user.userName }), { variant: 'success' })
     } catch (error) {

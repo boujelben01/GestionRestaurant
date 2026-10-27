@@ -18,9 +18,7 @@ public class FavoriService(AppDbContext db)
         public int Id { get; init; }
         public int CategorieId { get; init; }
         public string NomFr { get; init; } = string.Empty;
-        public string NomAr { get; init; } = string.Empty;
         public string? DescriptionFr { get; init; }
-        public string? DescriptionAr { get; init; }
         public decimal Prix { get; init; }
         public string? ImageUrl { get; init; }
         public bool EstPopulaire { get; init; }
@@ -38,9 +36,7 @@ public class FavoriService(AppDbContext db)
                 Id = f.Article.Id,
                 CategorieId = f.Article.CategorieId,
                 NomFr = f.Article.NomFr,
-                NomAr = f.Article.NomAr,
                 DescriptionFr = f.Article.DescriptionFr,
-                DescriptionAr = f.Article.DescriptionAr,
                 Prix = f.Article.Prix,
                 ImageUrl = f.Article.ImageUrl,
                 EstPopulaire = f.Article.EstPopulaire,
@@ -54,15 +50,14 @@ public class FavoriService(AppDbContext db)
             .OrderByDescending(f => f.ArticleId)
             .Select(f => f.ArticleId);
 
-    public async Task<IReadOnlyList<FavoriResponse>> ListAsync(string userId, string? lang, CancellationToken ct)
+    public async Task<IReadOnlyList<FavoriResponse>> ListAsync(string userId, CancellationToken ct)
     {
-        var normalized = Langue.Normalize(lang);
         var rows = await ListQuery(db, userId).ToListAsync(ct);
         return rows.Select(r => new FavoriResponse(
             r.Id,
             r.CategorieId,
-            Langue.Pick(r.NomFr, r.NomAr, normalized),
-            Langue.PickOptional(r.DescriptionFr, r.DescriptionAr, normalized),
+            r.NomFr,
+            r.DescriptionFr,
             r.Prix,
             r.ImageUrl,
             r.EstPopulaire,

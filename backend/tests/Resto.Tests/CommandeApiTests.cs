@@ -56,10 +56,10 @@ public class CommandeApiTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         var (client, brik) = await ClientWithBrikAsync(2);
 
         await AddAsync(client, brik, 3);
-        var cart = await Json(await client.GetAsync("api/panier?lang=ar"));
+        var cart = await Json(await client.GetAsync("api/panier"));
         var ligne = Assert.Single(cart.GetProperty("lignes").EnumerateArray());
         Assert.Equal(5, ligne.GetProperty("quantite").GetInt32());
-        Assert.Equal("بريك", ligne.GetProperty("nom").GetString());
+        Assert.Equal("Brik", ligne.GetProperty("nom").GetString());
         Assert.Equal(17.5m, cart.GetProperty("sousTotal").GetDecimal());
         Assert.True(ligne.GetProperty("disponible").GetBoolean());
 

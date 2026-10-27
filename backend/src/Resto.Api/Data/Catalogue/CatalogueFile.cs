@@ -12,7 +12,6 @@ public sealed class CatalogueFile
 public sealed class CatalogueCategorie
 {
     public string? NomFr { get; init; }
-    public string? NomAr { get; init; }
     public int? Ordre { get; init; }
     public List<CatalogueArticle>? Articles { get; init; }
 }
@@ -21,9 +20,7 @@ public sealed class CatalogueArticle
 {
     public int? Ordre { get; init; }
     public string? NomFr { get; init; }
-    public string? NomAr { get; init; }
     public string? DescriptionFr { get; init; }
-    public string? DescriptionAr { get; init; }
     public decimal? Prix { get; init; }
     public bool? Populaire { get; init; }
     public bool? Disponible { get; init; }
