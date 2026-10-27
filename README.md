@@ -252,9 +252,9 @@ Routes du client connecté (jeton obligatoire, 401 sinon). **L'identité est tou
 
 ## Catalogue international
 
-`docs/catalogue.json` décrit 5 catégories de 5 plats chacune (structure `{ categories: [ { nomFr, nomAr, ordre, articles: [...] } ] }`, `ordre` 1 à 5 dans la catégorie, prix en DT) : Entrées et salades, Burgers et sandwichs, Pizzas et pâtes, Desserts, Boissons. Chaque article a `nomFr`, `nomAr`, `descriptionFr`, `descriptionAr`, `prix`, `populaire`, `disponible` et `image`. C'est une source de données documentaire : le seed (`DbSeeder`) ne la lit pas et garde son propre catalogue.
+`docs/catalogue.json` décrit 5 catégories de 5 plats chacune (structure `{ categories: [ { nomFr, nomAr, ordre, articles: [...] } ] }`, `ordre` 1 à 5 dans la catégorie, prix en DT ; l'`ordre` des catégories est croissant, Boissons = 9) : Entrées et salades, Burgers et sandwichs, Pizzas et pâtes, Desserts, Boissons. Chaque article a `nomFr`, `nomAr`, `descriptionFr`, `descriptionAr`, `prix`, `populaire`, `disponible` et `image`. C'est une source de données documentaire : le seed (`DbSeeder`) ne la lit pas et garde son propre catalogue.
 
-- Images : 25 photos WebP (800 px, moins de 150 Ko) dans `frontend/public/images/menu/`, une par plat, toutes issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Un champ `image` peut valoir `null` (l'interface affiche alors `/images/default.svg`).
+- Images : 25 photos WebP (hors milkshake.webp, conservé mais non référencé) (800 px, moins de 150 Ko) dans `frontend/public/images/menu/`, une par plat, toutes issues de l'API Unsplash (clé dans `UNSPLASH_ACCESS_KEY`, jamais committée). Origine, auteur et licence : `docs/images-credits.md`. Un champ `image` peut valoir `null` (l'interface affiche alors `/images/default.svg`).
 - Vérification visuelle : ouvrir `docs/planche-contact.html`.
 - Validation : `cd frontend; npx vitest run dev-mocks/catalogue.test.mjs` (structure, 25 articles, noms uniques, prix >= 0, textes FR/AR, existence et poids des images non nulles).
 

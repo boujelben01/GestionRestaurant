@@ -41,11 +41,11 @@
       ]
     },
     {
-      "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 5,
+      "nomFr": "Boissons", "nomAr": "المشروبات", "ordre": 9,
       "articles": [
         {"ordre":1,"nomFr":"Jus d'orange pressé","nomAr":"عصير برتقال","descriptionFr":"Oranges pressées au moment de servir, un jus frais et naturel.","descriptionAr":"برتقال معصور في الحين، عصير طازج وبارد.","prix":5,"populaire":true,"disponible":true,"image":"/images/menu/jus-orange-presse.webp"},
-        {"ordre":2,"nomFr":"Citronnade","nomAr":"ليمونادة","descriptionFr":"Citrons pressés, eau fraîche et sucre pour une boisson désaltérante.","descriptionAr":"ليمون معصور مع الما الباردة والسكر، منعش.","prix":4,"populaire":false,"disponible":true,"image":"/images/menu/citronnade.webp"},
-        {"ordre":3,"nomFr":"Milkshake","nomAr":"ميلك شيك","descriptionFr":"Glace mixée avec du lait, onctueux et bien frais.","descriptionAr":"مثلجات مخفوقة مع الحليب، ناعمة وباردة.","prix":6.5,"populaire":false,"disponible":true,"image":"/images/menu/milkshake.webp"},
+        {"ordre":2,"nomFr":"Citronnade","nomAr":"ليمونادة","descriptionFr":"Citrons pressés, eau fraîche et sucre pour une boisson désaltérante.","descriptionAr":"ليمون معصور مع الماء البارد والسكر، منعش.","prix":4,"populaire":false,"disponible":true,"image":"/images/menu/citronnade.webp"},
+        {"ordre":3,"nomFr":"Thé à la menthe","nomAr":"شاي بالنعناع","descriptionFr":"Thé infusé à la menthe fraîche, servi bien chaud et parfumé.","descriptionAr":"شاي بالنعناع الطازج، سخون ومعطّر.","prix":2.5,"populaire":false,"disponible":true,"image":"/images/menu/the-a-la-menthe.webp"},
         {"ordre":4,"nomFr":"Boisson gazeuse","nomAr":"مشروب غازي","descriptionFr":"Boisson pétillante servie bien fraîche.","descriptionAr":"مشروب غازي بارد.","prix":3,"populaire":false,"disponible":true,"image":"/images/menu/boisson-gazeuse.webp"},
         {"ordre":5,"nomFr":"Eau minérale 0,5 L","nomAr":"ماء","descriptionFr":"Eau minérale en petite bouteille de 0,5 L.","descriptionAr":"ماء معدني في قارورة صغيرة، نصف لتر.","prix":1.5,"populaire":false,"disponible":true,"image":"/images/menu/eau-minerale.webp"}
       ]

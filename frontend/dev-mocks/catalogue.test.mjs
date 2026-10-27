@@ -8,7 +8,7 @@ const articles = categories.flatMap((c) => c.articles)
 const seq = (n) => Array.from({ length: n }, (_, i) => i + 1)
 
 describe('docs/catalogue.json', () => {
-  it('contient 5 catégories ordonnées de 1 à 5, avec noms FR et AR', () => {
+  it('contient 5 catégories à ordre croissant et unique (Boissons = 9), avec noms FR et AR', () => {
     expect(categories.map((c) => c.nomFr)).toEqual([
       'Entrées et salades',
       'Burgers et sandwichs',
@@ -16,7 +16,7 @@ describe('docs/catalogue.json', () => {
       'Desserts',
       'Boissons',
     ])
-    expect(categories.map((c) => c.ordre)).toEqual(seq(5))
+    expect(categories.map((c) => c.ordre)).toEqual([1, 2, 3, 4, 9])
     for (const c of categories) expect(c.nomAr?.trim(), c.nomFr).toBeTruthy()
   })
 
@@ -45,6 +45,11 @@ describe('docs/catalogue.json', () => {
       expect(a.nomAr, a.nomFr).toMatch(/[؀-ۿ]/)
       expect(a.descriptionAr, a.nomFr).toMatch(/[؀-ۿ]/)
     }
+  })
+
+  it('a des noms uniques par catégorie', () => {
+    for (const c of categories)
+      expect(new Set(c.articles.map((a) => a.nomFr)).size, c.nomFr).toBe(c.articles.length)
   })
 
   it('marque seules les lasagnes indisponibles', () => {

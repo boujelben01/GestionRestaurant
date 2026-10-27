@@ -26,8 +26,9 @@ Photos téléchargées via l'API officielle d'Unsplash (site : unsplash.com), co
 | frontend/public/images/menu/glace.webp | Glace trois boules | Oddfellows Ice Cream | https://unsplash.com/photos/three-scoops-of-ice-cream-in-a-bowl-on-a-yellow-background-skOe_mh7UPk | Unsplash | Unsplash License |
 | frontend/public/images/menu/jus-orange-presse.webp | Jus d'orange pressé | Mateusz Feliksik | https://unsplash.com/photos/orange-juice-in-clear-drinking-glass-TmOGarNOGFs | Unsplash | Unsplash License |
 | frontend/public/images/menu/citronnade.webp | Citronnade | Francesca Hotchin | https://unsplash.com/photos/lime-juice-on-drinking-glass-beside-sliced-limes-p5EiqkBYIEE | Unsplash | Unsplash License |
-| frontend/public/images/menu/milkshake.webp | Milkshake | Sebastian Coman Photography | https://unsplash.com/photos/strawberry-shake-in-clear-drinking-glass-rwBJaJdesGg | Unsplash | Unsplash License |
+| frontend/public/images/menu/the-a-la-menthe.webp | Thé à la menthe | Jonathan Pielmayer | https://unsplash.com/photos/three-clear-glass-mugs-with-brown-liquid-J2pQH8r7WBc | Unsplash | Unsplash License |
+| frontend/public/images/menu/milkshake.webp | Milkshake (non référencé par le catalogue, fichier conservé) | Sebastian Coman Photography | https://unsplash.com/photos/strawberry-shake-in-clear-drinking-glass-rwBJaJdesGg | Unsplash | Unsplash License |
 | frontend/public/images/menu/boisson-gazeuse.webp | Boisson gazeuse | K8 | https://unsplash.com/photos/clear-drinking-glass-with-brown-liquid-hJJAyrscf_A | Unsplash | Unsplash License |
 | frontend/public/images/menu/eau-minerale.webp | Eau minérale 0,5 L | Steve A Johnson | https://unsplash.com/photos/clear-drinking-bottle-filled-with-water-N-MqWXXZvNY | Unsplash | Unsplash License |
 
-Les images issues des catalogues précédents (baklawa, thé à la menthe, cafés, jus de fruits, salade de fruits) ont été supprimées avec leurs articles.
+Les images issues des catalogues précédents (baklawa, cafés, jus de fruits, salade de fruits) ont été supprimées avec leurs articles. L'image du thé à la menthe a été restaurée depuis l'historique git (commit f17b12c).
