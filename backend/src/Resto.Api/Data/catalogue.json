@@ -56,7 +56,13 @@
     },
     {
       "nomFr": "Tabouna", "nomAr": "طابونة", "ordre": 6,
-      "articles": []
+      "articles": [
+        {"ordre": 1, "nomFr": "Tabouna poulet", "nomAr": "طابونة دجاج", "descriptionFr": "Pain tabouna cuit au four, garni de poulet, fromage, frites, salade et sauce.", "descriptionAr": "خبز طابونة مخبوز في الفرن بالدجاج والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 8.5, "populaire": true, "disponible": true, "image": "/images/menu/tabouna-poulet.webp"},
+        {"ordre": 2, "nomFr": "Tabouna escalope", "nomAr": "طابونة إسكالوب", "descriptionFr": "Pain tabouna cuit au four, garni d'escalope de poulet panée, fromage, frites et salade.", "descriptionAr": "خبز طابونة مخبوز في الفرن بإسكالوب دجاج بانيه والجبن والبطاطا المقلية والسلاطة.", "prix": 9, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 3, "nomFr": "Tabouna cordon bleu", "nomAr": "طابونة كوردون بلو", "descriptionFr": "Pain tabouna cuit au four, garni de cordon bleu, fromage, frites, salade et sauce.", "descriptionAr": "خبز طابونة مخبوز في الفرن بكوردون بلو والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 9.5, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 4, "nomFr": "Tabouna viande hachée", "nomAr": "طابونة لحم مفروم", "descriptionFr": "Pain tabouna cuit au four, garni de viande hachée, fromage, frites, salade et sauce.", "descriptionAr": "خبز طابونة مخبوز في الفرن باللحم المفروم والجبن والبطاطا المقلية والسلاطة والصلصة.", "prix": 9, "populaire": false, "disponible": true, "image": null},
+        {"ordre": 5, "nomFr": "Tabouna thon", "nomAr": "طابونة تون", "descriptionFr": "Pain tabouna cuit au four, garni de thon, fromage, salade, olives et harissa.", "descriptionAr": "خبز طابونة مخبوز في الفرن بالتون والجبن والسلاطة والزيتون والهريسة.", "prix": 7.5, "populaire": false, "disponible": true, "image": null}
+      ]
     },
     {
       "nomFr": "Cornet", "nomAr": "كورني", "ordre": 7,
